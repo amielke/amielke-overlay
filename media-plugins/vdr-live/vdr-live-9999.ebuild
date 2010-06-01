@@ -4,8 +4,8 @@
 
 inherit git  vdr-plugin
 
-MY_PV=$(get_version_component_range 4)
-MY_P="${PN}-${MY_PV}"
+#MY_PV=$(get_version_component_range 1)
+#MY_P="${PN}-${MY_PV}"
 
 DESCRIPTION="VDR Plugin: Web Access To Settings"
 HOMEPAGE="http://live.vdr-developer.org"
