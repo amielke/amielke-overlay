@@ -1,0 +1,109 @@
+# ChangeLog for media-plugins/vdr-live
+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-plugins/vdr-live/ChangeLog,v 1.20 2010/01/03 20:13:02 hd_brummy Exp $
+
+  03 Jan 2010; Joerg Bornkessel <hd_brummy@gentoo.org>
+  vdr-live-0.2.0.ebuild:
+  added info for login:pass on first install
+
+  18 Nov 2009; Matthias Schwarzott <zzam@gentoo.org> vdr-live-0.2.0.ebuild:
+  boost is no RDEPEND, Bug #293073.
+
+  21 Mar 2009; Matthias Schwarzott <zzam@gentoo.org>
+  vdr-live-0.1.0.20071111.ebuild, vdr-live-0.1.0.20080316.ebuild,
+  vdr-live-0.1.0.20080330.ebuild, vdr-live-0.1.0.20080407.ebuild,
+  vdr-live-0.2.0.ebuild:
+  Make repoman happy and assign RDEPEND
+
+  26 Jul 2008; Matthias Schwarzott <zzam@gentoo.org> vdr-live-0.2.0.ebuild:
+  Make it compile with sh not being bash.
+
+*vdr-live-0.2.0 (01 May 2008)
+
+  01 May 2008; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +vdr-live-0.2.0.ebuild:
+  version bump
+
+*vdr-live-0.1.0.20080407 (07 Apr 2008)
+
+  07 Apr 2008; Matthias Schwarzott <zzam@gentoo.org>
+  +vdr-live-0.1.0.20080407.ebuild:
+  Added new snapshot.
+
+*vdr-live-0.1.0.20080330 (30 Mar 2008)
+
+  30 Mar 2008; Matthias Schwarzott <zzam@gentoo.org>
+  +vdr-live-0.1.0.20080330.ebuild:
+  Added new snapshot.
+
+  17 Mar 2008; Matthias Schwarzott <zzam@gentoo.org>
+  vdr-live-0.1.0.20080316.ebuild:
+  Newest snapshot also works with tntnet-1.6.1
+
+*vdr-live-0.1.0.20080316 (16 Mar 2008)
+
+  16 Mar 2008; Joerg Bornkessel <hd_brummy@gentoo.org>
+  -files/vdr-live-content-type.diff, +vdr-live-0.1.0.20080316.ebuild:
+  version bump; rm unnedded patch
+
+  23 Jan 2008; Joerg Bornkessel <hd_brummy@gentoo.org>
+  vdr-live-0.1.0.20071111.ebuild:
+  ~amd64 added
+
+  23 Jan 2008; Matthias Schwarzott <zzam@gentoo.org>
+  vdr-live-0.1.0.20071111.ebuild:
+  Adjust tntnet dependency, as vdr-live does not compile with tntnet-1.6.1
+
+  11 Nov 2007; Joerg Bornkessel <hd_brummy@gentoo.org>
+  -files/0.1.0/linking.diff, -files/0.1.0/series,
+  -files/0.1.0/vdr-live-0.1.0_vdr-1.5.3-compile.diff,
+  -files/0.1.0/new-tntnet.diff, -files/0.1.0/timerdelete.diff,
+  -vdr-live-0.1.0.ebuild, -vdr-live-0.1.0-r1.ebuild,
+  -vdr-live-0.1.0.20070704.ebuild, -vdr-live-0.1.0.20070919.ebuild:
+  cleanup old versions
+
+*vdr-live-0.1.0.20071111 (11 Nov 2007)
+
+  11 Nov 2007; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +vdr-live-0.1.0.20071111.ebuild:
+  new cvs snapshot
+
+*vdr-live-0.1.0.20070919 (19 Sep 2007)
+
+  19 Sep 2007; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +vdr-live-0.1.0.20070919.ebuild:
+  new cvs snapshot, fixed language problem with vdr-1.5.8
+
+*vdr-live-0.1.0.20070704 (06 Jul 2007)
+
+  06 Jul 2007; Matthias Schwarzott <zzam@gentoo.org>
+  +files/vdr-live-content-type.diff, +vdr-live-0.1.0.20070704.ebuild:
+  Added a cvs snapshot. Added patch to make live send correct character
+  encoding to the browser.
+
+  26 Jun 2007; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +files/0.1.0/vdr-live-0.1.0_vdr-1.5.3-compile.diff,
+  vdr-live-0.1.0-r1.ebuild:
+  patch added, fix for compile probs >= vdr-1.5.3
+
+*vdr-live-0.1.0-r1 (01 Jun 2007)
+
+  01 Jun 2007; Matthias Schwarzott <zzam@gentoo.org> files/0.1.0/series,
+  +files/0.1.0/timerdelete.diff, +vdr-live-0.1.0-r1.ebuild:
+  Added patch against deleting active timers crashing vdr.
+
+  29 May 2007; Matthias Schwarzott <zzam@gentoo.org>
+  files/0.1.0/linking.diff, vdr-live-0.1.0.ebuild:
+  Corrected parallel make problem.
+
+  29 May 2007; Matthias Schwarzott <zzam@gentoo.org> +files/confd,
+  +files/rc-addon.sh:
+  Added plugin configuration
+
+*vdr-live-0.1.0 (29 May 2007)
+
+  29 May 2007; Matthias Schwarzott <zzam@gentoo.org>
+  +files/0.1.0/linking.diff, +files/0.1.0/new-tntnet.diff,
+  +files/0.1.0/series, +metadata.xml, +vdr-live-0.1.0.ebuild:
+  Initial import of ebuild.
+

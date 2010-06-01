@@ -1,0 +1,36 @@
+--- icons.h.orig	2008-11-04 19:05:45.000000000 +0100
++++ icons.h	2008-11-04 19:06:00.000000000 +0100
+@@ -9,13 +9,16 @@
+   public:
+     static void InitCharSet();
+     // symbols for menu
+-    static const char* Menu_Full_Star()   {return IsUTF8?"\uE0C3":"\x93";}  //ok
+-    static const char* Menu_Half_Star()   {return IsUTF8?"\uE0C4":"\x94";}  //ok
+-    static const char* Menu_Bomb()        {return IsUTF8?"\uE0C5":"\x95";}  //ok
+-    static const char* Menu_Note()        {return IsUTF8?"\uE0C6":"\x96";}  //ok
++
++    static const char* Menu_Full_Star()   {return IsUTF8?"\uE018":"\x98";}  //ok
++    static const char* Menu_Half_Star()   {return IsUTF8?"\uE019":"\x99";}  //ok
++    static const char* Menu_Bomb()        {return IsUTF8?"\uE01A":"\x9A";}  //ok
++    static const char* Menu_Note()        {return IsUTF8?"\uE01B":"\x9B";}  //ok
+     static const char* Menu_Folder()      {return IsUTF8?"\uE002":"\x82";}  //ok
+-    static const char* Menu_Checkbox()    {return IsUTF8?"\uE0C1":"\x97";}  //ok
+-    static const char* Menu_CheckedBox()  {return IsUTF8?"\uE0C2":"\x98";}  //ok
++    static const char* Menu_Checkbox()    {return IsUTF8?"\uE016":"\x96";}  //ok
++    static const char* Menu_CheckedBox()  {return IsUTF8?"\uE017":"\x97";}  //ok
++
++
+     //symbols for OSD
+     static const char* OSD_Shuffle()      {return IsUTF8?"\uE056":"\x01";}  //ok
+     static const char* OSD_Replay()       {return IsUTF8?"\uE057":"\x02";}  //ok
+@@ -27,10 +30,6 @@
+     static const char* OSD_Volume()       {return IsUTF8?"\uE061":"\x08";}  //ok
+     static const char* OSD_Mute()         {return IsUTF8?"\uE062":"\x09";}  //ok
+ 
+-//    static const char* (){return IsUTF8?"\ue00f":"\x8f";}
+-//    static const char* (){return IsUTF8?"\ue010":"\x90";}
+-//    static const char* (){return IsUTF8?"\ue011":"\x91";}
+-//    static const char* (){return IsUTF8?"\ue012":"\x92";}
+ };
+ 
+ #endif //__ICONS_H

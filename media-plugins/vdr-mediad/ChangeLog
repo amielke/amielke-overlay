@@ -1,0 +1,9 @@
+# ChangeLog for media-plugins/vdr-mediad
+# Copyright 1999-2008 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  26 Mar 2008; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +vdr-mediad-0.1.0.ebuild, +files/vdr-mediad-0.1.0-gentoo.diff,
+  +files/rc-addon.sh, +metadata.xml:
+  initial ebuild; untested; sys-apps/pmount need to be patched; details in README
+

@@ -1,0 +1,58 @@
+diff -Naur music-0.4.0-b1/config.c music-0.4.0-b1.new/config.c
+--- music-0.4.0-b1/config.c	2008-05-07 00:34:18.000000000 +0200
++++ music-0.4.0-b1.new/config.c	2008-05-21 20:10:41.000000000 +0200
+@@ -3,7 +3,7 @@
+  * See the README file for copyright information and how to reach the author.
+  *
+  */
+-
++#include <algorithm>
+ #include <vdr/font.h>
+ #include "config.h"
+ 
+diff -Naur music-0.4.0-b1/icons.c music-0.4.0-b1.new/icons.c
+--- music-0.4.0-b1/icons.c	2008-05-06 14:18:15.000000000 +0200
++++ music-0.4.0-b1.new/icons.c	2008-05-21 20:04:13.000000000 +0200
+@@ -1,3 +1,4 @@
++#include <langinfo.h>
+ #include <string>
+ #include <vdr/plugin.h>
+ #include "icons.h"
+diff -Naur music-0.4.0-b1/imagecache.h music-0.4.0-b1.new/imagecache.h
+--- music-0.4.0-b1/imagecache.h	2008-02-20 15:05:22.000000000 +0100
++++ music-0.4.0-b1.new/imagecache.h	2008-05-21 19:59:26.000000000 +0200
+@@ -19,21 +19,21 @@
+ 
+ 	item_map   mItems;
+ 	usage_list mUsage;
+-	uint       mMaxItems;
++	unsigned       mMaxItems;
+ 
+ protected:
+ 	virtual void DeleteObject(const key_type &Key, data_type &Data) = 0;
+ 	virtual void ResetObject(data_type &Data) = 0;
+ 
+ public:
+-	cxCache(uint MaxItems);
++	cxCache(unsigned MaxItems);
+ 	virtual ~cxCache();
+ 
+ 	void Reset(void);
+ 	void Flush(void);
+ 	bool Contains(const key_type &Key);
+ 	data_type &operator[](const key_type &Key);
+-	uint Count(void) { return mUsage.size(); }
++	unsigned Count(void) { return mUsage.size(); }
+ };
+ 
+ template<class key_type, class data_type>
+@@ -43,7 +43,7 @@
+ }
+ 
+ template<class key_type, class data_type>
+-cxCache<key_type, data_type>::cxCache(uint MaxItems) 
++cxCache<key_type, data_type>::cxCache(unsigned MaxItems) 
+ {
+ 	mMaxItems = MaxItems;
+ }
+

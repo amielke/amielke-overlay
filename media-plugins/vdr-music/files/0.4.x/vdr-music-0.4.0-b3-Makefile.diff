@@ -1,0 +1,11 @@
+--- Makefile.orig       2008-11-03 21:21:34.000000000 +0100
++++ Makefile    2008-11-03 21:23:21.000000000 +0100
+@@ -69,7 +69,7 @@
+ APIVERSION = $(shell sed -ne '/define APIVERSION/s/^.*"\(.*\)".*$$/\1/p' $(VDRDIR)/config.h)
+
+ ### Test whether VDR has locale support
+-VDRLOCALE = $(shell grep '^LOCALEDIR' $(VDRDIR)/Makefile)
++VDRLOCALE = $(shell grep '^LOCDIR' $(VDRDIR)/Make.config)
+
+ ### The name of the distribution archive:
+
