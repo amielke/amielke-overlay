@@ -25,9 +25,6 @@
  	
  	src_unpack() {
  	unpack ${A}
- 	if has_version ">=sys-devel/gcc-4.1*" ; then
- 	epatch $FILESDIR/gcc-4.1.patch
- 	fi
  	}
  	
  	src_compile() {
