@@ -1,0 +1,33 @@
+From d59039451bef8d9cff61e65c51cf2ec9bfa14eef Mon Sep 17 00:00:00 2001
+From: Alexia Death <alexiadeath@gmail.com>
+Date: Sat, 26 Dec 2009 01:00:59 +0200
+Subject: [PATCH] Fix a segfault that occured if a scan was shorter than 8 lines.
+
+This segfault was caused by proceding to free the conversion result without
+checking for an error condition in image to print data conversion.
+---
+ libfprint/imgdev.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/libfprint/imgdev.c b/libfprint/imgdev.c
+index 4b49c73..a892665 100644
+--- a/libfprint/imgdev.c
++++ b/libfprint/imgdev.c
+@@ -228,8 +228,13 @@ void fpi_imgdev_image_captured(struct fp_img_dev *imgdev, struct fp_img *img)
+ 
+ 	fp_img_standardize(img);
+ 	imgdev->acquire_img = img;
+-	fpi_img_to_print_data(imgdev, img, &print);
+-	if (img->minutiae->num < MIN_ACCEPTABLE_MINUTIAE) {
++	r = fpi_img_to_print_data(imgdev, img, &print);
++	if (r < 0) {
++	 	fp_dbg("image to print data conversion error: %d", r);
++		imgdev->action_result = FP_ENROLL_RETRY;
++		goto next_state;
++	}
++	else if (img->minutiae->num < MIN_ACCEPTABLE_MINUTIAE) {
+ 		fp_dbg("not enough minutiae, %d/%d", img->minutiae->num,
+ 			MIN_ACCEPTABLE_MINUTIAE);
+ 		fp_print_data_free(print);
+-- 
+1.6.3.3

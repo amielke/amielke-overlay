@@ -1,0 +1,49 @@
+From a190a2ee2e21b794596979d1e19eb555ab5ceb91 Mon Sep 17 00:00:00 2001
+From: Alexia Death <alexiadeath@gmail.com>
+Date: Sat, 26 Dec 2009 17:02:03 +0200
+Subject: [PATCH 1/2] Dont consider the scan complete unless there is atleast MIN_ROWS of print or a long gap
+
+Typical problem spot: one brief touch before starting the actual scan.
+Happens most commonly if scan is started form before first joint
+resulting in a gap after inital touch.
+---
+ libfprint/drivers/upeksonly.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/libfprint/drivers/upeksonly.c b/libfprint/drivers/upeksonly.c
+index ff2cb5a..09763f7 100644
+--- a/libfprint/drivers/upeksonly.c
++++ b/libfprint/drivers/upeksonly.c
+@@ -31,6 +31,7 @@
+ #define IMG_WIDTH 288
+ #define NUM_BULK_TRANSFERS 24
+ #define MAX_ROWS 700
++#define MIN_ROWS 64
+ 
+ struct img_transfer_data {
+ 	int idx;
+@@ -219,13 +220,20 @@ static void row_complete(struct fp_img_dev *dev)
+ 		int total;
+ 
+ 		compute_rows(lastrow, sdev->rowbuf, &diff, &total);
++
+ 		if (total < 52000) {
+ 			sdev->num_blank = 0;
+ 		} else {
+ 			sdev->num_blank++;
+-			if (sdev->num_blank > 500) {
++			/* Dont consider the scan complete unless theres atleast MIN_ROWS recorded.
++			 * or very long blank read occured.
++			 *
++			 * Typical problem spot: one brief touch before starting the actual scan.
++			 * Happens most commonly if scan is started form before first joint
++			 * resulting in a gap after inital touch.*/
++			if ((sdev->num_blank > 500) && ((sdev->num_rows > MIN_ROWS) || (sdev->num_blank > 5000))) {
+ 				sdev->finger_removed = 1;
+-				fp_dbg("detected finger removal");
++				fp_dbg("detected finger removal. Blank rows: %d, Full rows: %d", sdev->num_blank, sdev->num_rows);
+ 				handoff_img(dev);
+ 				return;
+ 			}
+-- 
+1.6.3.3

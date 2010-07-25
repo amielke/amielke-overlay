@@ -1,0 +1,226 @@
+From 2028670e54184aa57a30b7b800ae19671db5deb9 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 29 Oct 2008 12:53:24 +0000
+Subject: [PATCH] Add gdk-pixbuf support
+
+When imaging support is required, we prefer to use gdk-pixbuf,
+as it's already on things like Live CDs.
+Also fix the examples building against the system libfprint.
+---
+ configure.ac          |   30 ++++++++++++----
+ examples/Makefile.am  |   10 +++---
+ libfprint/Makefile.am |   10 ++++-
+ libfprint/gdkpixbuf.c |   88 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 123 insertions(+), 15 deletions(-)
+ create mode 100644 libfprint/gdkpixbuf.c
+
+diff --git a/examples/Makefile.am b/examples/Makefile.am
+index eb6dedb..3f89134 100644
+--- a/examples/Makefile.am
++++ b/examples/Makefile.am
+@@ -2,22 +2,22 @@ INCLUDES = -I$(top_srcdir)
+ noinst_PROGRAMS = verify_live enroll verify img_capture
+ 
+ verify_live_SOURCES = verify_live.c
+-verify_live_LDADD = ../libfprint/libfprint.la -lfprint
++verify_live_LDADD = ../libfprint/libfprint.la
+ 
+ enroll_SOURCES = enroll.c
+-enroll_LDADD = ../libfprint/libfprint.la -lfprint
++enroll_LDADD = ../libfprint/libfprint.la
+ 
+ verify_SOURCES = verify.c
+-verify_LDADD = ../libfprint/libfprint.la -lfprint
++verify_LDADD = ../libfprint/libfprint.la
+ 
+ img_capture_SOURCES = img_capture.c
+-img_capture_LDADD = ../libfprint/libfprint.la -lfprint
++img_capture_LDADD = ../libfprint/libfprint.la
+ 
+ if BUILD_X11_EXAMPLES
+ noinst_PROGRAMS += img_capture_continuous
+ 
+ img_capture_continuous_CFLAGS = $(X_CFLAGS) $(XV_CFLAGS)
+ img_capture_continuous_SOURCES = img_capture_continuous.c
+-img_capture_continuous_LDADD = ../libfprint/libfprint.la -lfprint $(X_LIBS) $(X_PRE_LIBS) $(XV_LIBS) -lX11 $(X_EXTRA_LIBS);
++img_capture_continuous_LDADD = ../libfprint/libfprint.la $(X_LIBS) $(X_PRE_LIBS) $(XV_LIBS) -lX11 $(X_EXTRA_LIBS);
+ endif
+ 
+diff --git a/libfprint/Makefile.am b/libfprint/Makefile.am
+index 844b09e..0ffa0f6 100644
+--- a/libfprint/Makefile.am
++++ b/libfprint/Makefile.am
+@@ -92,8 +92,14 @@ endif
+ 
+ if REQUIRE_IMAGEMAGICK
+ OTHER_SRC += imagemagick.c
+-libfprint_la_CFLAGS += $(IMAGEMAGICK_CFLAGS)
+-libfprint_la_LIBADD += $(IMAGEMAGICK_LIBS)
++libfprint_la_CFLAGS += $(IMAGING_CFLAGS)
++libfprint_la_LIBADD += $(IMAGING_LIBS)
++endif
++
++if REQUIRE_GDKPIXBUF
++OTHER_SRC += gdkpixbuf.c
++libfprint_la_CFLAGS += $(IMAGING_CFLAGS)
++libfprint_la_LIBADD += $(IMAGING_LIBS)
+ endif
+ 
+ if REQUIRE_AESLIB
+diff --git a/libfprint/gdkpixbuf.c b/libfprint/gdkpixbuf.c
+new file mode 100644
+index 0000000..7ffc099
+--- /dev/null
++++ b/libfprint/gdkpixbuf.c
+@@ -0,0 +1,88 @@
++/*
++ * Imaging utility functions for libfprint
++ * Copyright (C) 2007-2008 Daniel Drake <dsd@gentoo.org>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <errno.h>
++#include <gdk-pixbuf/gdk-pixbuf.h>
++
++#include "fp_internal.h"
++
++struct fp_img *fpi_im_resize(struct fp_img *img, unsigned int factor)
++{
++	int new_width = img->width * factor;
++	int new_height = img->height * factor;
++	GdkPixbuf *orig, *resized;
++	struct fp_img *newimg;
++	guchar *pixels;
++	guint y;
++	int rowstride;
++
++	g_type_init ();
++
++	/* It is possible to implement resizing using a simple algorithm, however
++	 * we use gdk-pixbuf because it applies some kind of smoothing to the
++	 * result, which improves matching performances in my experiments. */
++
++	/* Create the original pixbuf, and fill it in from the grayscale data */
++	orig = gdk_pixbuf_new (GDK_COLORSPACE_RGB,
++			       FALSE,
++			       8,
++			       img->width,
++			       img->height);
++	rowstride = gdk_pixbuf_get_rowstride (orig);
++	pixels = gdk_pixbuf_get_pixels (orig);
++	for (y = 0; y < img->height; y++) {
++		guint x;
++		for (x = 0; x < img->width; x++) {
++			guchar *p, *r;
++
++			p = pixels + y * rowstride + x * 3;
++			r = img->data + y * img->width + x;
++			p[0] = r[0];
++			p[1] = r[0];
++			p[2] = r[0];
++		}
++	}
++
++	/* Resize the pixbuf, and create the new fp_img */
++	resized = gdk_pixbuf_scale_simple (orig, new_width, new_height, GDK_INTERP_HYPER);
++	g_object_unref (orig);
++
++	newimg = fpi_img_new(new_width * new_height);
++	newimg->width = new_width;
++	newimg->height = new_height;
++	newimg->flags = img->flags;
++
++	rowstride = gdk_pixbuf_get_rowstride (resized);
++	pixels = gdk_pixbuf_get_pixels (resized);
++	for (y = 0; y < newimg->height; y++) {
++		guint x;
++		for (x = 0; x < newimg->width; x++) {
++			guchar *p, *r;
++
++			r = img->data + y * img->width + x;
++			p = pixels + y * rowstride + x * 3;
++			r[0] = p[0];
++		}
++	}
++
++	g_object_unref (resized);
++
++	return newimg;
++}
++
+-- 
+1.6.0.3
+
+--- a/configure.ac.orig	2010-05-10 15:43:54.841606607 -0400
++++ b/configure.ac	2010-05-10 16:06:17.632485969 -0400
+@@ -21,7 +21,7 @@
+ 
+ all_drivers="upekts upektc upeksonly vcom5s uru4000 fdu2000 aes1610 aes2501 aes4000"
+ 
+-require_imagemagick='no'
++require_imaging='no'
+ require_aeslib='no'
+ enable_upeke2='no'
+ enable_upekts='no'
+@@ -82,7 +82,7 @@
+ 		aes4000)
+ 			AC_DEFINE([ENABLE_AES4000], [], [Build AuthenTec AES4000 driver])
+ 			require_aeslib="yes"
+-			require_imagemagick="yes"
++			require_imaging="yes"
+ 			enable_aes4000="yes"
+ 		;;
+ 	esac
+@@ -98,7 +98,6 @@
+ #AM_CONDITIONAL([ENABLE_AES1610], [test "$enable_aes1610" != "no"])
+ AM_CONDITIONAL([ENABLE_AES2501], [test "$enable_aes2501" != "no"])
+ AM_CONDITIONAL([ENABLE_AES4000], [test "$enable_aes4000" != "no"])
+-AM_CONDITIONAL([REQUIRE_IMAGEMAGICK], [test "$require_imagemagick" != "no"])
+ AM_CONDITIONAL([REQUIRE_AESLIB], [test "$require_aeslib" != "no"])
+ 
+ 
+@@ -115,11 +114,26 @@
+ AC_SUBST(GLIB_CFLAGS)
+ AC_SUBST(GLIB_LIBS)
+ 
+-if test "$require_imagemagick" != "no"; then
+-PKG_CHECK_MODULES(IMAGEMAGICK, "ImageMagick")
+-AC_SUBST(IMAGEMAGICK_CFLAGS)
+-AC_SUBST(IMAGEMAGICK_LIBS)
+-fi;
++imagemagick_found=no
++gdkpixbuf_found=no
++
++if test "$require_imaging" != "no"; then
++	PKG_CHECK_MODULES(IMAGING, gthread-2.0 gdk-pixbuf-2.0, [gdkpixbuf_found=yes], [gdkpixbuf_found=no])
++	if test "$gdkpixbuf_found" != "yes"; then
++		PKG_CHECK_MODULES(IMAGING, ImageMagick, [imagemagick_found=yes], [imagemagick_found=no])
++	fi
++fi
++
++if test "$require_imaging" != "no"; then
++	if test "$gdkpixbuf_found" != "yes" && test "$imagemagick_found" != "yes"; then
++		AC_MSG_ERROR([gdk-pixbuf or ImageMagick is required for imaging support])
++	fi
++fi
++
++AM_CONDITIONAL([REQUIRE_GDKPIXBUF], [test "$gdkpixbuf_found" != "no"])
++AM_CONDITIONAL([REQUIRE_IMAGEMAGICK], [test "$imagemagick_found" != "no"])
++AC_SUBST(IMAGING_CFLAGS)
++AC_SUBST(IMAGING_LIBS)
+ 
+ # Examples build
+ AC_ARG_ENABLE([examples-build], [AS_HELP_STRING([--enable-examples-build],
