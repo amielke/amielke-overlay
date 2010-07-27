@@ -36,6 +36,9 @@ src_unpack() {
 	if has_version "<=media-video/ffmpeg-0.4.9_p20061016"; then
 		BUILD_PARAMS="${BUILD_PARAMS} WITHOUT_SWSCALER=1"
 	fi
+	# UINT64_C is needed by ffmpeg headers
+	append-flags -D__STDC_CONSTANT_MACROS
+
 }
 
 src_install() {
