@@ -31,6 +31,7 @@ src_unpack() {
 	vdr-plugin_src_unpack
 
 	epatch "${FILESDIR}/${P}-gentoo.diff"
+	 epatch "${FILESDIR}/${P}-makefile.diff"
 
 	use !exif && sed -i "s:#WITHOUT_LIBEXIF:WITHOUT_LIBEXIF:" Makefile
 	if has_version "<=media-video/ffmpeg-0.4.9_p20061016"; then
