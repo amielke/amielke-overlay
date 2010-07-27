@@ -1,5 +1,5 @@
---- image-0.3.0/Makefile	2010-07-29 18:10:07.977888779 +0200
-+++ image-0.3.0/Makefile.change	2010-07-29 18:12:57.377806761 +0200
+--- image-0.3.0/Makefile.ori	2010-07-29 18:10:07.977888779 +0200
++++ image-0.3.0/Makefile	2010-07-29 18:12:57.377806761 +0200
 @@ -10,16 +10,22 @@
  # You can change the compile options here or create a Make.config
  # in the VDR directory an set them there.
