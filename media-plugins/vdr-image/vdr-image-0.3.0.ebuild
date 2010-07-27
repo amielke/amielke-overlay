@@ -30,8 +30,8 @@ VDR_RCADDON_FILE="${FILESDIR}/rc-addon-0.3.0.sh"
 src_unpack() {
 	vdr-plugin_src_unpack
 
-	patch "${FILESDIR}/${P}-makefile.diff"
 	epatch "${FILESDIR}/${P}-gentoo.diff"
+	epatch "${FILESDIR}/Makefile.patch"
 
 	use !exif && sed -i "s:#WITHOUT_LIBEXIF:WITHOUT_LIBEXIF:" Makefile
 	if has_version "<=media-video/ffmpeg-0.4.9_p20061016"; then

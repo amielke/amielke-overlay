@@ -1,0 +1,77 @@
+--- image-0.3.0/Makefile	2010-07-29 19:35:58.297827605 +0200
++++ image-0.3.0/Makefile.change	2010-07-29 19:36:31.387766174 +0200
+@@ -10,16 +10,22 @@
+ # You can change the compile options here or create a Make.config
+ # in the VDR directory an set them there.
+ #
+-# $Id: Makefile 57 2008-03-29 16:08:57Z anbr $
++# $Id: Makefile 64 2010-03-06 06:09:38Z anbr $
+ #
+ 
+ 
+ ### uncomment the following line, if you don't have libexif installed
+-WITHOUT_LIBEXIF=1
++#WITHOUT_LIBEXIF=1
+ 
+ #FFMDIR = ../../../../ffmpeg
+ 
+ 
++# The official name of this plugin.
++# This name will be used in the '-P...' option of VDR to load the plugin.
++# By default the main source file also carries this name.
++#
++PLUGIN = image
++
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+@@ -36,8 +42,7 @@
+ 
+ ### The directory environment:
+ 
+-VDRDIR = /usr/include/vdr
+-VDRINCDIR = /usr/include
++VDRDIR = ../../..
+ LIBDIR = ../../lib
+ TMPDIR = /tmp
+ 
+@@ -45,12 +50,6 @@
+ 
+ -include $(VDRDIR)/Make.config
+ 
+-# The official name of this plugin.
+-# This name will be used in the '-P...' option of VDR to load the plugin.
+-# By default the main source file also carries this name.
+-#
+-PLUGIN = image
+-
+ ### The version number of this plugin (taken from the main source file):
+ 
+ VERSION = $(shell grep 'static const char \*VERSION *=' $(PLUGIN).c | awk '{ print $$6 }' | sed -e 's/[";]//g')
+@@ -78,7 +77,7 @@
+ DEFINES  += -D_GNU_SOURCE
+ LIBS += liboutput/liboutput.a libimage/libimage.a
+ 
+-INCLUDES += -I$(VDRINCDIR) -I.
++INCLUDES += -I$(VDRDIR)/include -I.
+ 
+ ifdef FFMDIR
+ DEFINES += -DFFMDIR
+@@ -174,7 +173,7 @@
+ all: subdirs libvdr-$(PLUGIN).so  i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -export-dynamic $(OBJS) $(LIBS) -o $@
++	$(CXX) $(CXXFLAGS) -shared -export-dynamic $(OBJS) $(LIBS) -o $@
+ 	@mkdir -p $(LIBDIR)
+ 	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
+ 
+@@ -183,7 +182,7 @@
+ 	@for i in $(SUBDIRS) ;\
+ 	do \
+ 	    ( cd $$i;\
+-              $(MAKE) all;\
++              $(MAKE) all PLUGIN=$(PLUGIN);\
+        ) \
+ 	|| exit 1;\
+ 	done
