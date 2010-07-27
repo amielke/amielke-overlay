@@ -1,0 +1,5 @@
+185c185
+<               $(MAKE) all;\
+---
+>               $(MAKE) all PLUGIN=$(PLUGIN);\
+
