@@ -9,13 +9,3 @@
         ) \
  	|| exit 1;\
  	done
-@@ -174,7 +173,7 @@
- all: subdirs libvdr-$(PLUGIN).so  i18n
-
-  libvdr-$(PLUGIN).so: $(OBJS)
-  -       $(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -export-dynamic $(OBJS) $(LIBS) -o $@
-  +       $(CXX) $(CXXFLAGS) -shared -export-dynamic $(OBJS) $(LIBS) -o $@
-          @mkdir -p $(LIBDIR)
-	  @cp $@ $(LIBDIR)/$@.$(APIVERSION)
-
-
