@@ -3,7 +3,6 @@
 # $Header: $
 
 EAPI="2"
-NEED_PYTHON="2.5"
 
 inherit eutils python
 
@@ -16,7 +15,8 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="libnotify"
 
-RDEPEND="dev-python/kiwi
+COMMON_DEPEND=">=dev-lang/python-2.4
+    dev-python/kiwi
 	>=dev-python/pyparsing-1.4.7
 	dev-python/python-virtkey
 	libnotify? ( dev-python/notify-python )"
