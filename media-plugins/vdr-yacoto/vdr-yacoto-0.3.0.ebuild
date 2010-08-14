@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="3gp +dvd ipod mp3 ogg +projectx +status +x264 +xvid"
 
-DEPEND=">=media-video/vdr-1.7.15
+DEPEND=">=media-video/vdr-1.6.0
 	>=media-video/yacoto-scripts-0.0.3[3gp=,dvd=,ipod=,mp3=,ogg=,projectx=,status=,x264=,xvid=]"
 
 RDEPEND="${DEPEND}"
