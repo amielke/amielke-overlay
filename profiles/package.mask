@@ -1,5 +1,5 @@
 ## Only for development. The ebuild does not work!!
 
-=media-video/vdr-yacoto-0.2.1
-=media-video/yacoto-scripts=-0.0.3
+media-video/vdr-yacoto
+media-video/yacoto-scripts
 

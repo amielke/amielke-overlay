@@ -12,7 +12,7 @@ SRC_URI="http://www.htpc-forum.de/download/${P}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS=""
 IUSE="3gp +dvd ipod mp3 ogg +status +x264 +xvid"
 
 DEPEND=">=media-video/vdr-1.4
