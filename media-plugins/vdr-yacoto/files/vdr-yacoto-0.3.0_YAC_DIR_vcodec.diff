@@ -1,1034 +1,137 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title>VDR Plugin  yacoto - vdr-yacoto-0.3.0_YAC_DIR_vcodec.diff - Gen2VDR - Projekte</title>
-<meta name="description" content="Redmine" />
-<meta name="keywords" content="issue,bug,tracker" />
-<link href="/themes/g2v/stylesheets/application.css?1272999296" media="all" rel="stylesheet" type="text/css" />
-<script src="/javascripts/prototype.js?1272135412" type="text/javascript"></script>
-<script src="/javascripts/effects.js?1272135412" type="text/javascript"></script>
-<script src="/javascripts/dragdrop.js?1272135412" type="text/javascript"></script>
-<script src="/javascripts/controls.js?1272135412" type="text/javascript"></script>
-<script src="/javascripts/application.js?1272135412" type="text/javascript"></script>
-<link href="/stylesheets/jstoolbar.css?1227392988" media="screen" rel="stylesheet" type="text/css" />
-<!--[if IE]>
-    <style type="text/css">
-      * html body{ width: expression( document.documentElement.clientWidth < 900 ? '900px' : '100%' ); }
-      body {behavior: url(/stylesheets/csshover.htc?1227392988);}
-    </style>
-<![endif]-->
-
-<!-- page specific tags -->
-    <link href="/stylesheets/scm.css?1272133545" media="screen" rel="stylesheet" type="text/css" /></head>
-<body>
-<div id="wrapper">
-<div id="wrapper2">
-<div id="top-menu">
-    <div id="account">
-        <ul><li><a href="/login" class="login">Anmelden</a></li>
-<li><a href="/account/register" class="register">Registrieren</a></li></ul>    </div>
-    
-    <ul><li><a href="/" class="home">Hauptseite</a></li>
-<li><a href="/projects" class="projects">Projekte</a></li>
-<li><a href="http://www.redmine.org/guide" class="help">Hilfe</a></li></ul></div>
-      
-<div id="header">
-    <div id="quick-search">
-        <form action="/search/index/vdr-plugin--yacoto" method="get">
-        
-        <a href="/search/index/vdr-plugin--yacoto" accesskey="4">Suche</a>:
-        <input accesskey="f" class="small" id="q" name="q" size="20" type="text" />
-        </form>
-        
-    </div>
-    
-    <h1>VDR Plugin  yacoto</h1>
-    
-    
-    <div id="main-menu">
-        <ul><li><a href="/projects/vdr-plugin--yacoto" class="overview">Übersicht</a></li>
-<li><a href="/projects/vdr-plugin--yacoto/activity" class="activity">Aktivität</a></li>
-<li><a href="/projects/vdr-plugin--yacoto/roadmap" class="roadmap">Roadmap</a></li>
-<li><a href="/projects/vdr-plugin--yacoto/issues" class="issues">Tickets</a></li>
-<li><a href="/projects/vdr-plugin--yacoto/news" class="news">News</a></li>
-<li><a href="/projects/vdr-plugin--yacoto/wiki" class="wiki">Wiki</a></li></ul>
-    </div>
-    
-</div>
-
-<div class="nosidebar" id="main">
-    <div id="sidebar">        
-        
-        
-    </div>
-    
-    <div id="content">
-				
-        <h2>vdr-yacoto-0.3.0_YAC_DIR_vcodec.diff</h2>
-
-<div class="attachments">
-<p>
-   <span class="author">Lucian Muresan, 15.07.2010 23:06</span></p>
-<p><a href="/attachments/download/75/vdr-yacoto-0.3.0_YAC_DIR_vcodec.diff">Download</a>   <span class="size">(5,7 KB)</span></p>
-
-</div>
-&nbsp;
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/Makefile	2010-07-15 01:18:11.250018943 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">22</th>
-  <th class="line-num">22</th>
-    <td class="line-code ">
-    <pre>TMPDIR = /tmp</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">23</th>
-  <th class="line-num">23</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">24</th>
-  <th class="line-num">24</th>
-    <td class="line-code ">
-    <pre>### The directory containing the conf files</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">25</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>YAC_CONF_DIR = /etc/vdr/plugins/yacoto</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">25</th>
-    <td class="line-code diff_in">
-    <pre>YAC_CONF_DIR ?= /etc/vdr/plugins/$(PLUGIN)</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">26</th>
-    <td class="line-code diff_in">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">27</th>
-    <td class="line-code diff_in">
-    <pre>### The directory containing the script files</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">28</th>
-    <td class="line-code diff_in">
-    <pre>YAC_DIR ?= $(YAC_CONF_DIR)</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">26</th>
-  <th class="line-num">29</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">27</th>
-  <th class="line-num">30</th>
-    <td class="line-code ">
-    <pre>### Allow user defined options to overwrite defaults:</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">28</th>
-  <th class="line-num">31</th>
-    <td class="line-code ">
-    <pre>-include $(VDRDIR)/Make.config</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">39</th>
-  <th class="line-num">42</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">40</th>
-  <th class="line-num">43</th>
-    <td class="line-code ">
-    <pre>### Includes and Defines (add further entries here):</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">41</th>
-  <th class="line-num">44</th>
-    <td class="line-code ">
-    <pre>INCLUDES += -I$(VDRDIR)/include</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">42</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;'</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">45</th>
-    <td class="line-code diff_in">
-    <pre>DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='&quot;$(PLUGIN)&quot;' -DYAC_DIR='&quot;$(YAC_DIR)&quot;'</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">43</th>
-  <th class="line-num">46</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">44</th>
-  <th class="line-num">47</th>
-    <td class="line-code ">
-    <pre>### The object files (add further files here):</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">45</th>
-  <th class="line-num">48</th>
-    <td class="line-code ">
-    <pre>OBJS = $(PLUGIN).o yac-menurecordings.o yac-menurecinfo.o yac-menuconvert.o yac-recordings.o yac-tools.o yac-setup.o</pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/README	2010-07-15 01:24:49.816647011 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">27</th>
-  <th class="line-num">27</th>
-    <td class="line-code ">
-    <pre>- Das Verzeichnis in welchem die Scripts stehen (/etc/vdr/plugins/yacoto per default) kann in der</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">28</th>
-  <th class="line-num">28</th>
-    <td class="line-code ">
-    <pre>  Make.config mit der Variablen YAC_CONF_DIR geaendert werden.</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">29</th>
-  <th class="line-num">29</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">30</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>- die Datei get_vcodec.sh muss auch nach YAC_CONF_DIR kopiert werden.</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">30</th>
-    <td class="line-code diff_in">
-    <pre>- die Datei get_vcodec.sh muss auch nach YAC_DIR kopiert werden, als yac_get_vcodec.sh falls nicht</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">31</th>
-    <td class="line-code diff_in">
-    <pre>  schon vorhanden, aus dem Skript-Pack..</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">31</th>
-  <th class="line-num">32</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">32</th>
-  <th class="line-num">33</th>
-    <td class="line-code ">
-    <pre>- Anweisungen des Script Paketes befolgen !  </pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">33</th>
-  <th class="line-num">34</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/yac-menuconvert.c	2010-07-15 01:18:11.250018943 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">182</th>
-  <th class="line-num">182</th>
-    <td class="line-code ">
-    <pre>:cOsdMenu(tr(&quot;Convert recordings&quot;), 30)</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">183</th>
-  <th class="line-num">183</th>
-    <td class="line-code ">
-    <pre>{</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">184</th>
-  <th class="line-num">184</th>
-    <td class="line-code ">
-    <pre>   if( activeConfig[0] == '\0' ) {</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">185</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>      cString configFile = cString::sprintf( &quot;%s/yacoto.conf&quot;, cPlugin::ConfigDirectory(&quot;yacoto&quot;));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">185</th>
-    <td class="line-code diff_in">
-    <pre>      cString configFile = cString::sprintf( &quot;%s/%s.conf&quot;, cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), PLUGIN_NAME_I18N);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">186</th>
-  <th class="line-num">186</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">187</th>
-  <th class="line-num">187</th>
-    <td class="line-code ">
-    <pre>      FILE *fhdl = fopen( (const char *)configFile, &quot;r&quot; );</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">188</th>
-  <th class="line-num">188</th>
-    <td class="line-code ">
-    <pre>      if( fhdl != NULL ) {</pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/yac-recordings.c	2010-07-15 01:29:16.079535503 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">11</th>
-  <th class="line-num">11</th>
-    <td class="line-code ">
-    <pre>#include &quot;yac-recordings.h&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">12</th>
-  <th class="line-num">12</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">13</th>
-  <th class="line-num">13</th>
-    <td class="line-code ">
-    <pre>#define INDEXFILESUFFIX   &quot;/index&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">14</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>#define SCRIPT_FILE       &quot;yac_start.sh&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">14</th>
-    <td class="line-code diff_in">
-    <pre>#define SCRIPT_FILE       &quot;/yac_start.sh&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">15</th>
-  <th class="line-num">15</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">16</th>
-  <th class="line-num">16</th>
-    <td class="line-code ">
-    <pre>struct tIndexTs {</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">17</th>
-  <th class="line-num">17</th>
-    <td class="line-code ">
-    <pre>  uint64_t offset:40; // up to 1TB per file (not using off_t here - must definitely be exactly 64 bit!)</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">100</th>
-  <th class="line-num">100</th>
-    <td class="line-code ">
-    <pre>const char *cYacRecItem::VideoInfo(void) { </pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">101</th>
-  <th class="line-num">101</th>
-    <td class="line-code ">
-    <pre>   if( !videoInfo[0] || !strstr( videoInfo, &quot;CODEC:&quot; )) {</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">102</th>
-  <th class="line-num">102</th>
-    <td class="line-code ">
-    <pre>      char commandResult[32];</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">103</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>      cString cmd = cString::sprintf(&quot;%s%s \&quot;%s\&quot;&quot;, (const char *)AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto/&quot; ),</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">104</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>                                                    &quot;get_vcodec.sh&quot;, cRec-&gt;FileName());</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">103</th>
-    <td class="line-code diff_in">
-    <pre>      cString cmd = cString::sprintf(&quot;%s%s \&quot;%s\&quot;&quot;, (const char *)AddDirectory( YAC_DIR, &quot;/&quot; ),</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">104</th>
-    <td class="line-code diff_in">
-    <pre>                                                    &quot;yac_get_vcodec.sh&quot;, cRec-&gt;FileName());</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">105</th>
-  <th class="line-num">105</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">106</th>
-  <th class="line-num">106</th>
-    <td class="line-code ">
-    <pre>      dsyslog(&quot;executing command '%s'&quot;, (const char *)cmd);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">107</th>
-  <th class="line-num">107</th>
-    <td class="line-code ">
-    <pre>      FILE *p = popen((const char *)cmd, &quot;r&quot;);</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">207</th>
-  <th class="line-num">207</th>
-    <td class="line-code ">
-    <pre>{</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">208</th>
-  <th class="line-num">208</th>
-    <td class="line-code ">
-    <pre>   struct stat statBuf;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">209</th>
-  <th class="line-num">209</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">210</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   if (lstat(cString::sprintf( &quot;%s/yacoto.log&quot;, filename ), &amp;statBuf) == -1) </pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">210</th>
-    <td class="line-code diff_in">
-    <pre>   if (lstat(cString::sprintf( &quot;%s/%s.log&quot;, filename, PLUGIN_NAME_I18N ), &amp;statBuf) == -1) </pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">211</th>
-  <th class="line-num">211</th>
-    <td class="line-code ">
-    <pre>      return false;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">212</th>
-  <th class="line-num">212</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">213</th>
-  <th class="line-num">213</th>
-    <td class="line-code ">
-    <pre>   return true;</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">253</th>
-  <th class="line-num">253</th>
-    <td class="line-code ">
-    <pre>   char execCmd[8192];</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">254</th>
-  <th class="line-num">254</th>
-    <td class="line-code ">
-    <pre>   int baseLen = 0;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">255</th>
-  <th class="line-num">255</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">256</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   strcpy(execCmd,AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto/&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">256</th>
-    <td class="line-code diff_in">
-    <pre>   strcpy(execCmd,YAC_DIR);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">257</th>
-  <th class="line-num">257</th>
-    <td class="line-code ">
-    <pre>   strcat(execCmd,SCRIPT_FILE);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">258</th>
-  <th class="line-num">258</th>
-    <td class="line-code ">
-    <pre>   baseLen = strlen(execCmd);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">259</th>
-  <th class="line-num">259</th>
-    <td class="line-code ">
-    <pre>   if( yacMergeRecs == true || numItems == 1 ) {</pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/yac-setup.c	2010-07-15 01:18:11.253356236 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">24</th>
-  <th class="line-num">24</th>
-    <td class="line-code ">
-    <pre>#define NUM_CHARS   &quot;0123456789&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">25</th>
-  <th class="line-num">25</th>
-    <td class="line-code ">
-    <pre>#define FNAME_CHARS &quot; abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.#~,/_@&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">26</th>
-  <th class="line-num">26</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">27</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>#define CFG_FILE &quot;yacadmin.conf&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">27</th>
-    <td class="line-code diff_in">
-    <pre>#define CFG_FILE &quot;/yacadmin.conf&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">28</th>
-  <th class="line-num">28</th>
-    <td class="line-code ">
-    <pre>#define START_SCRIPT &quot;/yac_admin.sh -start&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">29</th>
-  <th class="line-num">29</th>
-    <td class="line-code ">
-    <pre>#define INIT_SCRIPT &quot;/yac_admin.sh -init&quot;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">30</th>
-  <th class="line-num">30</th>
-    <td class="line-code ">
-    <pre>#define SAVE_SCRIPT &quot;/yac_admin.sh -save&quot;</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">45</th>
-  <th class="line-num">45</th>
-    <td class="line-code ">
-    <pre>   idxConfigVar = -1;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">46</th>
-  <th class="line-num">46</th>
-    <td class="line-code ">
-    <pre>   bChanged = false;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">47</th>
-  <th class="line-num">47</th>
-    <td class="line-code ">
-    <pre>   bStored = false;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">48</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto/&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">48</th>
-    <td class="line-code diff_in">
-    <pre>   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), &quot;/&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">49</th>
-  <th class="line-num">49</th>
-    <td class="line-code ">
-    <pre>   strcat(configFile,CFG_FILE);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">50</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">50</th>
-    <td class="line-code diff_in">
-    <pre>   strcpy(buffer,YAC_DIR);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">51</th>
-  <th class="line-num">51</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">52</th>
-  <th class="line-num">52</th>
-    <td class="line-code ">
-    <pre>   strcat(buffer, START_SCRIPT);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">53</th>
-  <th class="line-num">53</th>
-    <td class="line-code ">
-    <pre>   dsyslog( &quot;Executing &lt;%s&gt;&quot;, buffer );</pre>
-  </td>
-  </tr>
-
-<tr class="spacing">
-<th class="line-num">...</th><th class="line-num">...</th><td></td>
-</tr>
-<tr>
-  <th class="line-num">262</th>
-  <th class="line-num">262</th>
-    <td class="line-code ">
-    <pre>   }</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">263</th>
-  <th class="line-num">263</th>
-    <td class="line-code ">
-    <pre>   if( bStored ) {</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">264</th>
-  <th class="line-num">264</th>
-    <td class="line-code ">
-    <pre>      char buffer[ 512 ];</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">265</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>      strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">265</th>
-    <td class="line-code diff_in">
-    <pre>      strcpy(buffer,YAC_DIR);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">266</th>
-  <th class="line-num">266</th>
-    <td class="line-code ">
-    <pre>      strcat(buffer, SAVE_SCRIPT);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">267</th>
-  <th class="line-num">267</th>
-    <td class="line-code ">
-    <pre>      dsyslog( &quot;Executing &lt;%s&gt;&quot;, buffer );</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">268</th>
-  <th class="line-num">268</th>
-    <td class="line-code ">
-    <pre>      system( buffer );</pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-<div class="autoscroll">
-<table class="filecontent syntaxhl">
-<thead>
-<tr><th colspan="3" class="filename">vdr-yacoto-0.3.0/yac-tools.c	2010-07-15 01:18:11.318044256 +0200</th></tr>
-</thead>
-<tbody>
-
-<tr>
-  <th class="line-num">17</th>
-  <th class="line-num">17</th>
-    <td class="line-code ">
-    <pre>      free(commandResult);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">18</th>
-  <th class="line-num">18</th>
-    <td class="line-code ">
-    <pre>      commandResult = NULL;</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">19</th>
-  <th class="line-num">19</th>
-    <td class="line-code ">
-    <pre>   }</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">20</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   strcpy(cmd,AddDirectory( cPlugin::ConfigDirectory(), &quot;yacoto/&quot; ));</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">21</th>
-  <th class="line-num"></th>
-    <td class="line-code diff_out">
-    <pre>   strcat(cmd,&quot;yac_show_status.sh&quot;);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">20</th>
-    <td class="line-code diff_in">
-    <pre>   strcpy(cmd,YAC_DIR);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num"></th>
-  <th class="line-num">21</th>
-    <td class="line-code diff_in">
-    <pre>   strcat(cmd,&quot;/yac_show_status.sh&quot;);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">22</th>
-  <th class="line-num">22</th>
-    <td class="line-code ">
-    <pre></pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">23</th>
-  <th class="line-num">23</th>
-    <td class="line-code ">
-    <pre>   dsyslog(&quot;executing command '%s'&quot;, cmd);</pre>
-  </td>
-  </tr>
-
-<tr>
-  <th class="line-num">24</th>
-  <th class="line-num">24</th>
-    <td class="line-code ">
-    <pre>   FILE *p = popen(cmd, &quot;r&quot;);</pre>
-  </td>
-  </tr>
-</tbody>
-</table>
-
-</div>
-
-
-
-
-
-
-
-        
-				<div style="clear:both;"></div>
-    </div>
-</div>
-
-<div id="ajax-indicator" style="display:none;"><span>Lade...</span></div>
-	
-<div id="footer">
-  <div class="bgl"><div class="bgr">
-    Powered by <a href="http://www.redmine.org/">Redmine</a> &copy; 2006-2010 Jean-Philippe Lang
-  </div></div>
-</div>
-</div>
-</div>
-
-</body>
-</html>
+diff -Naur vdr-yacoto-0.3.0_bak/Makefile vdr-yacoto-0.3.0/Makefile
+--- vdr-yacoto-0.3.0_bak/Makefile	2008-10-06 20:14:20.000000000 +0200
++++ vdr-yacoto-0.3.0/Makefile	2010-07-15 01:18:11.250018943 +0200
+@@ -22,7 +22,10 @@
+ TMPDIR = /tmp
+ 
+ ### The directory containing the conf files
+-YAC_CONF_DIR = /etc/vdr/plugins/yacoto
++YAC_CONF_DIR ?= /etc/vdr/plugins/$(PLUGIN)
++
++### The directory containing the script files
++YAC_DIR ?= $(YAC_CONF_DIR)
+ 
+ ### Allow user defined options to overwrite defaults:
+ -include $(VDRDIR)/Make.config
+@@ -39,7 +42,7 @@
+ 
+ ### Includes and Defines (add further entries here):
+ INCLUDES += -I$(VDRDIR)/include
+-DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
++DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"' -DYAC_DIR='"$(YAC_DIR)"'
+ 
+ ### The object files (add further files here):
+ OBJS = $(PLUGIN).o yac-menurecordings.o yac-menurecinfo.o yac-menuconvert.o yac-recordings.o yac-tools.o yac-setup.o
+diff -Naur vdr-yacoto-0.3.0_bak/README vdr-yacoto-0.3.0/README
+--- vdr-yacoto-0.3.0_bak/README	2010-04-08 21:19:24.000000000 +0200
++++ vdr-yacoto-0.3.0/README	2010-07-15 01:24:49.816647011 +0200
+@@ -27,7 +27,8 @@
+ - Das Verzeichnis in welchem die Scripts stehen (/etc/vdr/plugins/yacoto per default) kann in der
+   Make.config mit der Variablen YAC_CONF_DIR geaendert werden.
+ 
+-- die Datei get_vcodec.sh muss auch nach YAC_CONF_DIR kopiert werden.
++- die Datei get_vcodec.sh muss auch nach YAC_DIR kopiert werden, als yac_get_vcodec.sh falls nicht
++  schon vorhanden, aus dem Skript-Pack..
+ 
+ - Anweisungen des Script Paketes befolgen !  
+ 
+diff -Naur vdr-yacoto-0.3.0_bak/yac-menuconvert.c vdr-yacoto-0.3.0/yac-menuconvert.c
+--- vdr-yacoto-0.3.0_bak/yac-menuconvert.c	2008-12-18 19:47:40.000000000 +0100
++++ vdr-yacoto-0.3.0/yac-menuconvert.c	2010-07-15 01:18:11.250018943 +0200
+@@ -182,7 +182,7 @@
+ :cOsdMenu(tr("Convert recordings"), 30)
+ {
+    if( activeConfig[0] == '\0' ) {
+-      cString configFile = cString::sprintf( "%s/yacoto.conf", cPlugin::ConfigDirectory("yacoto"));
++      cString configFile = cString::sprintf( "%s/%s.conf", cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), PLUGIN_NAME_I18N);
+ 
+       FILE *fhdl = fopen( (const char *)configFile, "r" );
+       if( fhdl != NULL ) {
+diff -Naur vdr-yacoto-0.3.0_bak/yac-recordings.c vdr-yacoto-0.3.0/yac-recordings.c
+--- vdr-yacoto-0.3.0_bak/yac-recordings.c	2010-04-08 21:13:45.000000000 +0200
++++ vdr-yacoto-0.3.0/yac-recordings.c	2010-07-15 01:29:16.079535503 +0200
+@@ -11,7 +11,7 @@
+ #include "yac-recordings.h"
+ 
+ #define INDEXFILESUFFIX   "/index"
+-#define SCRIPT_FILE       "yac_start.sh"
++#define SCRIPT_FILE       "/yac_start.sh"
+ 
+ struct tIndexTs {
+   uint64_t offset:40; // up to 1TB per file (not using off_t here - must definitely be exactly 64 bit!)
+@@ -100,8 +100,8 @@
+ const char *cYacRecItem::VideoInfo(void) { 
+    if( !videoInfo[0] || !strstr( videoInfo, "CODEC:" )) {
+       char commandResult[32];
+-      cString cmd = cString::sprintf("%s%s \"%s\"", (const char *)AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ),
+-                                                    "get_vcodec.sh", cRec->FileName());
++      cString cmd = cString::sprintf("%s%s \"%s\"", (const char *)AddDirectory( YAC_DIR, "/" ),
++                                                    "yac_get_vcodec.sh", cRec->FileName());
+ 
+       dsyslog("executing command '%s'", (const char *)cmd);
+       FILE *p = popen((const char *)cmd, "r");
+@@ -207,7 +207,7 @@
+ {
+    struct stat statBuf;
+ 
+-   if (lstat(cString::sprintf( "%s/yacoto.log", filename ), &statBuf) == -1) 
++   if (lstat(cString::sprintf( "%s/%s.log", filename, PLUGIN_NAME_I18N ), &statBuf) == -1) 
+       return false;
+ 
+    return true;
+@@ -253,7 +253,7 @@
+    char execCmd[8192];
+    int baseLen = 0;
+ 
+-   strcpy(execCmd,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
++   strcpy(execCmd,YAC_DIR);
+    strcat(execCmd,SCRIPT_FILE);
+    baseLen = strlen(execCmd);
+    if( yacMergeRecs == true || numItems == 1 ) {
+diff -Naur vdr-yacoto-0.3.0_bak/yac-setup.c vdr-yacoto-0.3.0/yac-setup.c
+--- vdr-yacoto-0.3.0_bak/yac-setup.c	2008-10-06 19:00:00.000000000 +0200
++++ vdr-yacoto-0.3.0/yac-setup.c	2010-07-15 01:18:11.253356236 +0200
+@@ -24,7 +24,7 @@
+ #define NUM_CHARS   "0123456789"
+ #define FNAME_CHARS " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.#~,/_@"
+ 
+-#define CFG_FILE "yacadmin.conf"
++#define CFG_FILE "/yacadmin.conf"
+ #define START_SCRIPT "/yac_admin.sh -start"
+ #define INIT_SCRIPT "/yac_admin.sh -init"
+ #define SAVE_SCRIPT "/yac_admin.sh -save"
+@@ -45,9 +45,9 @@
+    idxConfigVar = -1;
+    bChanged = false;
+    bStored = false;
+-   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
++   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "/" ));
+    strcat(configFile,CFG_FILE);
+-   strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), "yacoto" ));
++   strcpy(buffer,YAC_DIR);
+ 
+    strcat(buffer, START_SCRIPT);
+    dsyslog( "Executing <%s>", buffer );
+@@ -262,7 +262,7 @@
+    }
+    if( bStored ) {
+       char buffer[ 512 ];
+-      strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), "yacoto" ));
++      strcpy(buffer,YAC_DIR);
+       strcat(buffer, SAVE_SCRIPT);
+       dsyslog( "Executing <%s>", buffer );
+       system( buffer );
+diff -Naur vdr-yacoto-0.3.0_bak/yac-tools.c vdr-yacoto-0.3.0/yac-tools.c
+--- vdr-yacoto-0.3.0_bak/yac-tools.c	2008-10-06 19:00:00.000000000 +0200
++++ vdr-yacoto-0.3.0/yac-tools.c	2010-07-15 01:18:11.318044256 +0200
+@@ -17,8 +17,8 @@
+       free(commandResult);
+       commandResult = NULL;
+    }
+-   strcpy(cmd,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
+-   strcat(cmd,"yac_show_status.sh");
++   strcpy(cmd,YAC_DIR);
++   strcat(cmd,"/yac_show_status.sh");
+ 
+    dsyslog("executing command '%s'", cmd);
+    FILE *p = popen(cmd, "r");
