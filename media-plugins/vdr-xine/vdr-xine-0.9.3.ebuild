@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="yaepg"
 
 DEPEND=">=media-video/vdr-1.3.9
-	>=media-libs/xine-lib-9999[amielke-overlay]"
+	>=media-libs/xine-lib-1.1.8[vdr]"
 RDEPEND="${DEPEND}"
 
 pkg_setup() {
