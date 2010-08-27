@@ -72,6 +72,7 @@ DEPEND="${RDEPEND}
 	v4l? ( virtual/os-headers )
 	dev-util/pkgconfig
 	sys-devel/libtool
+	=sys-devel/automake-1.9
 	nls? ( sys-devel/gettext )"
 
 S="${WORKDIR}/xine-lib-1.2"
