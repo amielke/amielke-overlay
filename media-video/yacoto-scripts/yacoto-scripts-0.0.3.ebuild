@@ -21,7 +21,7 @@ DEPEND=">=media-video/vdr-1.6.0
 
 RDEPEND="media-video/vdrsync
 	app-misc/screen
-	>=media-video/replex-0.1.6.8
+	>=media-video/replex-0.1.6.8[yacoto]
 	3gp? (	media-video/mplayer[encode]
 		media-video/ffmpeg[encode] )
 	dvd? (	app-cdr/cdrtools
