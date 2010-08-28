@@ -13,12 +13,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE="yacoto"
 
-src_prepare() {
-	use yacoto && epatch "${FILESDIR}/replex-0.1.6.8-yacoto.diff"
-}
-
-
 src_compile() {
+	use yacoto && epatch "${FILESDIR}/replex-0.1.6.8-yacoto.diff"
 	tc-export CC
 	emake CFLAGS="${CFLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DVERSION=\\\"${PV}\\\"" LDFLAGS="${LDFLAGS}"|| die "emake failed"
 }
