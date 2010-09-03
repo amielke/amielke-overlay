@@ -45,11 +45,11 @@ S="${WORKDIR}"/yacoto
 MY_YAC_DIR="/usr/share/vdr/yacoto"
 MY_YAC_CONF_DIR="/etc/vdr/plugins/yacoto"
 
-src_prepare() {
+#src_prepare() {
 
-	epatch "${FILESDIR}/${P}_customization.diff"
+#	epatch "${FILESDIR}/${P}_customization.diff"
 
-}
+#}
 
 src_compile() {
 	einfo "Nothing to compile"
