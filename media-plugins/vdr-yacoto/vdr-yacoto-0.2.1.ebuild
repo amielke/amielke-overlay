@@ -8,16 +8,15 @@ inherit vdr-plugin
 
 DESCRIPTION="VDR plugin: Yacoto - Yet Another Convert Tool"
 HOMEPAGE="http://www.htpc-forum.de/index.php?url=downloads.php"
-SRC_URI="http://www.htpc-forum.de/download/${P}.tgz
-	http://www.muresan.de/vdr/${VDRPLUGIN}/${P}.tgz"
+SRC_URI="http://www.htpc-forum.de/download/${P}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="3gp +dvd ipod mp3 ogg +projectx +status +x264 +xvid"
+IUSE="3gp +dvd ipod mp3 ogg +status +x264 +xvid"
 
-DEPEND=">=media-video/vdr-1.6.0
-	>=media-video/yacoto-scripts-0.0.3[3gp=,dvd=,ipod=,mp3=,ogg=,projectx=,status=,x264=,xvid=]"
+DEPEND=">=media-video/vdr-1.4
+	media-video/yacoto-scripts[3gp=,dvd=,ipod=,mp3=,ogg=,status=,x264=,xvid=]"
 
 RDEPEND="${DEPEND}"
 
@@ -26,7 +25,7 @@ MY_YAC_DIR="/usr/share/vdr/yacoto"
 
 src_prepare() {
 	# patch here to keep the patch in a form ready for up-stream
-	epatch "${FILESDIR}/${P}_YAC_DIR_vcodec.diff"
+	epatch "${FILESDIR}/${P}_YAC_DIR.diff"
 
 	vdr-plugin_src_prepare
 

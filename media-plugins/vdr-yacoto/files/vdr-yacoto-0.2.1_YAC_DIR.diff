@@ -1,0 +1,122 @@
+diff -Naur yacoto-0.2.1_orig/Makefile yacoto-0.2.1/Makefile
+--- yacoto-0.2.1_orig/Makefile	2008-10-06 20:14:20.000000000 +0200
++++ yacoto-0.2.1/Makefile	2010-07-01 23:40:55.347818512 +0200
+@@ -22,7 +22,10 @@
+ TMPDIR = /tmp
+ 
+ ### The directory containing the conf files
+-YAC_CONF_DIR = /etc/vdr/plugins/yacoto
++YAC_CONF_DIR ?= /etc/vdr/plugins/$(PLUGIN)
++
++### The directory containing the script files
++YAC_DIR ?= $(YAC_CONF_DIR)
+ 
+ ### Allow user defined options to overwrite defaults:
+ -include $(VDRDIR)/Make.config
+@@ -39,7 +42,7 @@
+ 
+ ### Includes and Defines (add further entries here):
+ INCLUDES += -I$(VDRDIR)/include
+-DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"'
++DEFINES += -D_GNU_SOURCE -DPLUGIN_NAME_I18N='"$(PLUGIN)"' -DYAC_DIR='"$(YAC_DIR)"'
+ 
+ ### The object files (add further files here):
+ OBJS = $(PLUGIN).o yac-menurecordings.o yac-menurecinfo.o yac-menuconvert.o yac-recordings.o yac-tools.o yac-setup.o
+diff -Naur yacoto-0.2.1_orig/yac-menuconvert.c yacoto-0.2.1/yac-menuconvert.c
+--- yacoto-0.2.1_orig/yac-menuconvert.c	2008-12-18 19:47:40.000000000 +0100
++++ yacoto-0.2.1/yac-menuconvert.c	2010-07-01 23:42:00.917812431 +0200
+@@ -182,7 +182,7 @@
+ :cOsdMenu(tr("Convert recordings"), 30)
+ {
+    if( activeConfig[0] == '\0' ) {
+-      cString configFile = cString::sprintf( "%s/yacoto.conf", cPlugin::ConfigDirectory("yacoto"));
++      cString configFile = cString::sprintf( "%s/%s.conf", cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), PLUGIN_NAME_I18N);
+ 
+       FILE *fhdl = fopen( (const char *)configFile, "r" );
+       if( fhdl != NULL ) {
+diff -Naur yacoto-0.2.1_orig/yac-recordings.c yacoto-0.2.1/yac-recordings.c
+--- yacoto-0.2.1_orig/yac-recordings.c	2008-12-18 19:03:12.000000000 +0100
++++ yacoto-0.2.1/yac-recordings.c	2010-07-01 23:42:16.741143285 +0200
+@@ -11,7 +11,7 @@
+ #include "yac-recordings.h"
+ 
+ #define INDEXFILESUFFIX   "/index.vdr"
+-#define SCRIPT_FILE "yac_start.sh"
++#define SCRIPT_FILE "/yac_start.sh"
+ 
+ char yacProjName[MAX_NAME_LEN];
+ bool yacMergeRecs;
+@@ -22,7 +22,7 @@
+    cString text;
+    const cComponents *Components;
+    cRec = (cRecording *)Recording;
+-   if( (name = strrchr(cRec->Name(), '~')) != NULL )
++   if( (name = (char *)strrchr(cRec->Name(), '~')) != NULL )
+       name++;
+    else
+       name = (char *)cRec->Name();
+@@ -179,7 +179,7 @@
+ {
+    struct stat statBuf;
+ 
+-   if (lstat(cString::sprintf( "%s/yacoto.log", filename ), &statBuf) == -1) 
++   if (lstat(cString::sprintf( "%s/%s.log", filename, PLUGIN_NAME_I18N ), &statBuf) == -1) 
+       return false;
+ 
+    return true;
+@@ -225,7 +225,7 @@
+    char execCmd[8192];
+    int baseLen = 0;
+ 
+-   strcpy(execCmd,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
++   strcpy(execCmd,YAC_DIR);
+    strcat(execCmd,SCRIPT_FILE);
+    baseLen = strlen(execCmd);
+    if( yacMergeRecs == true || numItems == 1 ) {
+diff -Naur yacoto-0.2.1_orig/yac-setup.c yacoto-0.2.1/yac-setup.c
+--- yacoto-0.2.1_orig/yac-setup.c	2008-10-06 19:00:00.000000000 +0200
++++ yacoto-0.2.1/yac-setup.c	2010-07-01 23:42:31.437807871 +0200
+@@ -24,7 +24,7 @@
+ #define NUM_CHARS   "0123456789"
+ #define FNAME_CHARS " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.#~,/_@"
+ 
+-#define CFG_FILE "yacadmin.conf"
++#define CFG_FILE "/yacadmin.conf"
+ #define START_SCRIPT "/yac_admin.sh -start"
+ #define INIT_SCRIPT "/yac_admin.sh -init"
+ #define SAVE_SCRIPT "/yac_admin.sh -save"
+@@ -45,9 +45,9 @@
+    idxConfigVar = -1;
+    bChanged = false;
+    bStored = false;
+-   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
++   strcpy(configFile,AddDirectory( cPlugin::ConfigDirectory(PLUGIN_NAME_I18N), "/" ));
+    strcat(configFile,CFG_FILE);
+-   strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), "yacoto" ));
++   strcpy(buffer,YAC_DIR);
+ 
+    strcat(buffer, START_SCRIPT);
+    dsyslog( "Executing <%s>", buffer );
+@@ -262,7 +262,7 @@
+    }
+    if( bStored ) {
+       char buffer[ 512 ];
+-      strcpy(buffer,AddDirectory( cPlugin::ConfigDirectory(), "yacoto" ));
++      strcpy(buffer,YAC_DIR);
+       strcat(buffer, SAVE_SCRIPT);
+       dsyslog( "Executing <%s>", buffer );
+       system( buffer );
+diff -Naur yacoto-0.2.1_orig/yac-tools.c yacoto-0.2.1/yac-tools.c
+--- yacoto-0.2.1_orig/yac-tools.c	2008-10-06 19:00:00.000000000 +0200
++++ yacoto-0.2.1/yac-tools.c	2010-07-01 23:40:55.347818512 +0200
+@@ -17,8 +17,8 @@
+       free(commandResult);
+       commandResult = NULL;
+    }
+-   strcpy(cmd,AddDirectory( cPlugin::ConfigDirectory(), "yacoto/" ));
+-   strcat(cmd,"yac_show_status.sh");
++   strcpy(cmd,YAC_DIR);
++   strcat(cmd,"/yac_show_status.sh");
+ 
+    dsyslog("executing command '%s'", cmd);
+    FILE *p = popen(cmd, "r");

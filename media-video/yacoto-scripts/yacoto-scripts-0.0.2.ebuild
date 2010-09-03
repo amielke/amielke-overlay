@@ -45,8 +45,9 @@ MY_YAC_CONF_DIR="/etc/vdr/plugins/yacoto"
 
 src_prepare() {
 
-#	epatch "${FILESDIR}/yacoto-custom_settings.diff"
-	chmod ugo+x "${S}"/yac_choosedir.sh
+	epatch "${FILESDIR}/${P}_customization+TS.diff"
+	chmod ugo+x "${S}"/yac_helperfuncs.sh
+	chmod ugo+x "${S}"/yac_format_info.sh
 
 }
 
@@ -86,10 +87,14 @@ src_install() {
 
 pkg_postinst(){
 
-	ewarn "Make sure you create an initial plugin config file"
-	ewarn "\"/etc/vdr/plugins/yacoto/yacadmin.conf\" by running"
-	ewarn "\"/usr/share/vdr/yacoto/yac_setplgconf.sh\" after adjusting"
-	ewarn "the values in \"/etc/vdr/plugins/yacoto/yacaoto.conf\" !!"
+	ewarn ""
+	ewarn "If this is your first installation, please make sure"
+	ewarn "you create an initial plugin config file"
+	ewarn "\"${MY_YAC_CONF_DIR}/yacadmin.conf\" by running"
+	ewarn "\"${MY_YAC_DIR}/yac_setplgconf.sh\" after adjusting"
+	ewarn "the values in \"${MY_YAC_CONF_DIR}/yacoto.conf\""
+	ewarn "before starting VDR !!"
+	ewarn ""
 	epause 5
 
 }

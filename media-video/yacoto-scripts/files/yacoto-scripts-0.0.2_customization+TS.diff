@@ -1,7 +1,7 @@
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.0.3/Makefile
---- yacoto-scripts-0.0.3_bak/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ yacoto-scripts-0.0.3/Makefile	2010-07-15 10:15:39.331640432 +0200
-@@ -0,0 +1,265 @@
+diff -Naur yacoto_orig/Makefile yacoto/Makefile
+--- yacoto_orig/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ yacoto/Makefile	2010-03-13 23:46:10.000000000 +0100
+@@ -0,0 +1,242 @@
 +PACKAGE  = yacoto-scripts
 +VERSION  = 0.0.3
 +ARCHIVE  = $(PACKAGE)-helau-$(VERSION)
@@ -19,7 +19,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +
 +#
 +# "detect" optional dependencies
-+
 +HAVE_MJPEGTOOLS ?= $(shell which png2yuv &>/dev/null && echo "1")
 +HAVE_CDRTOOLS ?= $(shell which mkisofs &>/dev/null && echo "1")
 +HAVE_DVDPLUSRWTOOLS ?= $(shell which growisofs &>/dev/null && echo "1")
@@ -31,7 +30,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +HAVE_MP4BOX ?= $(shell which MP4Box &>/dev/null && echo "1")
 +HAVE_LAME ?= $(shell which lame &>/dev/null && echo "1")
 +HAVE_VORBISTOOLS ?= $(shell which oggenc &>/dev/null && echo "1")
-+HAVE_PROJECTX ?= $(shell which projectx_nogui &>/dev/null && echo "1")
 +
 +
 +#
@@ -44,7 +42,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +WITH_OGG ?= 1
 +WITH_H264 ?= 1
 +WITH_DIVX ?= 1
-+WITH_PROJECTX ?= 1
 +
 +# these need mandatory deps only:
 +ENC_SCRIPTS = mpeg2
@@ -66,11 +63,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +endif
 +endif
 +endif
-+endif
-+
-+# if we have ProjectX (useful not only for DVD remuxing)
-+ifeq ($(HAVE_PROJECTX),1)
-+	ENC_INIS += ProjectX
 +endif
 +
 +# if we have just mencoder
@@ -195,20 +187,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +			echo "Optional package 'oggenc' (sometimes part of 'vorbis tools') not found !!!"; \
 +		fi; \
 +	fi
-+	@if [[ "$(WITH_PROJECTX)" = "1" ]]; then \
-+		if ! [[ "$(HAVE_PROJECTX)" = "1" ]]; then \
-+			echo "Optional (yet very useful) package 'ProjectX' not found !!!"; \
-+		fi; \
-+	fi
 +	@echo ""
 +	@echo "Encoding profiles according to selection / fullfilled dependencies:"
 +	@echo "$(ENC_CONFIGS)"
-+	@echo ""
-+	@if [[ "$(HAVE_PROJECTX)" = "1" ]]; then \
-+		echo "ProjectX demuxer: yes"; \
-+	else \
-+		echo "ProjectX demuxer: NO"; \
-+	fi
 +	@echo ""
 +	@echo "Scripts directory YAC_DIR:      $(YAC_DIR)"
 +	@echo "Configs directory YAC_CONF_DIR: $(YAC_CONF_DIR)"
@@ -231,9 +212,8 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +	@mkdir -p $(DESTDIR)$(YAC_DIR)/conf
 +	@mkdir -p $(DESTDIR)$(YAC_DIR)/queue
 +	@mkdir -p $(DESTDIR)/var/log/yacoto
-+	@chmod ugo+x yac_*.sh
 +	@cp --recursive --remove-destination --archive yac_*.sh $(DESTDIR)$(YAC_DIR)
-+	@cp --recursive --remove-destination --archive *.conf.sample $(DESTDIR)$(YAC_CONF_DIR)
++	@cp --recursive --remove-destination --archive yacoto.conf.sample $(DESTDIR)$(YAC_CONF_DIR)
 +	@for cfg in $(ENC_CONFIGS); do \
 +		if [[ -d conf/"$$cfg" ]]; then \
 +			cp --archive --recursive conf/"$$cfg" $(DESTDIR)$(YAC_DIR)/conf; \
@@ -244,9 +224,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +			cp --recursive --remove-destination --archive conf/"$$cfg".conf.sh $(DESTDIR)$(YAC_DIR)/conf; \
 +		fi; \
 +		cp --recursive --remove-destination --archive conf/"$$cfg".conf.sample $(DESTDIR)$(YAC_CONF_DIR)/conf; \
-+	done
-+	@for cfg in $(ENC_INIS); do \
-+		cp --recursive --remove-destination --archive conf/"$$cfg".ini $(DESTDIR)$(YAC_CONF_DIR)/conf; \
 +	done
 +	@for cfg in $(ENC_SCRIPTS); do \
 +		cp --recursive --remove-destination --archive conf/"$$cfg".sh $(DESTDIR)$(YAC_DIR)/conf; \
@@ -267,23 +244,23 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/Makefile yacoto-scripts-0.
 +
 +
 +.PHONY: install
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/divx_ffmpeg.sh yacoto-scripts-0.0.3/conf/divx_ffmpeg.sh
---- yacoto-scripts-0.0.3_bak/conf/divx_ffmpeg.sh	2010-06-01 23:18:50.000000000 +0200
-+++ yacoto-scripts-0.0.3/conf/divx_ffmpeg.sh	2010-07-14 22:25:21.390637387 +0200
+diff -Naur yacoto_orig/conf/divx_ffmpeg.sh yacoto/conf/divx_ffmpeg.sh
+--- yacoto_orig/conf/divx_ffmpeg.sh	2008-12-18 20:00:12.000000000 +0100
++++ yacoto/conf/divx_ffmpeg.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -101,7 +101,7 @@
        SCALE="$OSCALEG"
     fi
  
--   if [ "$($MPLAYER $INPUT/00001.ts -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
+-   if [ "$($MPLAYER $INPUT/001.vdr -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
 +   if [ "$($MPLAYER $(resolve_recfile $INPUT/1stvideo) -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
        if [ "$ZOOM" != "0" ]; then
           SCALE="${SCALE%x*}"
        fi
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/dvd_menu.sh yacoto-scripts-0.0.3/conf/dvd/dvd_menu.sh
---- yacoto-scripts-0.0.3_bak/conf/dvd/dvd_menu.sh	2009-07-08 00:11:57.000000000 +0200
-+++ yacoto-scripts-0.0.3/conf/dvd/dvd_menu.sh	2010-07-14 22:13:53.487375254 +0200
+diff -Naur yacoto_orig/conf/dvd/dvd_menu.sh yacoto/conf/dvd/dvd_menu.sh
+--- yacoto_orig/conf/dvd/dvd_menu.sh	2008-12-18 20:00:15.000000000 +0100
++++ yacoto/conf/dvd/dvd_menu.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,15 +1,16 @@
- #!/bin/bash
+ #!/bin/sh
  #set -x
 -DVD_CONF_DIR="${YAC_DIR}/conf/dvd"
  
@@ -331,20 +308,18 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/dvd_menu.sh yacot
        CHAPTERS="0"
        for i in $marks ; do
           if [ "${i#0:00_00}" = "$i" ] ; then
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/format_info.sh yacoto-scripts-0.0.3/conf/dvd/format_info.sh
---- yacoto-scripts-0.0.3_bak/conf/dvd/format_info.sh	2010-06-01 23:18:50.000000000 +0200
-+++ yacoto-scripts-0.0.3/conf/dvd/format_info.sh	1970-01-01 01:00:00.000000000 +0100
-@@ -1,109 +0,0 @@
--#!/bin/bash
+diff -Naur yacoto_orig/conf/dvd/format_info.sh yacoto/conf/dvd/format_info.sh
+--- yacoto_orig/conf/dvd/format_info.sh	2008-12-18 20:00:15.000000000 +0100
++++ yacoto/conf/dvd/format_info.sh	1970-01-01 01:00:00.000000000 +0100
+@@ -1,105 +0,0 @@
+-#!/bin/sh
 -SPLIT_START="([{ "
 -SPLIT_END=":.;!?)]}"
 -
--INFO_FILE="$1/info"
--[ ! -e "$INFO_FILE" ] && INFO_FILE="$1/info.vdr"
--[ ! -s "$INFO_FILE" ] && exit
+-[ ! -s "$1" ] && exit
 -#calculate length
 -VID_LEN="??:??:??"
--if [ -s "${1}/index.vdr" ] ; then
+-if [ -s "${1%info.vdr}index.vdr" ] ; then
 -   fsize=$(stat -c %s "${1%info.vdr}index.vdr")
 -   hours=$(($fsize/720000))
 -   fsize=$(($fsize%720000))
@@ -354,8 +329,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/format_info.sh ya
 -   seconds=$(($fsize/200))
 -   [ $seconds -lt 10 ] && $seconds="0$seconds"
 -   VID_LEN="$hours:$minutes:$seconds"
--elif [ -s "${1}/index" ] ; then
--   echo ""
 -fi
 -SPLIT_CHARS="${SPLIT_START}${SPLIT_END}"
 -MAX_SPLIT=
@@ -363,9 +336,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/format_info.sh ya
 -   LINE_LENGTH=$2
 -else
 -   LINE_LENGTH=80
--fi
+-fi   
 -MIN_LENGTH=20
--cat "$INFO_FILE" | while read line ; do
+-cat "$1" | while read line ; do
 -   if [ "${line:0:1}" = "T" ] ; then
 -      echo "${line:2}  ($VID_LEN)"
 -      echo ""
@@ -374,81 +347,82 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd/format_info.sh ya
 -      line="${line:2}||"
 -      while [ "$line" != "" ] ; do
 -         ln="${line%%|*}"
--         while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
--         while [ ${#ln} -gt $LINE_LENGTH ] ; do
--             idx=$LINE_LENGTH
--             if [ "${SPLIT_START#*${ln:$idx:1}}" = "$SPLIT_START" ] ; then
--                while [ $idx -ge $MIN_LENGTH ] ; do
+-	 while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
+-	 while [ ${#ln} -gt $LINE_LENGTH ] ; do
+-	     idx=$LINE_LENGTH
+-	     if [ "${SPLIT_START#*${ln:$idx:1}}" = "$SPLIT_START" ] ; then
+-	        while [ $idx -ge $MIN_LENGTH ] ; do
 -                   idx=$(($idx - 1))
 -                   if [ "${SPLIT_CHARS#*${ln:$idx:1}}" != "$SPLIT_CHARS" ] ; then
--                      if [ "${SPLIT_END#*${ln:$idx:1}}" != "$SPLIT_END" ] ; then
--                         [ $idx -eq $(($LINE_LENGTH-1)) ] && continue
+-		      if [ "${SPLIT_END#*${ln:$idx:1}}" != "$SPLIT_END" ] ; then
+-		         [ $idx -eq $(($LINE_LENGTH-1)) ] && continue
 -                         idx=$(($idx + 1))
--                      fi
--                      break;
--                   fi
--                done
--                if [ $idx -lt $MIN_LENGTH ] ; then
--                   idx=$LINE_LENGTH
--                fi
--             fi
--             echo "${ln:0:$idx}"
--             ln="${ln:$idx}"
+-		      fi	 		         
+-		      break;
+-		   fi
+-		done
+-		if [ $idx -lt $MIN_LENGTH ] ; then
+-		   idx=$LINE_LENGTH
+-		fi   
+-	     fi	
+-	     echo "${ln:0:$idx}"
+-	     ln="${ln:$idx}"
 -             while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
--         done
--         echo "$ln"
--         line="${line#*|}"
+-	 done
+-	 echo "$ln"
+-	 line="${line#*|}"
 -      done
 -   elif [ "${line:0:1}" = "X" ] ; then
 -      if [ "${line:2:1}" = "1" ] ; then
 -         case "${line:4:2}" in
 -            01 | 05)
--               fmt="4:3"
--               ;;
--            02 | 03 | 06 | 07)
--               fmt="16:9"
--               ;;
--            04 | 08)
--               fmt=">16:9"
--               ;;
--            09 | 0D)
--               fmt="HD 4:3"
--               ;;
--            0A | 0B | 0E | 0F)
--               fmt="HD 16:9"
--               ;;
--            0C | 10)
--               fmt="HD >16:9"
--               ;;
--            *)
--               fmt="unknown(${line:4:2})"
--               ;;
--         esac
+-	       fmt="4:3"
+-	       ;;
+-	    02 | 03 | 06 | 07)
+-	       fmt="16:9"
+-	       ;;
+-	    04 | 08)
+-	       fmt=">16:9"
+-	       ;;
+-	    09 | 0D)
+-	       fmt="HD 4:3"
+-	       ;;
+-	    0A | 0B | 0E | 0F)
+-	       fmt="HD 16:9"
+-	       ;;
+-	    0C | 10)
+-	       fmt="HD >16:9"
+-	       ;;
+-	    *)
+-	       fmt="unknown(${line:4:2})"   
+-	       ;;
+-	 esac       
 -         echo "Video: $fmt (${line:7})"
 -      elif [ "${line:2:1}" = "2" ] ; then
 -         case "${line:4:2}" in
 -            01)
--               fmt="Mono"
--               ;;
--            03)
--               fmt="Stereo"
--               ;;
--            05)
--               fmt="Dolby Digital"
--               ;;
--            *)
--               fmt="unknown(${line:4:2})"
--               ;;
--         esac
+-	       fmt="Mono"
+-	       ;;
+-	    03)
+-	       fmt="Stereo"
+-	       ;;
+-	    05)
+-	       fmt="Dolby Digital"
+-	       ;;
+-	    *)
+-	       fmt="unknown(${line:4:2})"   
+-	       ;;
+-	 esac       
 -         echo "Audio: $fmt (${line:7})"
--      fi
+-      fi	 
 -   fi
 -done
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd.conf.sh yacoto-scripts-0.0.3/conf/dvd.conf.sh
---- yacoto-scripts-0.0.3_bak/conf/dvd.conf.sh	2009-07-08 00:12:11.000000000 +0200
-+++ yacoto-scripts-0.0.3/conf/dvd.conf.sh	2010-07-14 22:13:53.487375254 +0200
+\ No newline at end of file
+diff -Naur yacoto_orig/conf/dvd.conf.sh yacoto/conf/dvd.conf.sh
+--- yacoto_orig/conf/dvd.conf.sh	2008-12-18 20:00:12.000000000 +0100
++++ yacoto/conf/dvd.conf.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,23 +1,33 @@
- #!/bin/bash
+ #!/bin/sh
  #set -x
 -cd "$(dirname "$0")"
  
@@ -490,9 +464,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd.conf.sh yacoto-sc
 +fi
  
  sed -i $DVD_CONF -e "s/\(^DVD_MENU=.*#~[^~]*~[^~]*~[^~]*~\).*/\1$all_conf~/"
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd.sh yacoto-scripts-0.0.3/conf/dvd.sh
---- yacoto-scripts-0.0.3_bak/conf/dvd.sh	2009-12-31 14:40:23.000000000 +0100
-+++ yacoto-scripts-0.0.3/conf/dvd.sh	2010-07-14 22:21:16.197746015 +0200
+diff -Naur yacoto_orig/conf/dvd.sh yacoto/conf/dvd.sh
+--- yacoto_orig/conf/dvd.sh	2008-12-18 20:00:12.000000000 +0100
++++ yacoto/conf/dvd.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -5,7 +5,7 @@
  [ "$CREATE_ISO" = "1" ] && CONV_STEPS=$(($CONV_STEPS+1))
  [ "$BURN_DVD" = "1" ]   && CONV_STEPS=$(($CONV_STEPS+1))
@@ -502,18 +476,19 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/dvd.sh yacoto-scripts
  
  function yac_convert() {
     if [ "$1" = "" ] ; then
-@@ -54,7 +54,7 @@
+@@ -52,8 +52,7 @@
+ 	 mv -f $i.req $i
        done
     fi
- 
+-   
 -   if [ "${DVD_MENU}" != "" -a -d ${YAC_DIR}/conf/dvd/${DVD_MENU} ] ; then
 +   if [ "${DVD_MENU}" != "" -a -d ${DVD_CONF_DIR}/${DVD_MENU} ]; then
        dvd_make_menu $ID $DVD_DIR "$@"   
     elif [ "$SPLIT_MODE" = "chapters" -a "$2" != "" ] ; then
        in_fls=""
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/ffmpeg.conf.sample yacoto-scripts-0.0.3/conf/ffmpeg.conf.sample
---- yacoto-scripts-0.0.3_bak/conf/ffmpeg.conf.sample	2010-07-15 00:10:45.270427267 +0200
-+++ yacoto-scripts-0.0.3/conf/ffmpeg.conf.sample	1970-01-01 01:00:00.000000000 +0100
+diff -Naur yacoto_orig/conf/ffmpeg.conf.sample yacoto/conf/ffmpeg.conf.sample
+--- yacoto_orig/conf/ffmpeg.conf.sample	2008-12-18 21:44:11.000000000 +0100
++++ yacoto/conf/ffmpeg.conf.sample	1970-01-01 01:00:00.000000000 +0100
 @@ -1,13 +0,0 @@
 -REMUX_TYPE="remux_convert"  #~Remux mode~F~5~ ~
 -AUDIO_SOURCE="mp2"         #~Audio source~F~5~ ~
@@ -528,30 +503,21 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/ffmpeg.conf.sample ya
 -SIZE="0"                   #~Groesse~F~10~ ~
 -EXT="avi"                  #~Format~F~5~ ~
 -SPECIALOPT="-deinterlace"  #~Zusatzoptionen~F~128~ ~
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/conf/yac_enc_ffmpeg.sh yacoto-scripts-0.0.3/conf/yac_enc_ffmpeg.sh
---- yacoto-scripts-0.0.3_bak/conf/yac_enc_ffmpeg.sh	2010-06-01 23:18:50.000000000 +0200
-+++ yacoto-scripts-0.0.3/conf/yac_enc_ffmpeg.sh	2010-07-14 22:25:21.390637387 +0200
+diff -Naur yacoto_orig/conf/yac_enc_ffmpeg.sh yacoto/conf/yac_enc_ffmpeg.sh
+--- yacoto_orig/conf/yac_enc_ffmpeg.sh	2008-12-18 20:00:12.000000000 +0100
++++ yacoto/conf/yac_enc_ffmpeg.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -101,7 +101,7 @@
        SCALE="$OSCALEG"
     fi
  
--   if [ "$($MPLAYER $INPUT/00001.ts -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
+-   if [ "$($MPLAYER $INPUT/001.vdr -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
 +   if [ "$($MPLAYER $(resolve_recfile $INPUT/1stvideo) -v -frames 0 2>/dev/null|grep "(aspect 3)")" != "" ]; then
        if [ "$ZOOM" != "0" ]; then
           SCALE="${SCALE%x*}"
        fi
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/get_vcodec.sh yacoto-scripts-0.0.3/get_vcodec.sh
---- yacoto-scripts-0.0.3_bak/get_vcodec.sh	2010-04-08 21:13:45.000000000 +0200
-+++ yacoto-scripts-0.0.3/get_vcodec.sh	1970-01-01 01:00:00.000000000 +0100
-@@ -1,5 +0,0 @@
--#!/bin/bash
--if [ "$1" != "" -a -d "$1" ] ; then
--   [ ! -e "$1/vcodec" ] && mplayer -identify -vo null -ao null -frames 0 "$(ls $1/[0-9][0-9][0-9]* | head -n 1)" 2>/dev/null| grep ID_VIDEO_CODEC > "$1/vcodec"
--   cat "$1/vcodec" | cut -f 2 -d "="
--fi
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/mkdist.sh yacoto-scripts-0.0.3/mkdist.sh
---- yacoto-scripts-0.0.3_bak/mkdist.sh	2008-12-18 21:35:34.000000000 +0100
-+++ yacoto-scripts-0.0.3/mkdist.sh	1970-01-01 01:00:00.000000000 +0100
+diff -Naur yacoto_orig/mkdist.sh yacoto/mkdist.sh
+--- yacoto_orig/mkdist.sh	2008-12-18 21:35:34.000000000 +0100
++++ yacoto/mkdist.sh	1970-01-01 01:00:00.000000000 +0100
 @@ -1,15 +0,0 @@
 -#!/bin/bash
 -#set -x
@@ -568,22 +534,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/mkdist.sh yacoto-scripts-0
 -tar -tzvf "${PACKAGE}.tgz"
 -
 -sh yac_update.sh
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/myvars.conf.sample yacoto-scripts-0.0.3/myvars.conf.sample
---- yacoto-scripts-0.0.3_bak/myvars.conf.sample	2010-07-15 00:10:45.300426226 +0200
-+++ yacoto-scripts-0.0.3/myvars.conf.sample	2010-07-15 00:50:11.570187225 +0200
-@@ -1,6 +1,8 @@
- #!/bin/bash
-+
- SVDRP_CMD="svdrpsend.pl"
- REMOTECONVERT="1"
- REMOTEIP="192.168.0.2"
- CLIENTIP="192.168.0.28"
--
-+FOREIGN_CHARS_LOWER="ÄÃ®ÅÅ£Ã¢"
-+FOREIGN_CHARS_UPPER="ÄÃÅÅ¢Ã"
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_admin.sh yacoto-scripts-0.0.3/yac_admin.sh
---- yacoto-scripts-0.0.3_bak/yac_admin.sh	2008-12-18 20:00:05.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_admin.sh	2010-07-14 22:13:53.490707828 +0200
+diff -Naur yacoto_orig/yac_admin.sh yacoto/yac_admin.sh
+--- yacoto_orig/yac_admin.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_admin.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,6 +1,5 @@
  #!/bin/bash
 -cd "$(dirname "$0")"
@@ -592,31 +545,26 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_admin.sh yacoto-script
  
  logger -s "$0 $1"
  if [ "$1" = "-init" ] ; then
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_exec.sh yacoto-scripts-0.0.3/yac_exec.sh
---- yacoto-scripts-0.0.3_bak/yac_exec.sh	2010-06-01 23:18:50.000000000 +0200
-+++ yacoto-scripts-0.0.3/yac_exec.sh	2010-07-15 00:00:36.000000000 +0200
-@@ -19,12 +19,17 @@
+diff -Naur yacoto_orig/yac_exec.sh yacoto/yac_exec.sh
+--- yacoto_orig/yac_exec.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_exec.sh	2010-03-13 23:46:10.000000000 +0100
+@@ -18,10 +18,14 @@
     logger -s "$*"
     echo "$(date +"%D %T") - $*" >> $LOG
- }
+ } 
 -YAC_DIR="$(pwd)"
  
  [ "$DEBUG" = "1" ] && set -x
--[ -s "$YAC_DIR/myvars.conf" ] && source "$YAC_DIR/myvars.conf"
-+
+ 
 +YAC_DIR="${YAC_DIR:=/etc/vdr/plugins/yacoto}"
 +YAC_CONF_DIR="${YAC_CONF_DIR:=/etc/vdr/plugins/yacoto}"
 +
 +source $YAC_DIR/yac_helperfuncs.sh
 +
-+[ -s "$YAC_CONF_DIR/myvars.conf" ] && source "$YAC_CONF_DIR/myvars.conf"
  #target_filename=${1// /_}
--target_name="$(echo "$1" | sed -e "s/[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]/_/g" | tr -s "_")"
-+target_name="$(echo "$1" | sed -e "s/[^abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼${FOREIGN_CHARS_LOWER}ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃÃ${FOREIGN_CHARS_UPPER}0123456789_]/_/g" | tr -s "_")"
+ target_name="$(echo "$1" | sed -e "s/[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]/_/g" | tr -s "_")"
  [ "$target_name" = "" ] && usage
- 
- act_date="$(date +%Y%m%d%H%M)"
-@@ -57,8 +62,7 @@
+@@ -56,8 +60,7 @@
  
  TEMP_DIR=${TEMP_DIR:=/tmp}
  TEMP_DIR="${TEMP_DIR}/YAC_$target_tempname"
@@ -626,29 +574,54 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_exec.sh yacoto-scripts
  VDR_VIDEO=${VDR_VIDEO:=/video}
  TARGET_VIDEO=${TARGET_VIDEO:=/film}
  TARGET_AUDIO=${TARGET_AUDIO:=/audio/yacoto}
-@@ -148,7 +152,7 @@
-       title=${title##*/}
- #   fi
- #   REC_TITLE[$num_recs]="$(echo "$title" | sed -e "s/[^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_]/_/g" | tr -s "_")"
--   REC_TITLE[$num_recs]="$(echo "$title" | sed -e "s/[^ -\&abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃÃ0123456789_]/_/g" | tr -s "_")"
-+   REC_TITLE[$num_recs]="$(echo "$title" | sed -e "s/[^ -\&abcdefghijklmnopqrstuvwxyzÃ¤Ã¶Ã¼${FOREIGN_CHARS_LOWER}ABCDEFGHIJKLMNOPQRSTUVWXYZÃÃÃÃ${FOREIGN_CHARS_UPPER}0123456789_]/_/g" | tr -s "_")"
-    REC_AUDIO[$num_recs]="$AUDIO_PARMS"
- done
- if [ "$TARGET_VIDEO" = "SOURCE" ] ; then
-@@ -181,7 +185,7 @@
+@@ -77,8 +80,8 @@
+ parm_err=0
+ for i in "$@" ; do
+    vid_dir="${i%%~*}"
+-   if [ ! -f "$vid_dir/001.vdr" ] ; then
+-      log "<$vid_dir/001.vdr> not found"
++   if [ ! -f "$(resolve_recfile $vid_dir/1stvideo)" ] ; then
++      log "1st video chunk (00001.ts or 001.vdr) not found in <$vid_dir>"
+       parm_err=1 
+       break
+    fi
+@@ -99,7 +102,7 @@
+    VIDEO_DIR=${VIDEO_DIR%/}
+    num_recs=$(($num_recs + 1))
+    TARGET="$(printf "$TEMP_DIR/yac_%03d" $num_recs)"
+-   if [ "$CUT_RECS" = "1" -a "$i" = "${i#*/%}" -a -s "$VIDEO_DIR/marks.vdr" ] ; then
++   if [ "$CUT_RECS" = "1" -a "$i" = "${i#*/%}" -a -s "$(resolve_recfile $VIDEO_DIR/marks)" ] ; then
+       log "Schneide <$VIDEO_DIR>"      
+       rec_dir="${VIDEO_DIR##*/}"
+       tmp="${VIDEO_DIR%/*}"
+@@ -113,11 +116,11 @@
+       svdrpsend.pl MESG "Erstellung von $TARGET fehlgeschlagen"
+       log "Erstellung von $TARGET fehlgeschlagen"
+    fi
+-   idx_size="$(stat -c %s "$VIDEO_DIR/index.vdr")"
++   idx_size="$(stat -c %s "$(resolve_recfile $VIDEO_DIR/index)")"
+    REC_LEN[$num_recs]=$(($idx_size/8/25))
+    VIDEO_LEN="$(($VIDEO_LEN + ${REC_LEN[$num_recs]}))"
+    REC_DIR[$num_recs]=$VIDEO_DIR
+-   title="$(grep "^T " "$VIDEO_DIR/info.vdr")" 
++   title="$(grep "^T " "$(resolve_recfile $VIDEO_DIR/info)")" 
+    if [ "${title:2}" != "" ] ; then
+       title="${title:2}"
+    else
+@@ -156,7 +159,7 @@
        fi
        [ -f "$info_file" ] && info_file="${info_file%.info}.${act_date}.info"
- 
--      sh $YAC_DIR/conf/dvd/format_info.sh "${REC_DIR[1]}" > "${info_file}"
-+      sh ${YAC_DIR}/yac_format_info.sh "${REC_DIR[1]}" > "${info_file}"
+       	 
+-      sh $YAC_DIR/conf/dvd/format_info.sh "${REC_DIR[1]}/info.vdr" > "${info_file}"
++      sh ${YAC_DIR}/yac_format_info.sh "$(resolve_recfile ${REC_DIR[1]}/info)" > "${info_file}"
     fi
     RC="SUCCESS"
  else
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_format_info.sh yacoto-scripts-0.0.3/yac_format_info.sh
---- yacoto-scripts-0.0.3_bak/yac_format_info.sh	1970-01-01 01:00:00.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_format_info.sh	2010-07-14 23:42:08.000000000 +0200
-@@ -0,0 +1,113 @@
-+#!/bin/bash
+diff -Naur yacoto_orig/yac_format_info.sh yacoto/yac_format_info.sh
+--- yacoto_orig/yac_format_info.sh	1970-01-01 01:00:00.000000000 +0100
++++ yacoto/yac_format_info.sh	2010-03-13 23:46:10.000000000 +0100
+@@ -0,0 +1,109 @@
++#!/bin/sh
 +
 +YAC_DIR="${YAC_DIR:=/etc/vdr/plugins/yacoto}"
 +source "${YAC_DIR}/yac_helperfuncs.sh"
@@ -656,9 +629,7 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_format_info.sh yacoto-
 +SPLIT_START="([{ "
 +SPLIT_END=":.;!?)]}"
 +
-+INFO_FILE="$1/info"
-+[ ! -e "$INFO_FILE" ] && INFO_FILE="$1/info.vdr"
-+[ ! -s "$INFO_FILE" ] && exit
++[ ! -s "$1" ] && exit
 +#calculate length
 +VID_LEN="??:??:??"
 +if [ -s "${1%$(resolve_recfile info)}$(resolve_recfile index)" ] ; then
@@ -671,8 +642,6 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_format_info.sh yacoto-
 +   seconds=$(($fsize/200))
 +   [ $seconds -lt 10 ] && $seconds="0$seconds"
 +   VID_LEN="$hours:$minutes:$seconds"
-+elif [ -s "${1}/index" ] ; then
-+   echo ""
 +fi
 +SPLIT_CHARS="${SPLIT_START}${SPLIT_END}"
 +MAX_SPLIT=
@@ -680,9 +649,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_format_info.sh yacoto-
 +   LINE_LENGTH=$2
 +else
 +   LINE_LENGTH=80
-+fi
++fi   
 +MIN_LENGTH=20
-+cat "$INFO_FILE" | while read line ; do
++cat "$1" | while read line ; do
 +   if [ "${line:0:1}" = "T" ] ; then
 +      echo "${line:2}  ($VID_LEN)"
 +      echo ""
@@ -691,88 +660,80 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_format_info.sh yacoto-
 +      line="${line:2}||"
 +      while [ "$line" != "" ] ; do
 +         ln="${line%%|*}"
-+         while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
-+         while [ ${#ln} -gt $LINE_LENGTH ] ; do
-+             idx=$LINE_LENGTH
-+             if [ "${SPLIT_START#*${ln:$idx:1}}" = "$SPLIT_START" ] ; then
-+                while [ $idx -ge $MIN_LENGTH ] ; do
++	 while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
++	 while [ ${#ln} -gt $LINE_LENGTH ] ; do
++	     idx=$LINE_LENGTH
++	     if [ "${SPLIT_START#*${ln:$idx:1}}" = "$SPLIT_START" ] ; then
++	        while [ $idx -ge $MIN_LENGTH ] ; do
 +                   idx=$(($idx - 1))
 +                   if [ "${SPLIT_CHARS#*${ln:$idx:1}}" != "$SPLIT_CHARS" ] ; then
-+                      if [ "${SPLIT_END#*${ln:$idx:1}}" != "$SPLIT_END" ] ; then
-+                         [ $idx -eq $(($LINE_LENGTH-1)) ] && continue
++		      if [ "${SPLIT_END#*${ln:$idx:1}}" != "$SPLIT_END" ] ; then
++		         [ $idx -eq $(($LINE_LENGTH-1)) ] && continue
 +                         idx=$(($idx + 1))
-+                      fi
-+                      break;
-+                   fi
-+                done
-+                if [ $idx -lt $MIN_LENGTH ] ; then
-+                   idx=$LINE_LENGTH
-+                fi
-+             fi
-+             echo "${ln:0:$idx}"
-+             ln="${ln:$idx}"
++		      fi
++		      break;
++		   fi
++		done
++		if [ $idx -lt $MIN_LENGTH ] ; then
++		   idx=$LINE_LENGTH
++		fi   
++	     fi	
++	     echo "${ln:0:$idx}"
++	     ln="${ln:$idx}"
 +             while [ "${ln:0:1}" = " " ] ; do ln="${ln# }" ; done
-+         done
-+         echo "$ln"
-+         line="${line#*|}"
++	 done
++	 echo "$ln"
++	 line="${line#*|}"
 +      done
 +   elif [ "${line:0:1}" = "X" ] ; then
 +      if [ "${line:2:1}" = "1" ] ; then
 +         case "${line:4:2}" in
 +            01 | 05)
-+               fmt="4:3"
-+               ;;
-+            02 | 03 | 06 | 07)
-+               fmt="16:9"
-+               ;;
-+            04 | 08)
-+               fmt=">16:9"
-+               ;;
-+            09 | 0D)
-+               fmt="HD 4:3"
-+               ;;
-+            0A | 0B | 0E | 0F)
-+               fmt="HD 16:9"
-+               ;;
-+            0C | 10)
-+               fmt="HD >16:9"
-+               ;;
-+            *)
-+               fmt="unknown(${line:4:2})"
-+               ;;
-+         esac
++	       fmt="4:3"
++	       ;;
++	    02 | 03 | 06 | 07)
++	       fmt="16:9"
++	       ;;
++	    04 | 08)
++	       fmt=">16:9"
++	       ;;
++	    09 | 0D)
++	       fmt="HD 4:3"
++	       ;;
++	    0A | 0B | 0E | 0F)
++	       fmt="HD 16:9"
++	       ;;
++	    0C | 10)
++	       fmt="HD >16:9"
++	       ;;
++	    *)
++	       fmt="unknown(${line:4:2})"
++	       ;;
++	 esac       
 +         echo "Video: $fmt (${line:7})"
 +      elif [ "${line:2:1}" = "2" ] ; then
 +         case "${line:4:2}" in
 +            01)
-+               fmt="Mono"
-+               ;;
-+            03)
-+               fmt="Stereo"
-+               ;;
-+            05)
-+               fmt="Dolby Digital"
-+               ;;
-+            *)
-+               fmt="unknown(${line:4:2})"
-+               ;;
-+         esac
++	       fmt="Mono"
++	       ;;
++	    03)
++	       fmt="Stereo"
++	       ;;
++	    05)
++	       fmt="Dolby Digital"
++	       ;;
++	    *)
++	       fmt="unknown(${line:4:2})"
++	       ;;
++	 esac
 +         echo "Audio: $fmt (${line:7})"
 +      fi
 +   fi
 +done
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_get_vcodec.sh yacoto-scripts-0.0.3/yac_get_vcodec.sh
---- yacoto-scripts-0.0.3_bak/yac_get_vcodec.sh	1970-01-01 01:00:00.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_get_vcodec.sh	2010-04-08 21:13:45.000000000 +0200
-@@ -0,0 +1,5 @@
-+#!/bin/bash
-+if [ "$1" != "" -a -d "$1" ] ; then
-+   [ ! -e "$1/vcodec" ] && mplayer -identify -vo null -ao null -frames 0 "$(ls $1/[0-9][0-9][0-9]* | head -n 1)" 2>/dev/null| grep ID_VIDEO_CODEC > "$1/vcodec"
-+   cat "$1/vcodec" | cut -f 2 -d "="
-+fi
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_helperfuncs.sh yacoto-scripts-0.0.3/yac_helperfuncs.sh
---- yacoto-scripts-0.0.3_bak/yac_helperfuncs.sh	1970-01-01 01:00:00.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_helperfuncs.sh	2010-07-14 22:13:53.614052720 +0200
+\ No newline at end of file
+diff -Naur yacoto_orig/yac_helperfuncs.sh yacoto/yac_helperfuncs.sh
+--- yacoto_orig/yac_helperfuncs.sh	1970-01-01 01:00:00.000000000 +0100
++++ yacoto/yac_helperfuncs.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -0,0 +1,63 @@
 +#!/bin/bash
 +
@@ -837,9 +798,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_helperfuncs.sh yacoto-
 +		echo "Usage:  resolve_recfile [rec_path/]{1stvideo | info | index | marks}"
 +	fi
 +}
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_manager.sh yacoto-scripts-0.0.3/yac_manager.sh
---- yacoto-scripts-0.0.3_bak/yac_manager.sh	2008-12-18 20:00:05.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_manager.sh	2010-07-14 22:13:53.624457522 +0200
+diff -Naur yacoto_orig/yac_manager.sh yacoto/yac_manager.sh
+--- yacoto_orig/yac_manager.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_manager.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,19 +1,20 @@
  #!/bin/bash
  sleep 10
@@ -874,25 +835,125 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_manager.sh yacoto-scri
 +   done
  done
 -
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_remux.sh yacoto-scripts-0.0.3/yac_remux.sh
---- yacoto-scripts-0.0.3_bak/yac_remux.sh	2010-06-01 23:18:50.000000000 +0200
-+++ yacoto-scripts-0.0.3/yac_remux.sh	2010-07-14 23:47:20.000000000 +0200
-@@ -1,7 +1,11 @@
+diff -Naur yacoto_orig/yac_remux.sh yacoto/yac_remux.sh
+--- yacoto_orig/yac_remux.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_remux.sh	2010-03-13 23:43:05.000000000 +0100
+@@ -1,4 +1,8 @@
  #!/bin/bash
 +
 +YAC_DIR="${YAC_DIR:=/usr/share/vdr/yacoto}"
 +source "${YAC_DIR}/yac_helperfuncs.sh"
 +
  set -x
- PROJECTX="/usr/bin/projectx_nogui"
--PROJECTX_INI="/etc/vdr/plugins/yacoto/conf/ProjectX.ini"
-+PROJECTX_INI="${YAC_CONF_DIR}/conf/ProjectX.ini"
- 
  function usage() {
     echo "Syntax:  $0 [--preferac3|--prefermp2|--ac3streams=nnn|--mp2streams=nnn] [--audioonly] [--demux] <recording-path>"
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_setcfgfiles.sh yacoto-scripts-0.0.3/yac_setcfgfiles.sh
---- yacoto-scripts-0.0.3_bak/yac_setcfgfiles.sh	2008-12-18 20:00:05.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_setcfgfiles.sh	2010-07-14 22:13:53.624457522 +0200
+@@ -21,26 +25,22 @@
+ 
+ audio_stream_prefs=${1#*~}
+ 
+-if [ ! -f "$vid_dir/001.vdr" ] ; then
+-   logger -s "<$vid_dir/001.vdr> not found"
+-   usage
+-fi
+-
+ echo "Starte <$0 $*>"
+ 
+ act_dir=$(pwd)
+ cd "$vid_dir"
+ 
+-cat "info.vdr"
++cat "$(resolve_recfile info)"
++first_vidfile="$(resolve_recfile 1stvideo)"
+ 
+ if [ "$REMUX_TYPE" = "mpeg2" -o "$REMUX_TYPE" = "dvd"  ] ; then
+-   SYNC=$(replex -y 2 001.vdr 2>/dev/null |grep "^Video unit: P" |head -n 1|sed -e "s/ DTS.*//" -e "s/.*diff://" -e "s/[:.]//g" -e "s/ 0*//g")
++   SYNC=$(replex -y 2 $first_vidfile 2>/dev/null |grep "^Video unit: P" |head -n 1|sed -e "s/ DTS.*//" -e "s/.*diff://" -e "s/[:.]//g" -e "s/ 0*//g")
+    [ "$SYNC" != "" ] && parms="$parms -e $SYNC"
+ fi   
+ VDR_PARM=""
+-replex -s 001.vdr > $TMP 2>/dev/null
++replex -s $first_vidfile > $TMP 2>/dev/null
+ if [ "$(grep "AC3 AUDIO" $TMP)" = "" ] ; then
+-   replex -s --vdr 001.vdr > $TMP 2>/dev/null   
++   replex -s --vdr $first_vidfile > $TMP 2>/dev/null
+    VDR_PARM="--vdr"
+ fi   
+ 
+@@ -49,11 +49,14 @@
+ def_parms=""
+ master=""
+ all_audio=""
+-#set -x
++set -x
+ 
+ act_pref=$audio_stream_prefs
+ str_idx=0
+-for i in $(grep "MPEG AUDIO" $TMP | cut -f4 -d" " | sort -u) ; do   
++scan_res=""
++scan_res=$(grep "MPEG AUDIO" $TMP | cut -f4 -d" " | sort -u)
++[ "$scan_res" = "" ] && scan_res=$(grep "apid" $TMP | cut -f3 -d" " | sort -u)
++for i in $scan_res ; do
+    all_audio="$all_audio,${i:2:2}"
+    case ${audio_stream_prefs:$str_idx:1} in
+       1)  mp2_parms="$mp2_parms -a $i" ;;
+@@ -63,7 +66,10 @@
+    str_idx=$(($str_idx+2))
+ done
+ 
+-for i in $(grep "AC3 AUDIO" $TMP | cut -f4 -d" " | sort -u) ; do
++scan_res=""
++scan_res=$(grep "AC3 AUDIO" $TMP | cut -f4 -d" " | sort -u)
++[ "$scan_res" = "" ] && scan_res=$(grep "ac3pid" $TMP | cut -f3 -d" " | sort -u)
++for i in $scan_res ; do
+    all_audio="$all_audio,${i:2:2}"
+    case ${audio_stream_prefs:$str_idx:1} in
+       1)  ac3_parms="$ac3_parms -c $i" ;;
+@@ -81,18 +87,26 @@
+    parms="$def_parms"
+ fi
+ 
++vpidparams=""
+ mpv=$(grep "MPEG VIDEO" $TMP | cut -f4 -d" ")
++if [ "$mpv" = "" ]; then
++    # try for newer replex output
++    mpv=$(grep "vpid" $TMP | cut -f3 -d" ")
++fi
++# use -v only if we found the vpid, otherwise replex should work without this parameter
++[ "$mpv" = "" ] || vpidparams=" -v $mpv"
++
+ if [ "$REMUX_TYPE" = "remux_mpeg2" ] ; then
+    REMUXER="replex"
+-   parms="$parms -v $mpv -t MPEG2"
++   parms="$parms$vpidparams -t MPEG2"
+    TARGET="${TARGET}.mpeg"
+ elif [ "$REMUX_TYPE" = "remux_dvd" ] ; then
+    REMUXER="replex"
+-   parms="$parms -v $mpv -t DVD"
++   parms="$parms$vpidparams -t DVD"
+    TARGET="${TARGET}.mpeg"
+ elif [ "$REMUX_TYPE" = "remux_convert" ] ; then
+    REMUXER="replex"
+-   parms="$parms -v $mpv -t DVD"
++   parms="$parms$vpidparams -t DVD"
+    TARGET="${TARGET}.mpeg"
+ elif [ "$REMUX_TYPE" = "demux_audio" ] ; then
+    REMUXER="vdrsync"
+@@ -107,7 +121,11 @@
+ fi
+ 
+ if [ "$REMUXER" = "replex" ] ; then
+-   infls=$(ls [0-9][0-9][0-9].vdr)
++   if [ "$(basename $first_vidfile)" = "00001.ts" ]; then
++	infls=$(ls [0-9][0-9][0-9][0-9][0-9].ts)
++   else
++	infls=$(ls [0-9][0-9][0-9].vdr)
++   fi
+    remux_exec replex -j $VDR_PARM $parms -o "$TARGET" $infls
+ elif [ "$REMUXER" = "vdrsync" ] ; then
+    master=${def_parms:5:2}
+diff -Naur yacoto_orig/yac_setcfgfiles.sh yacoto/yac_setcfgfiles.sh
+--- yacoto_orig/yac_setcfgfiles.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_setcfgfiles.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,8 +1,8 @@
  #!/bin/bash
 -cd "$(dirname "$0")"
@@ -914,9 +975,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_setcfgfiles.sh yacoto-
        VARVAL="$VAR=\"$VAL\""
        printf "%-25s  #~$COMMENT~$TYPE~$LENGTH~$VAL_INPUT~\n" "$VARVAL" >> $cfg_file
     fi
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_setplgconf.sh yacoto-scripts-0.0.3/yac_setplgconf.sh
---- yacoto-scripts-0.0.3_bak/yac_setplgconf.sh	2008-12-18 20:00:05.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_setplgconf.sh	2010-07-14 22:13:53.624457522 +0200
+diff -Naur yacoto_orig/yac_setplgconf.sh yacoto/yac_setplgconf.sh
+--- yacoto_orig/yac_setplgconf.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_setplgconf.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,7 +1,18 @@
  #!/bin/bash
 -cd "$(dirname "$0")"
@@ -1004,9 +1065,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_setplgconf.sh yacoto-s
  fi
  cat $YAC_PLG_CONF.new >> $YAC_PLG_CONF 
 -
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_show_status.sh yacoto-scripts-0.0.3/yac_show_status.sh
---- yacoto-scripts-0.0.3_bak/yac_show_status.sh	2008-12-18 20:00:05.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_show_status.sh	2010-07-14 22:13:53.674457962 +0200
+diff -Naur yacoto_orig/yac_show_status.sh yacoto/yac_show_status.sh
+--- yacoto_orig/yac_show_status.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_show_status.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,7 +1,6 @@
  #!/bin/bash
  #set -x
@@ -1016,9 +1077,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_show_status.sh yacoto-
  
  ps x | grep -v grep | grep yac_queue_1222863016.sh.run
  
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_start.sh yacoto-scripts-0.0.3/yac_start.sh
---- yacoto-scripts-0.0.3_bak/yac_start.sh	2009-01-22 18:09:57.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_start.sh	2010-07-14 22:28:41.037703215 +0200
+diff -Naur yacoto_orig/yac_start.sh yacoto/yac_start.sh
+--- yacoto_orig/yac_start.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_start.sh	2010-03-13 08:25:09.000000000 +0100
 @@ -1,17 +1,19 @@
  #!/bin/bash
 -YAC_CONF="yacoto.conf"
@@ -1046,19 +1107,19 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_start.sh yacoto-script
  logger -s "$0"
  
  NICE_LEVEL=${NICE_LEVEL:=10}
-@@ -30,7 +32,7 @@
+@@ -28,7 +30,7 @@
  
- cat $YAC_CONF >> $tmpFile
- echo ""  >> $tmpFile
+ echo "#!/bin/bash" >$tmpFile
+ 
 -cat conf/$CONFIG.conf  >> $tmpFile
 +cat ${YAC_CONF_DIR}/conf/$CONFIG.conf  >> $tmpFile
+ echo ""  >> $tmpFile
+ cat $YAC_CONF >> $tmpFile
  
- parms=""
- for i in "$@" ; do
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_status.sh yacoto-scripts-0.0.3/yac_status.sh
---- yacoto-scripts-0.0.3_bak/yac_status.sh	2009-02-05 18:30:00.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_status.sh	2010-07-14 22:13:53.767376894 +0200
-@@ -9,8 +9,7 @@
+diff -Naur yacoto_orig/yac_status.sh yacoto/yac_status.sh
+--- yacoto_orig/yac_status.sh	2008-12-18 20:00:05.000000000 +0100
++++ yacoto/yac_status.sh	2010-03-13 23:46:10.000000000 +0100
+@@ -7,8 +7,7 @@
  }
  
  STARTTIME="$(date +%s)"
@@ -1068,9 +1129,9 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_status.sh yacoto-scrip
  
  logger -s "$*"
  PARENT_PID="$1"
-diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_update.sh yacoto-scripts-0.0.3/yac_update.sh
---- yacoto-scripts-0.0.3_bak/yac_update.sh	2008-12-18 21:43:36.000000000 +0100
-+++ yacoto-scripts-0.0.3/yac_update.sh	2010-07-14 22:13:53.767376894 +0200
+diff -Naur yacoto_orig/yac_update.sh yacoto/yac_update.sh
+--- yacoto_orig/yac_update.sh	2008-12-18 21:43:36.000000000 +0100
++++ yacoto/yac_update.sh	2010-03-13 23:46:10.000000000 +0100
 @@ -1,8 +1,13 @@
  #!/bin/bash
 +
@@ -1087,4 +1148,3 @@ diff -Naur '--exclude=*.png' yacoto-scripts-0.0.3_bak/yac_update.sh yacoto-scrip
 +   fi
 +done
 +cd "${YAC_DIR}"
-
