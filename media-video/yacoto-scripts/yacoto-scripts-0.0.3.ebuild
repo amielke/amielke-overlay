@@ -76,8 +76,9 @@ src_install() {
 	cd "${D}${MY_YAC_CONF_DIR}"/conf
 	rename .conf.sample .conf *.conf.sample
 	if use dvd ; then
-		cd "${D}${MY_YAC_DIR}"/conf/dvd
+		cd "${D}${MY_YAC_CONF_DIR}"/conf/dvd
 		rename .conf.sample .conf *.conf.sample
+		mv *.conf ${MY_YAC_DIR}
 	fi
 
 	prepalldocs
