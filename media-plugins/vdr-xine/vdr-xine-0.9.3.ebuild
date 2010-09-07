@@ -37,6 +37,7 @@ pkg_setup() {
 
 src_prepare() {
 	epatch "${FILESDIR}/${P}-gentoo.diff"
+	epatch "${S}/patches/xine-lib.patch"
 
 	use yaepg && sed -i Makefile -e "s:#VDR_XINE_SET_VIDEO_WINDOW:VDR_XINE_SET_VIDEO_WINDOW:"
 
