@@ -13,7 +13,7 @@ SRC_URI="http://home.vr-web.de/~rnissl/${P}.tgz"
 SLOT="0"
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
-IUSE="yaepg vdpau"
+IUSE="yaepg vdpau vdr"
 
 DEPEND=">=media-video/vdr-1.3.9
 	>=media-libs/xine-lib-1.1.8[vdr]"
@@ -36,9 +36,9 @@ pkg_setup() {
 }
 
 src_prepare() {
+	epatch "${FILESDIR}/xine0.9.3vdr1.712.diff"
 	epatch "${FILESDIR}/${P}-gentoo.diff"
-	use vdpau && epatch "${FILESDIR}/xine-plugin-0.9.3-vdpau-extensions-v13.2.diff" \
-		     epatch "${FILESDIR}/xine0.9.3vdr1.712.diff"
+	use vdpau && epatch "${FILESDIR}/xine-plugin-0.9.3-vdpau-extensions-v13.2.diff" 
 	use yaepg && sed -i Makefile -e "s:#VDR_XINE_SET_VIDEO_WINDOW:VDR_XINE_SET_VIDEO_WINDOW:"
 
 	vdr-plugin_src_prepare
