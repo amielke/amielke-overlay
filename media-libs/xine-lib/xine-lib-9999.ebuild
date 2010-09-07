@@ -85,6 +85,7 @@ src_unpack() {
 	use vdr && sed -i src/vdr/input_vdr.c -e '/define VDR_ABS_FIFO_DIR/s|".*"|"/var/vdr/xine"|'
 	use vdpau && epatch	"${FILESDIR}/xinelib1.2r11577vdpauextensionsv14streamstart.diff"
 	epatch "${FILESDIR}/longrunninggrabfix.diff"
+	epatch "${FILESDIR}/xine-lipatch"
 }
 
 src_compile() {
