@@ -37,7 +37,8 @@ pkg_setup() {
 
 src_prepare() {
 	epatch "${FILESDIR}/${P}-gentoo.diff"
-	use vdpau && epatch "${FILESDIR}/xine-plugin-0.9.3-vdpau-extensions-v13.2.diff"
+	use vdpau && epatch "${FILESDIR}/xine-plugin-0.9.3-vdpau-extensions-v13.2.diff" \
+		     epatch "${FILESDIR}/xine0.9.3vdr1.712.diff"
 	use yaepg && sed -i Makefile -e "s:#VDR_XINE_SET_VIDEO_WINDOW:VDR_XINE_SET_VIDEO_WINDOW:"
 
 	vdr-plugin_src_prepare
