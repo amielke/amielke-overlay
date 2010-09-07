@@ -81,7 +81,7 @@ src_unpack() {
 	mercurial_src_unpack
 
 	cd "${S}" || die "cd failed"
-	epatch "${FILESDIR}/xine-lipatch"
+	epatch "${FILESDIR}/xine-lib.patch"
 
 
 	use vdr && sed -i src/vdr/input_vdr.c -e '/define VDR_ABS_FIFO_DIR/s|".*"|"/var/vdr/xine"|'
