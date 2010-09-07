@@ -79,6 +79,7 @@ src_install() {
 		cd "${D}${MY_YAC_CONF_DIR}"/conf/dvd
 		rename .conf.sample .conf *.conf.sample
 		dosym ${MY_YAC_CONF_DIR}/conf/dvd/menu.conf ${MY_YAC_DIR}/conf/dvd/menu.conf
+		dosym ${MY_YAC_DIR}/dvd/dvd.conf ${MY_YAC_CONF_DIR}/conf/dvd/dvd.conf
 	fi
 
 	prepalldocs
