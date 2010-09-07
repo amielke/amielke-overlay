@@ -15,7 +15,8 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE="3gp +dvd ipod mp3 ogg +status +x264 +xvid"
 
-DEPEND=">=media-video/vdr-1.4"
+DEPEND=">=media-video/vdr-1.4
+		media-video/replex[yacoto]"
 
 RDEPEND="media-video/vdrsync
 	app-misc/screen
