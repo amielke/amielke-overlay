@@ -55,6 +55,8 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
+	 epatch "${FILESDIR}"/${PN}-1.2.3-fix-gcc-4.4.patch
+
 	# FIXME: Fix unaligned accesses on ARM, IA64 and SPARC
 	# https://bugs.webkit.org/show_bug.cgi?id=19775
 	use sparc && epatch "${FILESDIR}"/${PN}-1.2.3-fix-pool-sparc.patch
@@ -63,7 +65,6 @@ src_prepare() {
 	# XXX: BROKEN. Patch does not apply anymore.
 	# https://bugs.webkit.org/show_bug.cgi?id=28727
 	#epatch "${FILESDIR}"/${PN}-1.1.15.4-darwin-quartz.patch
-	epatch "${FILESDIR}"/${PN}-1.2.3-fix-gcc-4.4.patch
 
 	# Make it libtool-1 compatible
 	rm -v autotools/lt* autotools/libtool.m4 \
