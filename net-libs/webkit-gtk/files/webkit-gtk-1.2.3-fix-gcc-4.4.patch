@@ -1,14 +1,16 @@
-Index: WebCore/ChangeLog
-===================================================================
---- WebCore/ChangeLog	(revision 61699)
-+++ WebCore/ChangeLog	(working copy)
-@@ -1,3 +1,37 @@
-+2010-06-23  Andras Becsi  <abecsi@webkit.org>
+diff --git a/ChangeLog b/ChangeLog
+index 1140ad1..4f00da3 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,23 @@
++2010-09-03  Andras Becsi  <abecsi@webkit.org>
 +
 +        Reviewed by NOBODY (OOPS!).
 +
 +        Undefined reference errors when linking due to gperf and inlining.
 +        webkit.org/b/29244
++
++        EFL CMake changes by Leandro Pereira <leandro@profusion.mobi>
 +
 +        Refactor gperf code generation and usage to fix the debug build with gcc>4.4.
 +        Hitherto gperf generated C code, these files were included in multiple C++ files across WebCore
@@ -19,47 +21,121 @@ Index: WebCore/ChangeLog
 +        The functionality provided by the generated code is wrapped behind HashTools.h, so there is no need
 +        for multiple inclusions of generated C files to access these functions.
 +
-+        No new functionality added, no new tests needed.
++        * cmake/WebKitMacros.cmake:
++
+ 2010-09-02  Lucas De Marchi  <lucas.demarchi@profusion.mobi>
+ 
+         Reviewed by Antonio Gomes.
+diff --git a/WebCore/CMakeLists.txt b/WebCore/CMakeLists.txt
+index 1d9159f..ad1b6ea 100644
+--- a/WebCore/CMakeLists.txt
++++ b/WebCore/CMakeLists.txt
+@@ -533,6 +533,10 @@ IF (ENABLE_SVG)
+ ENDIF()
+ 
+ SET(WebCore_SOURCES
++    ${DERIVED_SOURCES_DIR}/DocTypeStrings.cpp
++    ${DERIVED_SOURCES_DIR}/CSSValueKeywords.cpp
++    ${DERIVED_SOURCES_DIR}/CSSPropertyNames.cpp
++    ${DERIVED_SOURCES_DIR}/ColorData.cpp
+     ${DERIVED_SOURCES_DIR}/HTMLEntityTable.cpp
+     ${DERIVED_SOURCES_DIR}/UserAgentStyleSheetsData.cpp
+     ${DERIVED_SOURCES_DIR}/InspectorBackendDispatcher.cpp
+@@ -1891,12 +1895,10 @@ LIST(APPEND WebCore_SOURCES ${JS_IDL_FILES} ${Inspector_IDL_FILES})
+ 
+ GENERATE_ENTITIES(${WEBCORE_DIR}/html/parser/HTMLEntityNames.in ${DERIVED_SOURCES_DIR}/HTMLEntityTable.cpp ${WEBCORE_DIR}/html/parser/create-html-entity-table)
+ 
+-
+-GENERATE_GPERF(${WEBCORE_DIR}/platform/ColorData.gperf ${DERIVED_SOURCES_DIR}/ColorData.cpp findColor "")
++MAKE_HASH_TOOLS(${WEBCORE_DIR}/platform/ColorData)
+ ADD_SOURCE_DERIVED_DEPENDENCIES(${WEBCORE_DIR}/platform/graphics/Color.cpp ColorData.cpp)
+ 
+-
+-GENERATE_GPERF(${WEBCORE_DIR}/html/DocTypeStrings.gperf ${DERIVED_SOURCES_DIR}/DocTypeStrings.cpp findDoctypeEntry "-F,PubIDInfo::eAlmostStandards,PubIDInfo::eAlmostStandards")
++MAKE_HASH_TOOLS(${WEBCORE_DIR}/html/DocTypeStrings)
+ ADD_SOURCE_DERIVED_DEPENDENCIES(${WEBCORE_DIR}/html/HTMLDocument.cpp DocTypeStrings.cpp)
+ 
+ 
+@@ -1916,6 +1918,7 @@ GENERATE_CSS_PROPERTY_NAMES()
+ GENERATE_CSS_VALUE_KEYWORDS()
+ 
+ 
++ADD_SOURCE_DERIVED_DEPENDENCIES(${DERIVED_SOURCES_DIR}/HashTools.h DocTypeStrings.cpp CSSValueKeywords.cpp CSSPropertyNames.cpp ColorData.cpp)
+ ADD_SOURCE_DERIVED_DEPENDENCIES(${DERIVED_SOURCES_DIR}/CSSGrammar.cpp CSSValueKeywords.h)
+ ADD_SOURCE_DERIVED_DEPENDENCIES(${DERIVED_SOURCES_DIR}/CSSGrammar.cpp CSSPropertyNames.h)
+ ADD_SOURCE_DERIVED_DEPENDENCIES(${WEBCORE_DIR}/css/CSSPrimitiveValueMappings.h CSSValueKeywords.h)
+diff --git a/WebCore/ChangeLog b/WebCore/ChangeLog
+index ea62cc6..4b0015f 100644
+--- a/WebCore/ChangeLog
++++ b/WebCore/ChangeLog
+@@ -1,3 +1,37 @@
++2010-09-03  Andras Becsi  <abecsi@webkit.org>
++
++        Reviewed by NOBODY (OOPS!).
++
++        Undefined reference errors when linking due to gperf and inlining.
++        webkit.org/b/29244
++
++        EFL CMake changes by Leandro Pereira <leandro@profusion.mobi>
++
++        Refactor gperf code generation and usage to fix the debug build with gcc>4.4.
++        Hitherto gperf generated C code, these files were included in multiple C++ files across WebCore
++        to access the functionality provided. This resulted in debug build failure with newer gcc versions
++        because of a behaviour change of gcc, which disables C style inlining in debug mode.
++        The make-hash-tools.pl script lets gperf generate C++ code for all gperf files now, which are compiled
++        in their own compilation unit.
++        The functionality provided by the generated code is wrapped behind HashTools.h, so there is no need
++        for multiple inclusions of generated C files to access these functions.
++
++        No new tests needed.
 +
 +        * CMakeLists.txt:
 +        * WebCore.gyp/WebCore.gyp:
 +        * WebCore.pri:
++        * WebCore.vcproj/WebCore.vcproj:
 +        * WebCore.xcodeproj/project.pbxproj:
 +        * css/CSSParser.cpp:
 +        * css/makeprop.pl:
 +        * css/makevalues.pl:
 +        * html/DocTypeStrings.gperf:
 +        * html/HTMLDocument.cpp:
-+        * html/HTMLEntityNames.gperf:
-+        * html/HTMLEntityParser.cpp:
-+        * html/LegacyPreloadScanner.cpp:
 +        * make-hash-tools.pl:
 +        * platform/ColorData.gperf:
 +        * platform/graphics/Color.cpp:
 +
- 2010-06-23  Justin Schuh  <jschuh@chromium.org>
+ 2010-09-03  Nikolas Zimmermann  <nzimmermann@rim.com>
  
-         Unreviewed, rolling out r61695.
-Index: WebCore/CMakeLists.txt
-===================================================================
---- WebCore/CMakeLists.txt	(revision 61699)
-+++ WebCore/CMakeLists.txt	(working copy)
-@@ -516,6 +516,10 @@ SET(WebCore_SOURCES
-     ${DERIVED_SOURCES_DIR}/CSSGrammar.cpp
-     ${DERIVED_SOURCES_DIR}/HTMLElementFactory.cpp
-     ${DERIVED_SOURCES_DIR}/HTMLEntityNames.cpp
-+    ${DERIVED_SOURCES_DIR}/DocTypeStrings.cpp
-+    ${DERIVED_SOURCES_DIR}/CSSValueKeywords.cpp
-+    ${DERIVED_SOURCES_DIR}/CSSPropertyNames.cpp
-+    ${DERIVED_SOURCES_DIR}/ColorData.cpp
-     ${DERIVED_SOURCES_DIR}/HTMLNames.cpp
-     ${DERIVED_SOURCES_DIR}/JSHTMLElementWrapperFactory.cpp
-     ${DERIVED_SOURCES_DIR}/UserAgentStyleSheetsData.cpp
-Index: WebCore/WebCore.pri
-===================================================================
---- WebCore/WebCore.pri	(revision 61699)
-+++ WebCore/WebCore.pri	(working copy)
-@@ -682,7 +682,7 @@ cssprops.wkScript = $$PWD/css/makeprop.p
+         Reviewed by Dirk Schulze.
+diff --git a/WebCore/WebCore.gyp/WebCore.gyp b/WebCore/WebCore.gyp/WebCore.gyp
+index 595034e..c2a0b77 100644
+--- a/WebCore/WebCore.gyp/WebCore.gyp
++++ b/WebCore/WebCore.gyp/WebCore.gyp
+@@ -639,7 +639,6 @@
+             '<(SHARED_INTERMEDIATE_DIR)/webkit',
+             '<(RULE_INPUT_PATH)',
+           ],
+-          'process_outputs_as_sources': 0,
+         },
+         # Rule to build generated JavaScript (V8) bindings from .idl source.
+         {
+@@ -736,6 +735,12 @@
+         # in webcore_files.
+         '<@(derived_sources_aggregate_files)',
+ 
++        # Additional .cpp files for HashTools.h
++        '<(SHARED_INTERMEDIATE_DIR)/webkit/DocTypeStrings.cpp',
++        '<(SHARED_INTERMEDIATE_DIR)/webkit/ColorData.cpp',
++        '<(SHARED_INTERMEDIATE_DIR)/webkit/CSSPropertyNames.cpp',
++        '<(SHARED_INTERMEDIATE_DIR)/webkit/CSSValueKeywords.cpp',
++
+         # Additional .cpp files from webcore_bindings_sources actions.
+         '<(SHARED_INTERMEDIATE_DIR)/webkit/HTMLElementFactory.cpp',
+         '<(SHARED_INTERMEDIATE_DIR)/webkit/HTMLNames.cpp',
+diff --git a/WebCore/WebCore.pri b/WebCore/WebCore.pri
+index a4c69b1..0c9ca26 100644
+--- a/WebCore/WebCore.pri
++++ b/WebCore/WebCore.pri
+@@ -530,7 +530,7 @@ cssprops.wkScript = $$PWD/css/makeprop.pl
  cssprops.output = $${WC_GENERATED_SOURCES_DIR}/CSSPropertyNames.cpp
  cssprops.input = WALDOCSSPROPS
  cssprops.commands = perl -ne \"print lc\" ${QMAKE_FILE_NAME} $${DASHBOARDSUPPORTCSSPROPERTIES} $${EXTRACSSPROPERTIES} > $${WC_GENERATED_SOURCES_DIR}/${QMAKE_FILE_BASE}.in && cd $$WC_GENERATED_SOURCES_DIR && perl $$cssprops.wkScript && $(DEL_FILE) ${QMAKE_FILE_BASE}.in ${QMAKE_FILE_BASE}.gperf
@@ -68,7 +144,7 @@ Index: WebCore/WebCore.pri
  addExtraCompiler(cssprops)
  
  # GENERATOR 6-B:
-@@ -690,7 +690,7 @@ cssvalues.wkScript = $$PWD/css/makevalue
+@@ -538,7 +538,7 @@ cssvalues.wkScript = $$PWD/css/makevalues.pl
  cssvalues.output = $${WC_GENERATED_SOURCES_DIR}/CSSValueKeywords.cpp
  cssvalues.input = WALDOCSSVALUES
  cssvalues.commands = perl -ne \"print lc\" ${QMAKE_FILE_NAME} $$EXTRACSSVALUES > $${WC_GENERATED_SOURCES_DIR}/${QMAKE_FILE_BASE}.in && cd $$WC_GENERATED_SOURCES_DIR && perl $$cssvalues.wkScript && $(DEL_FILE) ${QMAKE_FILE_BASE}.in ${QMAKE_FILE_BASE}.gperf
@@ -77,227 +153,42 @@ Index: WebCore/WebCore.pri
  cssvalues.clean = ${QMAKE_FILE_OUT} ${QMAKE_VAR_WC_GENERATED_SOURCES_DIR}/${QMAKE_FILE_BASE}.h
  addExtraCompiler(cssvalues)
  
-Index: WebCore/make-hash-tools.pl
-===================================================================
---- WebCore/make-hash-tools.pl	(revision 61699)
-+++ WebCore/make-hash-tools.pl	(working copy)
-@@ -26,35 +26,181 @@ use File::Basename;
- my $outdir = $ARGV[0];
- shift;
- my $option = basename($ARGV[0],".gperf");
-+my $hashToolsHeader = "$outdir/HashTools.h";
-+
-+sub createHashToolsHeader() {
-+
-+open HEADER, ">$hashToolsHeader" || die "Could not open $hashToolsHeader for writing";
-+print HEADER << "EOF";
-+/* This file is automatically generated by make-hash-tools.pl, do not edit */
-+
-+#ifndef HashTools_h
-+#define HashTools_h
-+
-+#include "wtf/Platform.h"
-+
-+namespace WebCore {
-+
-+struct Entity {
-+    const char* name;
-+    int code;
-+};
-+
-+struct PubIDInfo {
-+    enum eMode {
-+        eQuirks,
-+        eQuirks3,
-+        eAlmostStandards
-+    };
-+
-+    const char* name;
-+    eMode mode_if_no_sysid;
-+    eMode mode_if_sysid;
-+};
-+
-+struct NamedColor {
-+    const char* name;
-+    int RGBValue;
-+};
-+
-+struct Property {
-+    const char* name;
-+    int id;
-+};
-+
-+struct Value {
-+    const char* name;
-+    int id;
-+};
-+
-+const Entity* findEntity(register const char* str, register unsigned int len);
-+const PubIDInfo* findDoctypeEntry(register const char* str, register unsigned int len);
-+const NamedColor* findColor(register const char* str, register unsigned int len);
-+const Property* findProperty(register const char* str, register unsigned int len);
-+const Value* findValue(register const char* str, register unsigned int len);
-+
-+#if PLATFORM(CHROMIUM)
-+
-+const Entity* wordList();
-+const int wordListSize();
-+
-+#endif
-+
-+}
-+
-+#endif // HashTools_h
-+
-+EOF
-+close HEADER;
-+
-+}
-+
-+
- 
- switch ($option) {
- 
- case "HTMLEntityNames" {
- 
--    my $htmlEntityNamesGenerated   = "$outdir/HTMLEntityNames.cpp";
-+    createHashToolsHeader();
-+
-+    my $htmlEntityNamesImpl        = "$outdir/HTMLEntityNames.cpp";
-+    my $htmlEntityNamesGenerated   = "$outdir/HTMLEntityNamesHash.h";
-     my $htmlEntityNamesGperf       = $ARGV[0];
-     shift;
- 
-+    open ENTITIES, ">$htmlEntityNamesImpl" || die "Could not open $htmlEntityNamesImpl for writing";
-+    print ENTITIES << "EOF";
-+/* This file is automatically generated by make-hash-tools.pl, do not edit */
-+
-+#include "HashTools.h"
-+
-+namespace WebCore {
-+#include "HTMLEntityNamesHash.h"
-+
-+const Entity* findEntity(register const char* str, register unsigned int len)
-+{
-+    return HTMLEntityHash::findEntityImpl(str, len);
-+}
-+
-+#if PLATFORM(CHROMIUM)
-+
-+const Entity* wordList()
-+{
-+    return WebCore::entity_wordlist;
-+}
-+
-+const int wordListSize()
-+{
-+    return sizeof(WebCore::entity_wordlist) / sizeof(Entity);
-+}
-+
-+#endif // PLATFORM(CHROMIUM)
-+
-+} // namespace WebCore
-+
-+EOF
-+    close ENTITIES;
-+
-     system("gperf --key-positions=\"*\" -D -s 2 $htmlEntityNamesGperf > $htmlEntityNamesGenerated") == 0 || die "calling gperf failed: $?";
- 
- } # case "HTMLEntityNames"
- 
- case "DocTypeStrings" {
- 
--    my $docTypeStringsGenerated    = "$outdir/DocTypeStrings.cpp";
-+    my $docTypeStringsImpl         = "$outdir/DocTypeStrings.cpp";
-+    my $docTypeStringsGenerated    = "$outdir/DocTypeStringsHash.h";
-     my $docTypeStringsGperf        = $ARGV[0];
-     shift;
- 
-+    open DOCTYPESTRINGS, ">$docTypeStringsImpl" || die "Could not open $docTypeStringsImpl for writing";
-+    print DOCTYPESTRINGS << "EOF";
-+/* This file is automatically generated by make-hash-tools.pl, do not edit */
-+
-+#include "HashTools.h"
-+
-+namespace WebCore {
-+#include "DocTypeStringsHash.h"
-+
-+const PubIDInfo* findDoctypeEntry (register const char* str, register unsigned int len)
-+{
-+    return DocTypeStringsHash::findDoctypeEntryImpl(str, len);
-+}
-+
-+}
-+
-+EOF
-+    close DOCTYPESTRINGS;
-+
-     system("gperf --key-positions=\"*\" -s 2 $docTypeStringsGperf > $docTypeStringsGenerated") == 0 || die "calling gperf failed: $?";
- 
- } # case "DocTypeStrings"
- 
- case "ColorData" {
- 
--    my $colorDataGenerated   = "$outdir/ColorData.cpp";
--    my $colorDataGperf       = $ARGV[0];
-+    my $colorDataImpl              = "$outdir/ColorData.cpp";
-+    my $colorDataGenerated         = "$outdir/ColorDataHash.h";
-+    my $colorDataGperf             = $ARGV[0];
-     shift;
- 
-+    open COLORDATA, ">$colorDataImpl" || die "Could not open $colorDataImpl for writing";
-+    print COLORDATA << "EOF";
-+/* This file is automatically generated by make-hash-tools.pl, do not edit */
-+
-+#include "HashTools.h"
-+
-+namespace WebCore {
-+#include "ColorDataHash.h"
-+
-+const struct NamedColor* findColor (register const char* str, register unsigned int len)
-+{
-+    return ColorDataHash::findColorImpl(str, len);
-+}
-+
-+}
-+
-+EOF
-+    close COLORDATA;
-+
-     system("gperf --key-positions=\"*\" -D -s 2 $colorDataGperf > $colorDataGenerated") == 0 || die "calling gperf failed: $?";
- 
- } # case "ColorData"
-Index: WebCore/WebCore.gyp/WebCore.gyp
-===================================================================
---- WebCore/WebCore.gyp/WebCore.gyp	(revision 61699)
-+++ WebCore/WebCore.gyp/WebCore.gyp	(working copy)
-@@ -546,7 +546,6 @@
-             '<(SHARED_INTERMEDIATE_DIR)/webkit',
-             '<(RULE_INPUT_PATH)',
-           ],
--          'process_outputs_as_sources': 0,
-         },
-         # Rule to build generated JavaScript (V8) bindings from .idl source.
-         {
-@@ -653,6 +652,13 @@
-         # Additional .cpp files from the webcore_bindings_sources rules.
-         '<(SHARED_INTERMEDIATE_DIR)/webkit/CSSGrammar.cpp',
-         '<(SHARED_INTERMEDIATE_DIR)/webkit/XPathGrammar.cpp',
-+
-+        # Additional .cpp files for HashTools.h
-+        '<(SHARED_INTERMEDIATE_DIR)/webkit/HTMLEntityNames.cpp',
-+        '<(SHARED_INTERMEDIATE_DIR)/webkit/DocTypeStrings.cpp',
-+        '<(SHARED_INTERMEDIATE_DIR)/webkit/ColorData.cpp',
-+        '<(SHARED_INTERMEDIATE_DIR)/webkit/CSSPropertyNames.cpp',
-+        '<(SHARED_INTERMEDIATE_DIR)/webkit/CSSValueKeywords.cpp',
-       ],
-       'conditions': [
-         ['javascript_engine=="v8"', {
-Index: WebCore/WebCore.xcodeproj/project.pbxproj
-===================================================================
---- WebCore/WebCore.xcodeproj/project.pbxproj	(revision 61699)
-+++ WebCore/WebCore.xcodeproj/project.pbxproj	(working copy)
-@@ -458,6 +458,11 @@
+diff --git a/WebCore/WebCore.vcproj/WebCore.vcproj b/WebCore/WebCore.vcproj/WebCore.vcproj
+index b7e5334..0263203 100644
+--- a/WebCore/WebCore.vcproj/WebCore.vcproj
++++ b/WebCore/WebCore.vcproj/WebCore.vcproj
+@@ -545,6 +545,26 @@
+ 				>
+ 			</File>
+ 			<File
++				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\HashTools.h"
++				>
++			</File>
++			<File
++				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\DocTypeStrings.cpp"
++				>
++			</File>
++			<File
++				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\CSSValueKeywords.cpp"
++				>
++			</File>
++			<File
++				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\CSSPropertyNames.cpp"
++				>
++			</File>
++			<File
++				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\ColorData.cpp"
++				>
++			</File>
++			<File
+ 				RelativePath="$(WebKitOutputDir)\obj\$(ProjectName)\DerivedSources\InspectorBackendDispatcher.cpp"
+ 				>
+ 			</File>
+diff --git a/WebCore/WebCore.xcodeproj/project.pbxproj b/WebCore/WebCore.xcodeproj/project.pbxproj
+index c8b88ec..03e317c 100644
+--- a/WebCore/WebCore.xcodeproj/project.pbxproj
++++ b/WebCore/WebCore.xcodeproj/project.pbxproj
+@@ -493,6 +493,10 @@
  		1AB7FC860A8B92EC00D9D37B /* XPathValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AB7FC650A8B92EC00D9D37B /* XPathValue.h */; };
  		1AB7FC870A8B92EC00D9D37B /* XPathVariableReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AB7FC660A8B92EC00D9D37B /* XPathVariableReference.cpp */; };
  		1AB7FC880A8B92EC00D9D37B /* XPathVariableReference.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AB7FC670A8B92EC00D9D37B /* XPathVariableReference.h */; };
@@ -305,26 +196,24 @@ Index: WebCore/WebCore.xcodeproj/project.pbxproj
 +		1ABA76CA11D20E50004C201C /* CSSPropertyNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E41EA038119836DB00710BC5 /* CSSPropertyNames.cpp */; };
 +		1ABA76CB11D20E57004C201C /* CSSValueKeywords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E41EA0391198374900710BC5 /* CSSValueKeywords.cpp */; };
 +		1ABA76CC11D20E5B004C201C /* DocTypeStrings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E406F3FA1198304D009D59D6 /* DocTypeStrings.cpp */; };
-+		1ABA77FD11D21031004C201C /* HTMLEntityNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E406F4021198329A009D59D6 /* HTMLEntityNames.cpp */; };
  		1ABFE7530CD968D000FE4834 /* SQLTransaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1ABFE7520CD968D000FE4834 /* SQLTransaction.cpp */; };
  		1AC2260C0DB69F190089B669 /* JSDOMApplicationCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1AC2260A0DB69F190089B669 /* JSDOMApplicationCache.cpp */; };
  		1AC2260D0DB69F190089B669 /* JSDOMApplicationCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AC2260B0DB69F190089B669 /* JSDOMApplicationCache.h */; };
-@@ -21845,6 +21850,11 @@
- 				1AD8F81C11CAB9E900E93E54 /* PlatformStrategies.cpp in Sources */,
- 				B525A96611CA2340003A23A8 /* JSSQLException.cpp in Sources */,
- 				A8E6A78211D1661B00311F4A /* HTMLParserScheduler.cpp in Sources */,
+@@ -20729,6 +20733,10 @@
+ 			isa = PBXSourcesBuildPhase;
+ 			buildActionMask = 2147483647;
+ 			files = (
 +				1ABA76C911D20E47004C201C /* ColorData.cpp in Sources */,
 +				1ABA76CA11D20E50004C201C /* CSSPropertyNames.cpp in Sources */,
 +				1ABA76CB11D20E57004C201C /* CSSValueKeywords.cpp in Sources */,
 +				1ABA76CC11D20E5B004C201C /* DocTypeStrings.cpp in Sources */,
-+				1ABA77FD11D21031004C201C /* HTMLEntityNames.cpp in Sources */,
- 			);
- 			runOnlyForDeploymentPostprocessing = 0;
- 		};
-Index: WebCore/css/CSSParser.cpp
-===================================================================
---- WebCore/css/CSSParser.cpp	(revision 61699)
-+++ WebCore/css/CSSParser.cpp	(working copy)
+ 				B5B5DC69119BB3D5002A8790 /* AbstractDatabase.cpp in Sources */,
+ 				41E1B1D00FF5986900576B3B /* AbstractWorker.cpp in Sources */,
+ 				29A812280FBB9C1D00510293 /* AccessibilityARIAGrid.cpp in Sources */,
+diff --git a/WebCore/css/CSSParser.cpp b/WebCore/css/CSSParser.cpp
+index 687235f..89ec9d6 100644
+--- a/WebCore/css/CSSParser.cpp
++++ b/WebCore/css/CSSParser.cpp
 @@ -61,6 +61,7 @@
  #include "FloatConversion.h"
  #include "FontFamilyValue.h"
@@ -343,10 +232,10 @@ Index: WebCore/css/CSSParser.cpp
  namespace WebCore {
  
  static const unsigned INVALID_NUM_PARSED_PROPERTIES = UINT_MAX;
-Index: WebCore/css/makeprop.pl
-===================================================================
---- WebCore/css/makeprop.pl	(revision 61699)
-+++ WebCore/css/makeprop.pl	(working copy)
+diff --git a/WebCore/css/makeprop.pl b/WebCore/css/makeprop.pl
+index 8810e8d..64f5a6b 100644
+--- a/WebCore/css/makeprop.pl
++++ b/WebCore/css/makeprop.pl
 @@ -41,15 +41,14 @@ print GPERF << "EOF";
  #include \"CSSPropertyNames.h\"
  %}
@@ -379,7 +268,7 @@ Index: WebCore/css/makeprop.pl
  enum CSSPropertyID {
      CSSPropertyInvalid = 0,
  EOF
-@@ -99,15 +102,17 @@ print HEADER << "EOF";
+@@ -105,17 +108,41 @@ print HEADER << "EOF";
  
  const char* getPropertyName(CSSPropertyID);
  
@@ -396,14 +285,8 @@ Index: WebCore/css/makeprop.pl
  
 -open C, ">>CSSPropertyNames.cpp" || die "Could not open CSSPropertyNames.cpp for writing";
 +open C, ">>CSSPropertyNamesHash.h" || die "Could not open CSSPropertyNamesHash.h for writing";
- print C "static const char * const propertyNameStrings[$num] = {\n";
- 
- foreach my $name (@names) {
-@@ -116,6 +121,29 @@ foreach my $name (@names) {
- 
  print C << "EOF";
- };
-+
+ 
 +EOF
 +
 +close C;
@@ -429,7 +312,7 @@ Index: WebCore/css/makeprop.pl
  const char* getPropertyName(CSSPropertyID id)
  {
      if (id < firstCSSProperty)
-@@ -125,7 +153,10 @@ const char* getPropertyName(CSSPropertyI
+@@ -125,7 +152,10 @@ const char* getPropertyName(CSSPropertyID id)
          return 0;
      return propertyNameStrings[index];
  }
@@ -441,10 +324,10 @@ Index: WebCore/css/makeprop.pl
 -close C;
 +close PROPERTYNAMES;
  
-Index: WebCore/css/makevalues.pl
-===================================================================
---- WebCore/css/makevalues.pl	(revision 61699)
-+++ WebCore/css/makevalues.pl	(working copy)
+diff --git a/WebCore/css/makevalues.pl b/WebCore/css/makevalues.pl
+index 421e470..c9f7f70 100644
+--- a/WebCore/css/makevalues.pl
++++ b/WebCore/css/makevalues.pl
 @@ -42,14 +42,13 @@ print GPERF << "EOF";
  #include \"CSSValueKeywords.h\"
  %}
@@ -535,10 +418,10 @@ Index: WebCore/css/makevalues.pl
 -close C;
 +close VALUEKEYWORDS;
 +
-Index: WebCore/html/DocTypeStrings.gperf
-===================================================================
---- WebCore/html/DocTypeStrings.gperf	(revision 61699)
-+++ WebCore/html/DocTypeStrings.gperf	(working copy)
+diff --git a/WebCore/html/DocTypeStrings.gperf b/WebCore/html/DocTypeStrings.gperf
+index 5c213b0..6b7da04 100644
+--- a/WebCore/html/DocTypeStrings.gperf
++++ b/WebCore/html/DocTypeStrings.gperf
 @@ -1,21 +1,13 @@
  %struct-type
 -struct PubIDInfo {
@@ -566,10 +449,10 @@ Index: WebCore/html/DocTypeStrings.gperf
  %define hash-function-name doctype_hash_function
  %includes
  %enum
-Index: WebCore/html/HTMLDocument.cpp
-===================================================================
---- WebCore/html/HTMLDocument.cpp	(revision 61699)
-+++ WebCore/html/HTMLDocument.cpp	(working copy)
+diff --git a/WebCore/html/HTMLDocument.cpp b/WebCore/html/HTMLDocument.cpp
+index d68a8cc..66c812e 100644
+--- a/WebCore/html/HTMLDocument.cpp
++++ b/WebCore/html/HTMLDocument.cpp
 @@ -64,6 +64,7 @@
  #include "FrameLoader.h"
  #include "FrameTree.h"
@@ -578,7 +461,7 @@ Index: WebCore/html/HTMLDocument.cpp
  #include "HTMLDocumentParser.h"
  #include "HTMLBodyElement.h"
  #include "HTMLElementFactory.h"
-@@ -75,8 +76,6 @@
+@@ -74,8 +75,6 @@
  #include "Settings.h"
  #include <wtf/text/CString.h>
  
@@ -587,95 +470,139 @@ Index: WebCore/html/HTMLDocument.cpp
  namespace WebCore {
  
  using namespace HTMLNames;
-Index: WebCore/html/HTMLEntityNames.gperf
-===================================================================
---- WebCore/html/HTMLEntityNames.gperf	(revision 61699)
-+++ WebCore/html/HTMLEntityNames.gperf	(working copy)
-@@ -25,16 +25,16 @@
- */
- %}
- %struct-type
--struct Entity {
--    const char *name;
--    int code;
--};
--%language=ANSI-C
-+struct Entity;
-+%language=C++
-+%omit-struct-type
- %readonly-tables
- %global-table
- %compare-strncmp
--%define lookup-function-name findEntity
-+%define class-name HTMLEntityHash
-+%define lookup-function-name findEntityImpl
- %define hash-function-name entity_hash_function
-+%define word-array-name entity_wordlist
- %includes
- %enum
- %%
-Index: WebCore/html/HTMLEntityParser.cpp
-===================================================================
---- WebCore/html/HTMLEntityParser.cpp	(revision 61699)
-+++ WebCore/html/HTMLEntityParser.cpp	(working copy)
-@@ -28,21 +28,9 @@
- #include "config.h"
- #include "HTMLEntityParser.h"
+diff --git a/WebCore/make-hash-tools.pl b/WebCore/make-hash-tools.pl
+index 8cc9952..a8c684d 100644
+--- a/WebCore/make-hash-tools.pl
++++ b/WebCore/make-hash-tools.pl
+@@ -27,24 +27,121 @@ my $outdir = $ARGV[0];
+ shift;
+ my $option = basename($ARGV[0],".gperf");
  
++my $hashToolsHeader = "$outdir/HashTools.h";
++
++sub createHashToolsHeader() {
++
++open HEADER, ">$hashToolsHeader" || die "Could not open $hashToolsHeader for writing";
++print HEADER << "EOF";
++/* This file is automatically generated by make-hash-tools.pl, do not edit */
++
++#ifndef HashTools_h
++#define HashTools_h
++
++#include "wtf/Platform.h"
++
++namespace WebCore {
++
++struct PubIDInfo {
++    enum eMode {
++        eQuirks,
++        eQuirks3,
++        eAlmostStandards
++    };
++
++    const char* name;
++    eMode mode_if_no_sysid;
++    eMode mode_if_sysid;
++};
++
++struct NamedColor {
++    const char* name;
++    int RGBValue;
++};
++
++struct Property {
++    const char* name;
++    int id;
++};
++
++struct Value {
++    const char* name;
++    int id;
++};
++
++const PubIDInfo* findDoctypeEntry(register const char* str, register unsigned int len);
++const NamedColor* findColor(register const char* str, register unsigned int len);
++const Property* findProperty(register const char* str, register unsigned int len);
++const Value* findValue(register const char* str, register unsigned int len);
++}
++
++#endif // HashTools_h
++
++EOF
++close HEADER;
++
++}
++
+ switch ($option) {
+ 
+ case "DocTypeStrings" {
+ 
+-    my $docTypeStringsGenerated    = "$outdir/DocTypeStrings.cpp";
++    createHashToolsHeader();
++
++    my $docTypeStringsImpl         = "$outdir/DocTypeStrings.cpp";
++    my $docTypeStringsGenerated    = "$outdir/DocTypeStringsHash.h";
+     my $docTypeStringsGperf        = $ARGV[0];
+     shift;
+ 
++    open DOCTYPESTRINGS, ">$docTypeStringsImpl" || die "Could not open $docTypeStringsImpl for writing";
++    print DOCTYPESTRINGS << "EOF";
++/* This file is automatically generated by make-hash-tools.pl, do not edit */
++
 +#include "HashTools.h"
- #include <wtf/Vector.h>
++
++namespace WebCore {
++#include "DocTypeStringsHash.h"
++
++const PubIDInfo* findDoctypeEntry (register const char* str, register unsigned int len)
++{
++    return DocTypeStringsHash::findDoctypeEntryImpl(str, len);
++}
++
++}
++
++EOF
++    close DOCTYPESTRINGS;
++
+     system("gperf --key-positions=\"*\" -s 2 $docTypeStringsGperf > $docTypeStringsGenerated") == 0 || die "calling gperf failed: $?";
  
--// Use __GNUC__ instead of PLATFORM(GCC) to stay consistent with the gperf generated c file
--#ifdef __GNUC__
--// The main parser includes this too so we are getting two copies of the data. However, this way the code gets inlined.
--#include "HTMLEntityNames.cpp"
--#else
--// Not inlined for non-GCC compilers
--struct Entity {
--    const char* name;
--    int code;
--};
--const struct Entity* findEntity(register const char* str, register unsigned int len);
--#endif
--
- using namespace WTF;
+ } # case "DocTypeStrings"
  
- namespace WebCore {
-Index: WebCore/html/LegacyPreloadScanner.cpp
-===================================================================
---- WebCore/html/LegacyPreloadScanner.cpp	(revision 61699)
-+++ WebCore/html/LegacyPreloadScanner.cpp	(working copy)
-@@ -38,25 +38,13 @@
- #include "Document.h"
- #include "Frame.h"
- #include "FrameLoader.h"
+ case "ColorData" {
+ 
+-    my $colorDataGenerated   = "$outdir/ColorData.cpp";
+-    my $colorDataGperf       = $ARGV[0];
++    my $colorDataImpl              = "$outdir/ColorData.cpp";
++    my $colorDataGenerated         = "$outdir/ColorDataHash.h";
++    my $colorDataGperf             = $ARGV[0];
+     shift;
+ 
++    open COLORDATA, ">$colorDataImpl" || die "Could not open $colorDataImpl for writing";
++    print COLORDATA << "EOF";
++/* This file is automatically generated by make-hash-tools.pl, do not edit */
++
 +#include "HashTools.h"
- #include "HTMLLinkElement.h"
- #include "HTMLNames.h"
- #include <wtf/text/CString.h>
- #include <wtf/CurrentTime.h>
- #include <wtf/unicode/Unicode.h>
++
++namespace WebCore {
++#include "ColorDataHash.h"
++
++const struct NamedColor* findColor (register const char* str, register unsigned int len)
++{
++    return ColorDataHash::findColorImpl(str, len);
++}
++
++}
++
++EOF
++    close COLORDATA;
++
+     system("gperf --key-positions=\"*\" -D -s 2 $colorDataGperf > $colorDataGenerated") == 0 || die "calling gperf failed: $?";
  
--// Use __GNUC__ instead of PLATFORM(GCC) to stay consistent with the gperf generated c file
--#ifdef __GNUC__
--// The main tokenizer includes this too so we are getting two copies of the data. However, this way the code gets inlined.
--#include "HTMLEntityNames.cpp"
--#else
--// Not inlined for non-GCC compilers
--struct Entity {
--    const char* name;
--    int code;
--};
--const struct Entity* findEntity(register const char* str, register unsigned int len);
--#endif
--
- #define PRELOAD_DEBUG 0
- 
- using namespace WTF;
-Index: WebCore/platform/ColorData.gperf
-===================================================================
---- WebCore/platform/ColorData.gperf	(revision 61699)
-+++ WebCore/platform/ColorData.gperf	(working copy)
+ } # case "ColorData"
+diff --git a/WebCore/platform/ColorData.gperf b/WebCore/platform/ColorData.gperf
+index 11ef798..d684cb9 100644
+--- a/WebCore/platform/ColorData.gperf
++++ b/WebCore/platform/ColorData.gperf
 @@ -1,13 +1,12 @@
  %struct-type
 -struct NamedColor {
@@ -695,10 +622,10 @@ Index: WebCore/platform/ColorData.gperf
  %define hash-function-name colordata_hash_function
  %includes
  %enum
-Index: WebCore/platform/graphics/Color.cpp
-===================================================================
---- WebCore/platform/graphics/Color.cpp	(revision 61699)
-+++ WebCore/platform/graphics/Color.cpp	(working copy)
+diff --git a/WebCore/platform/graphics/Color.cpp b/WebCore/platform/graphics/Color.cpp
+index 80c8286..f28d51c 100644
+--- a/WebCore/platform/graphics/Color.cpp
++++ b/WebCore/platform/graphics/Color.cpp
 @@ -26,13 +26,12 @@
  #include "config.h"
  #include "Color.h"
@@ -714,86 +641,19 @@ Index: WebCore/platform/graphics/Color.cpp
  using namespace std;
  using namespace WTF;
  
-Index: WebKit/chromium/ChangeLog
-===================================================================
---- WebKit/chromium/ChangeLog	(revision 61699)
-+++ WebKit/chromium/ChangeLog	(working copy)
-@@ -1,3 +1,21 @@
-+2010-06-23  Andras Becsi  <abecsi@webkit.org>
+diff --git a/WebKit/qt/ChangeLog b/WebKit/qt/ChangeLog
+index 6dc4286..a68ef70 100644
+--- a/WebKit/qt/ChangeLog
++++ b/WebKit/qt/ChangeLog
+@@ -1,3 +1,24 @@
++2010-09-03  Andras Becsi  <abecsi@webkit.org>
 +
 +        Reviewed by NOBODY (OOPS!).
 +
 +        Undefined reference errors when linking due to gperf and inlining.
 +        webkit.org/b/29244
 +
-+        Refactor gperf code generation and usage to fix the debug build with gcc>4.4.
-+        Hitherto gperf generated C code, these files were included in multiple C++ files across WebCore
-+        to access the functionality provided. This resulted in debug build failure with newer gcc versions
-+        because of a behaviour change of gcc, which disables C style inlining in debug mode.
-+        The make-hash-tools.pl script lets gperf generate C++ code for all gperf files now, which are compiled
-+        in their own compilation unit.
-+        The functionality provided by the generated code is wrapped behind HashTools.h, so there is no need
-+        for multiple inclusions of generated C files to access these functions.
-+
-+        * src/WebEntities.cpp:
-+
- 2010-06-23  Yuzo Fujishima  <yuzo@google.com>
- 
-         Reviewed by Shinichiro Hamaji.
-Index: WebKit/chromium/src/WebEntities.cpp
-===================================================================
---- WebKit/chromium/src/WebEntities.cpp	(revision 61699)
-+++ WebKit/chromium/src/WebEntities.cpp	(working copy)
-@@ -31,9 +31,9 @@
- #include "config.h"
- #include "WebEntities.h"
- 
--#include <string.h>
--
-+#include "HashTools.h"
- #include "PlatformString.h"
-+#include <string.h>
- #include "StringBuilder.h"
- #include <wtf/HashMap.h>
- 
-@@ -41,15 +41,6 @@
- 
- using namespace WebCore;
- 
--namespace {
--// Note that this file is also included by LegacyHTMLDocumentParser.cpp so we are getting
--// two copies of the data in memory.  We can fix this by changing the script
--// that generated the array to create a static const that is its length, but
--// this is low priority since the data is less than 4K. We use anonymous
--// namespace to prevent name collisions.
--#include "HTMLEntityNames.cpp" // NOLINT
--}
--
- namespace WebKit {
- 
- void populateMap(WTF::HashMap<int, WebCore::String>& map,
-@@ -91,8 +82,8 @@ WebEntities::WebEntities(bool xmlEntitie
-                     false);
-     else
-         populateMap(m_entitiesMap,
--                    wordlist,
--                    sizeof(wordlist) / sizeof(Entity),
-+                    wordList(),
-+                    wordListSize(),
-                     true);
- }
- 
-Index: WebKit/qt/ChangeLog
-===================================================================
---- WebKit/qt/ChangeLog	(revision 61699)
-+++ WebKit/qt/ChangeLog	(working copy)
-@@ -1,3 +1,22 @@
-+2010-06-23  Andras Becsi  <abecsi@webkit.org>
-+
-+        Reviewed by NOBODY (OOPS!).
-+
-+        Undefined reference errors when linking due to gperf and inlining.
-+        webkit.org/b/29244
++        EFL CMake changes by Leandro Pereira <leandro@profusion.mobi>
 +
 +        Refactor gperf code generation and usage to fix the debug build with gcc>4.4.
 +        Hitherto gperf generated C code, these files were included in multiple C++ files across WebCore
@@ -807,14 +667,14 @@ Index: WebKit/qt/ChangeLog
 +        * WebCoreSupport/FrameLoaderClientQt.cpp:
 +        (WebCore::FrameLoaderClientQt::createPlugin):
 +
- 2010-06-23  David Boddie  <dboddie@trolltech.com>
+ 2010-09-02  Yury Semikhatsky  <yurys@chromium.org>
  
-         Reviewed by Simon Hausmann.
-Index: WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
-===================================================================
---- WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp	(revision 61699)
-+++ WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp	(working copy)
-@@ -1322,7 +1322,7 @@ PassRefPtr<Widget> FrameLoaderClientQt::
+         Reviewed by Pavel Feldman.
+diff --git a/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp b/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
+index 59f6ac6..e0c765d 100644
+--- a/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
++++ b/WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
+@@ -1407,7 +1407,7 @@ PassRefPtr<Widget> FrameLoaderClientQt::createPlugin(const IntSize& pluginSize,
              for (unsigned i = 0; i < numqStyleSheetProperties; ++i) {
                  CSSPropertyID property = qstyleSheetProperties[i];
  
@@ -823,4 +683,41 @@ Index: WebKit/qt/WebCoreSupport/FrameLoaderClientQt.cpp
                  styleSheet += QLatin1Char(':');
                  styleSheet += computedStyle(element)->getPropertyValue(property);
                  styleSheet += QLatin1Char(';');
+diff --git a/cmake/WebKitMacros.cmake b/cmake/WebKitMacros.cmake
+index b4f1153..f221747 100644
+--- a/cmake/WebKitMacros.cmake
++++ b/cmake/WebKitMacros.cmake
+@@ -84,15 +84,24 @@ MACRO (GENERATE_GRAMMAR _prefix _input _output_header _output_source)
+         VERBATIM)
+ ENDMACRO ()
+ 
++MACRO(MAKE_HASH_TOOLS _source)
++    GET_FILENAME_COMPONENT(_name ${_source} NAME_WE)
++
++    IF (${_source} STREQUAL "DocTypeStrings")
++        SET(_hash_tools_h "${DERIVED_SOURCES_DIR}/HashTools.h")
++    ELSE ()
++        SET(_hash_tools_h "")
++    ENDIF ()
+ 
+-MACRO (GENERATE_GPERF _input _output _func _opts)
+     ADD_CUSTOM_COMMAND(
+-        OUTPUT ${_output}
+-        MAIN_DEPENDENCY ${_input}
+-        COMMAND ${GPERF_EXECUTABLE} -CDEGIot -L ANSI-C --key-positions=* -s 2 -N ${_func} ${_opts} < ${_input} > ${_output}
++        OUTPUT ${DERIVED_SOURCES_DIR}/${_name}.cpp ${_hash_tools_h}
++        MAIN_DEPENDENCY ${_source}.gperf 
++        COMMAND ${PERL_EXECUTABLE} ${WEBCORE_DIR}/make-hash-tools.pl ${DERIVED_SOURCES_DIR} ${_source}.gperf
+         VERBATIM)
+-ENDMACRO ()
+ 
++    UNSET(_name)
++    UNSET(_hash_tools_h)
++ENDMACRO()
+ 
+ MACRO (WEBKIT_WRAP_SOURCELIST _input)
+     IF (WTF_PLATFORM_QT)
+-- 
+1.7.2.2
+
 
