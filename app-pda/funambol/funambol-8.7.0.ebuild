@@ -13,7 +13,6 @@
 DESCRIPTION="Open Source SyncML-Server"
 HOMEPAGE="http://www.funambol.org/"
 
-This is the official server but at the time of writing x64-file was corrupted
 SRC_URI="   x86? ( http://download.forge.objectweb.org/sync4j/${P}.tgz )
 		  amd64? ( http://download.forge.objectweb.org/sync4j/${P}-x64.tgz ) "
 
