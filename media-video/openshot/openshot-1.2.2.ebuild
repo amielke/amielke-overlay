@@ -27,7 +27,7 @@ RDEPEND="
 	dev-python/librsvg-python
 	>=media-libs/mlt-0.4.6-r1[dv?,ffmpeg,frei0r,gtk,melt,python,quicktime?,sdl,vorbis?,xml]
 	media-sound/sox[encode,ffmpeg,flac?,ogg?,wavpack?]
-	>=media-video/ffmpeg-0.6[encode,faac?,faad?,ieee1394?,mp3?,sdl,theora?,vorbis?,vpx,x264?,xvid?]
+	media-video/ffmpeg[encode,faac?,faad?,ieee1394?,mp3?,sdl,theora?,vorbis?,vpx,x264?,xvid?]
 	"
 
 pkg_setup() {
