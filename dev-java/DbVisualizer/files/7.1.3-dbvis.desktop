@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=DbVisualizer 7.1.2
+Exec=/usr/bin/dbvis
+Icon=/opt/DbVisualizer-7.1.2/dbvis.png
+
