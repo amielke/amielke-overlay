@@ -56,3 +56,4 @@
  WINE_CONFIG_DLL(wineqtdecoder)
  WINE_CONFIG_DLL(winequartz.drv)
  WINE_CONFIG_DLL(winex11.drv)
+
