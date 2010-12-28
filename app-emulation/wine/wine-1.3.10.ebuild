@@ -20,7 +20,7 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-pulse_patches() { echo "$1"/winepulse-{0.39,0.40-configure.ac,0.38-winecfg}.patch ; }
+pulse_patches() { echo "$1"/winepulse-{0.40-configure.ac,0.38-winecfg}.patch ; }
 GV="1.1.0"
 DESCRIPTION="free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.org/"
