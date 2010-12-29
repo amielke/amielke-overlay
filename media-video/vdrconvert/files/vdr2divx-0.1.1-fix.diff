@@ -1,0 +1,8 @@
+263c263
+< 	                if [ "$DIVX_USELAME" != "no" ]
+---
+> 	                if [ "$DIVX_USELAME" != "no" -o "$AC3OPT" = "-aid 128 -oac copy" ]
+268c268
+< 	        	    AC3OPT="-oac copy"
+---
+> 	        	    [ -z "$AC3OPT" ] && AC3OPT="-oac copy"

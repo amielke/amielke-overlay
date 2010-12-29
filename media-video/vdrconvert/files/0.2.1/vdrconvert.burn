@@ -1,0 +1,31 @@
+# /etc/vdr/vdrconvert/vdrconvert.burn
+# $Header: /var/cvsroot/gentoo-x86/media-video/vdrconvert/files/0.2.1/vdrconvert.burn,v 1.1 2006/03/01 19:55:06 hd_brummy Exp $
+
+#Brennen
+BURN_DESTDIR=${DESTDIR}/burn
+DVDPLUS_RECORD_OPTS="-Z"
+DVDMIN_RECORD_OPTS="-delay 0 -dao"
+DVD_RECORDCMD="sudo growisofs"
+DVDMIN_RECORDCMD="sudo dvdrecord"
+DAO_RECORDCMD="sudo cdrdao"
+CD_RECORDCMD="sudo cdrecord"
+MEDIA_RW_FORMAT="yes"
+DVDPLUS_BLANK_CMD="sudo dvd+rw-format -f"
+DVDMIN_BLANK_CMD="sudo dvdrecord -delay 0 -dao blank=fast"
+DVDSTATUSPRG="sudo dvd+rw-mediainfo"
+DAO_OPTS="--driver generic-mmc"
+CD_OPTS="driveropts=dao gracetime=0"
+BURN_MAXRETRY=3
+
+
+# Overwride default settings
+#
+#DVD_USE_ONLY_PLUS_CMDS="yes"
+#MEDIA_MSG_OK="Medium wurde erfolgreich erstellt"
+#MEDIA_MSG_ERROR="Fehler beim Schreibvorgang"
+#MEDIA_MSG_INSERT_CD="Bitte legen sie ein CD Medium ein"
+#MEDIA_MSG_INSERT_DVD="Bitte legen sie ein DVD Medium ein"
+#MEDIA_MSG_START_FORMAT="Medium wird geloescht"
+#MEDIA_MSG_ISO_READYTOBURN="Isodatei ist fertig zum Brennen"
+#MEDIA_MSG_START_WRITE_IMAGE="Imagedatei wird gebrannt"
+#MEDIA_MSG_RETRY_IN_X_MINUTES="Wiederholung in 5 Minuten"

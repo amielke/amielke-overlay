@@ -1,0 +1,23 @@
+#!/sbin/runscript
+# Distributed under the terms of the GNU General Public License, v2 or later
+# $Header: /var/cvsroot/gentoo-x86/media-video/vdrconvert/files/0.2.1/vdrconvert,v 1.3 2006/09/17 19:18:50 hd_brummy Exp $
+
+depend() {
+	    need localmount
+}
+
+start() {
+        ebegin "Starting vdrconvert"
+        sudo start-stop-daemon --start --background \
+		--exec /usr/bin/vdrconvert.sh
+
+		sleep 2
+		renice 19 -p `cat /var/run/vdrconvert/vdrconvert.sh.pid`
+		eend $? "vdrconvert could not be started !"
+}
+
+stop() {
+        ebegin "Stopping vdrconvert"
+        start-stop-daemon --stop --pidfile /var/run/vdrconvert/vdrconvert.sh.pid
+        eend $? "vdrconvert could not be stopped ! Check or use 'zap' instead"
+}

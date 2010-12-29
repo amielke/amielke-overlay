@@ -1,0 +1,67 @@
+#!/sbin/runscript
+# Distributed under the terms of the GNU General Public License, v2 or later
+
+# WARNING !!!
+# Change VDRCONVERTDIR to your Path to "vdrconvert.sh" .
+
+# Change the terminal where you want to run vdrconvert.
+# Default (terminal 2) : &>/dev/tty2 &
+
+# Make this script executable and copy it to /etc/init.d
+# run as root  " rc-update add vdrconvert boot "
+# change in your /etc/init.d/vdr  (VDR startscript)
+# depend () { before * }
+# to
+# depend() {
+#            need vdrconvert
+#            before *
+# }
+# run as root " rc-update add vdr default "
+#
+# run " /etc/init.d/vdr start2" if haven't be started or
+# " /etc/init.d/vdr fullrestart " to let the show begin
+# (all w/o quotes) ;)
+
+
+VDRCONVERTDIR=/etc/vdr/vdrconvert
+CONV_USER=vdr
+#CONV_USER=root
+# Activate only for Debug
+#LOGFILE=/tmp/vdrconvert.log
+LOGFILE=/dev/null
+
+
+
+depend() {
+	    need localmount
+}
+
+checkconfig() {
+	    if [ ! -e $VDRCONVERTDIR/vdrconvert.sh ] ; then
+		eerror "ERROR : Couldn't find vdrconvert.sh. Check VDRCONVERTDIR in startscript"
+		return 1
+	    fi
+}
+
+start() {
+	    checkconfig || return 1
+	    ebegin "Starting vdrconvert"
+		# Default one . You need logrotate for it . Be warned ;)
+	        su - $CONV_USER -c "(cd $VDRCONVERTDIR;./vdrconvert.sh)" > $LOGFILE 2>&1 &
+
+		# Use this, if you want to see only the conversation in same term.
+	        # su - $CONV_USER -c "(cd $VDRCONVERTDIR;./vdrconvert.sh)" 2>/dev/null
+
+		# Use this, if you want to see only the conversation in another term.
+		# My favourite due keyboard RC
+	        # su - $CONV_USER -c "(cd $VDRCONVERTDIR;./vdrconvert.sh 2>/dev/null) &>/dev/tty2 &" 
+
+	    eend $? "Couldn't start vdrconvert.sh"
+}
+
+stop() {
+	    ebegin "Stopping vdrconvert"
+		 killall -9 vdrconvert.sh
+		 /etc/init.d/vdrconvert zap
+	    eend $? "Couldn't stop/kill vdrconvert.sh. Check or use 'zap' instead"
+}

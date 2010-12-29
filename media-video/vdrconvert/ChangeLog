@@ -1,0 +1,79 @@
+# ChangeLog for media-video/vdrconvert
+# Copyright 2002-2007 Gentoo Technologies, Inc.; Distributed under the GPL v2
+# $Header: /var/cvsroot/gentoo-x86/media-video/vdrconvert/ChangeLog,v 1.15 2007/01/15 19:08:39 hd_brummy Exp $
+
+  15 Jan 2007; Joerg Bornkessel <hd_brummy@gentoo.org>
+  vdrconvert-0.1.1.ebuild, vdrconvert-0.2.1-r1.ebuild:
+  changed depend media-video/requant to media-video/m2vrequantizer
+
+  18 Sep 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +files/0.2.1/vdrconvert-0.2.1-chown.diff, vdrconvert-0.2.1-r1.ebuild:
+  diff added, to fix wrong owner:user problems on first start on new install
+
+  17 Sep 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  files/0.2.1/reccmds.vdrconvert.conf, files/0.2.1/vdrconvert.global,
+  files/0.2.1/vdrconvert, -vdrconvert-0.2.1.ebuild,
+  vdrconvert-0.2.1-r1.ebuild:
+  new initscript; some small typos fixed; korrect owner:group for ins.sh
+
+*vdrconvert-0.2.1-r1 (24 Jul 2006)
+
+  24 Jul 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  files/0.2.1/commands.vdrconvert.conf, files/0.2.1/vdrconvert.global,
+  files/0.2.1/vdrconvert, +files/0.2.1/vdrsync-path.diff,
+  vdrconvert-0.2.1.ebuild, +vdrconvert-0.2.1-r1.ebuild:
+  fix not founded path, new initscript, some comments in conf files added,
+  removed depricaded dvdrtools
+
+  08 Jul 2006; Matthias Schwarzott <zzam@gentoo.org>
+  vdrconvert-0.2.1.ebuild:
+  Switched to dependency app-cdr/cdrtools
+
+  07 Mar 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  files/0.2.1/rc-vdrconvert.sh, files/0.2.1/vdrconvert.env:
+  fix shotdown error on missing config files
+
+  02 Mar 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  files/0.2.1/commands.vdrconvert.conf, +files/0.2.1/grab.sh,
+  files/0.2.1/reccmds.vdrconvert.conf, vdrconvert-0.2.1.ebuild:
+  added grab.sh to work with newer vdr versions, comment in pkg_postinst
+  for needed entry in /etc/conf.d/vdr added
+
+*vdrconvert-0.2.1 (01 Mar 2006)
+
+  01 Mar 2006; Joerg Bornkessel <hd_brummy@gentoo.org>
+  +files/0.2.1/commands.vdrconvert.conf,
+  +files/0.2.1/reccmds.vdrconvert.conf, +files/0.2.1/vdrconvert.dvd,
+  +files/0.2.1/rc-vdrconvert.sh, +files/0.2.1/vdrconvert,
+  +files/0.2.1/vdrconvert.burn, +files/0.2.1/vdrconvert.divx,
+  +files/0.2.1/vdrconvert.env, +files/0.2.1/vdrconvert.global,
+  +files/0.2.1/vdrconvert.mp3, +files/0.2.1/vdrconvert.mpeg,
+  +files/0.2.1/vdrconvert.vcd, vdrconvert-0.1.1.ebuild,
+  +vdrconvert-0.2.1.ebuild:
+  version bump
+
+*vdrconvert Version 0.1.1
+  5 Mar 2005; Joerg Bornkessel < hd dot brummy at web dot de >
+  add recode to DEPEND
+  
+  3 Mar 2005: Ed Hein <tyger at gmx dot de>
+  corrected dependencies to conform to new vdrsync naming scheme
+
+  1 Mar 2005: Ed Hein <tyger at gmx dot de>
+  removed block of vdrsync-1.3 because luchs reported it works together
+
+  25. Feb 2005: Ed Hein <tyger at gmx dot de>
+  block vdrsync-1.3
+
+  22. Sep 2004: Christian Gmeiner <christian at visual-page dot de>
+  fixed sudo depend
+  added header for this file
+
+  Wolfgang Lohwasser <wolfgang at fam-lohwasser dot de>
+  added fix for vdr2dvd.sh from vdrportal.de
+  improved label fuctionality
+  added fix for vdr2divx.sh from vdrportal.de
+  
+// 25 Jun 2005; Joerg Bornkessel < vdr dot gentoo at astrali dot de >
+   old versions removed 
+  
