@@ -6,7 +6,8 @@ EAPI="2"
 
 inherit eutils python
 
-EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
+#EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
+EGIT_REPO_URI="http://github.com/opdenkamp/xbmc/tree/Dharma-pvr"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git autotools
 else
