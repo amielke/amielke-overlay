@@ -152,8 +152,6 @@ src_prepare() {
 		xbmc/linux/*.cpp || die
 
 	epatch_user #293109
-	epatch "${FILESDIR}"/xcode-xbmc-19616.diff
-	epatch "${FILESDIR}"/xbmc-svn19616-pvr.patch
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
