@@ -7,10 +7,11 @@ EAPI="2"
 inherit eutils python
 
 #EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
-#EGIT_REPO_URI="git://github.com/opdenkamp/xbmc-antiquated.git"
-EGIT_REPO_URI="git://github.com/opdenkamp/xbmc.git"
+EGIT_REPO_URI="git://github.com/opdenkamp/xbmc-antiquated.git"
+#EGIT_REPO_URI="git://github.com/opdenkamp/xbmc.git"
 #EGIT_BRANCH="Dharma"
-EGIT_TREE="10.0-Dharma-pvr"
+#EGIT_TREE="10.0-Dharma-pvr"
+EGIT_BRANCH="Dharma-pvr"
 
 if [[ ${PV} == "9999" ]] ; then
 	inherit git autotools
@@ -144,7 +145,7 @@ src_prepare() {
 		xbmc/utils/SystemInfo.cpp
 
 	# Do not use termcap #262822
-#	sed -i 's:-ltermcap::' xbmc/lib/libPython/Python/configure
+	sed -i 's:-ltermcap::' xbmc/lib/libPython/Python/configure
 
 	# avoid long delays when powerkit isn't running #348580
 	sed -i \
@@ -196,9 +197,9 @@ src_install() {
 	doins tools/Linux/xbmc.desktop
 	doicon tools/Linux/xbmc.png
 
-	#insinto "$(python_get_sitedir)" #309885
-	#doins tools/EventClients/lib/python/xbmcclient.py || die
-	#newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
+	insinto "$(python_get_sitedir)" #309885
+	doins tools/EventClients/lib/python/xbmcclient.py || die
+	newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
 }
 
 pkg_postinst() {
