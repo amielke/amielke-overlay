@@ -144,7 +144,7 @@ src_prepare() {
 		xbmc/utils/SystemInfo.cpp
 
 	# Do not use termcap #262822
-	sed -i 's:-ltermcap::' xbmc/lib/libPython/Python/configure
+#	sed -i 's:-ltermcap::' xbmc/lib/libPython/Python/configure
 
 	# avoid long delays when powerkit isn't running #348580
 	sed -i \
@@ -196,9 +196,9 @@ src_install() {
 	doins tools/Linux/xbmc.desktop
 	doicon tools/Linux/xbmc.png
 
-	insinto "$(python_get_sitedir)" #309885
-	doins tools/EventClients/lib/python/xbmcclient.py || die
-	newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
+	#insinto "$(python_get_sitedir)" #309885
+	#doins tools/EventClients/lib/python/xbmcclient.py || die
+	#newbin "tools/EventClients/Clients/XBMC Send/xbmc-send.py" xbmc-send || die
 }
 
 pkg_postinst() {
