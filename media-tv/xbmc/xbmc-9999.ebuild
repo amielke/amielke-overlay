@@ -153,7 +153,7 @@ src_prepare() {
 		xbmc/linux/*.cpp || die
 
 	epatch_user #293109
-	epatch "${FILESDIR}"/python2.7.patch
+	epatch "${FILESDIR}"/python2.7.2.patch
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
