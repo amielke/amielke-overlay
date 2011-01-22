@@ -44,7 +44,7 @@ src_prepare() {
 	if use  xbmc; then 
 	#		epatch	"${FILESDIR}"/streamdev-cvs100210-ReplaceRecordingStreaming.patch
 			epatch  "${FILESDIR}"/streamdev-cvs221109-AddCallbackMsg.diff
-			epatch  "${FILESDIR}"streamdev-cvs221109-AddFemonV1.diff
+			epatch  "${FILESDIR}"/streamdev-cvs221109-AddFemonV1.diff
 	fi
 
 	fix_vdr_libsi_include server/livestreamer.c
