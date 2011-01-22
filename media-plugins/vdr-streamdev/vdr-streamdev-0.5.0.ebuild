@@ -41,7 +41,7 @@ src_prepare() {
 				-e '/^all:/s/'${flag}'//'
 		fi
 	done
-	if ! use  xbmc; then 
+	if use  xbmc; then 
 			epatch	"${FILESDIR}"/streamdev-cvs100210-ReplaceRecordingStreaming.patch
 			epatch  "${FILESDIR}"/streamdev-cvs221109-AddCallbackMsg.diff
 			epatch  "${FILESDIR}"streamdev-cvs221109-AddFemonV1.diff
