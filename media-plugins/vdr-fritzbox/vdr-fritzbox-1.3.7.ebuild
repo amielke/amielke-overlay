@@ -13,7 +13,8 @@ LICENSE="GPL-2"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND=">=media-video/vdr-1.4.6"
+DEPEND=">=media-video/vdr-1.4.6
+		dev-libs/libgcrypt"
 RDEPEND="${DEPEND}"
 
 pkg_postinst() {
