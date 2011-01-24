@@ -21,7 +21,7 @@ ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:http://xbmc.svn.sourceforge.net/svnroot/xbmc/
 
 
 if [[ ${PV} == "9999" ]] ; then
-	inherit git autotools
+	inherit subversion autotools
 else
 	inherit autotools
 	MY_P=${P/_/-}
