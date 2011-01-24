@@ -8,7 +8,7 @@ inherit eutils python
 
 
 
-ESVN_REPO_URI=svn://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/}
+ESVN_REPO_URI=http://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/}
 #ESVN_PROJECT=${ESVN_REPO_URI##*/svnroot/}
 #ESVN_PROJECT=${ESVN_REPO_URI="http://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/"
 #ESVN_PROJECT=${ESVN_PROJECT%/*}
