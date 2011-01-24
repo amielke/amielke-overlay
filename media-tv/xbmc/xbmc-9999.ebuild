@@ -6,9 +6,13 @@ EAPI="2"
 
 inherit eutils python
 
-#EGIT_REPO_URI="git://github.com/xbmc/xbmc.git"
+
+
+ESVN_REPO_URI=${XBMC_ESVN_REPO_URI:-http://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/}
+ESVN_PROJECT=${ESVN_REPO_URI##*/svnroot/}
+ESVN_PROJECT=${ESVN_PROJECT%/*}
+
 ##EGIT_REPO_URI="git://github.com/opdenkamp/xbmc-antiquated.git"
-EGIT_REPO_URI="git://gitorious.org/xbmc/xbmc/trees/pvr-testing2"
 #EGIT_REPO_URI="git://github.com/opdenkamp/xbmc.git"
 #EGIT_BRANCH="Dharma"
 #EGIT_TREE="10.0-Dharma-pvr"
