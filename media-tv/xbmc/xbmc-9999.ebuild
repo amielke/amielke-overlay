@@ -144,7 +144,8 @@ src_prepare() {
 
 	# Fix XBMC's final version string showing as "exported"
 	# instead of the SVN revision number.
-	export HAVE_GIT=no GIT_REV=${EGIT_VERSION:-exported}
+	#export HAVE_GIT=no GIT_REV=${EGIT_VERSION:-exported}
+	export SVN_REV=${ESVN_WC_REVISION:-exported}
 
 	# Avoid lsb-release dependency
 	sed -i \
