@@ -43,7 +43,7 @@ COMMON_DEPEND="virtual/opengl
 	app-arch/unzip
 	app-arch/zip
 	app-i18n/enca
-	>=dev-lang/python-2.4
+	<dev-lang/python-2.7
 	dev-libs/boost
 	dev-libs/fribidi
 	dev-libs/libcdio[-minimal]
@@ -161,7 +161,7 @@ src_prepare() {
 		xbmc/linux/*.cpp || die
 
 	epatch_user #293109
-	epatch "${FILESDIR}"/python2.7.patch
+	#epatch "${FILESDIR}"/python2.7.patch
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
