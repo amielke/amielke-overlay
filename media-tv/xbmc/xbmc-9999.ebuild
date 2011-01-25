@@ -110,8 +110,8 @@ DEPEND="${COMMON_DEPEND}
 src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
 		git_src_unpack
-		./bootstrap
 		cd "${S}"
+		./bootstrap
 		rm -f configure
 	else
 		unpack ${A}
