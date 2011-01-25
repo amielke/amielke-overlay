@@ -111,7 +111,6 @@ src_unpack() {
 	if [[ ${PV} == "9999" ]] ; then
 		git_src_unpack
 		cd "${S}"
-		./bootstrap
 		rm -f configure
 	else
 		unpack ${A}
@@ -162,7 +161,7 @@ src_prepare() {
 		xbmc/linux/*.cpp || die
 
 	epatch_user #293109
-#	epatch "${FILESDIR}"/python2.7.2.patch
+	epatch "${FILESDIR}"/python2.7.2.patch
 
 	# Tweak autotool timestamps to avoid regeneration
 	find . -type f -print0 | xargs -0 touch -r configure
