@@ -8,16 +8,11 @@ inherit eutils python
 
 
 
-#ESVN_REPO_URI=http://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/
-#ESVN_PROJECT=${ESVN_REPO_URI##*/svnroot/}
-#ESVN_PROJECT=${ESVN_REPO_URI="http://xbmc.svn.sourceforge.net/svnroot/xbmc/branches/pvr-testing2/"
-#ESVN_PROJECT=${ESVN_PROJECT%/*}
 
 ##EGIT_REPO_URI="git://github.com/opdenkamp/xbmc-antiquated.git"
 EGIT_REPO_URI="git://github.com/opdenkamp/xbmc.git"
-EGIT_BRANCH="Dharma"
-#EGIT_TREE="10.0-Dharma-pvr"
-##EGIT_BRANCH="Dharma-pvr"
+${EGIT_BRANCH:=${XBMC_EGIT_BRANCH:-Dharma}}
+
 
 
 if [[ ${PV} == "9999" ]] ; then
