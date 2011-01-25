@@ -11,7 +11,7 @@ inherit eutils python
 
 ##EGIT_REPO_URI="git://github.com/opdenkamp/xbmc-antiquated.git"
 EGIT_REPO_URI="git://github.com/opdenkamp/xbmc.git"
-${EGIT_BRANCH:=${XBMC_EGIT_BRANCH:-Dharma}}
+${EGIT_BRANCH:=${XBMC_EGIT_BRANCH:Dharma}}
 
 
 
