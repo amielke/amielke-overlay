@@ -182,7 +182,6 @@ src_configure() {
 		--enable-gl \
 		--disable-liba52 \
 		--disable-libdts \
-		--enable-external-python \
 		$(use_enable avahi) \
 		$(use_enable bluray libbluray) \
 		$(use_enable css dvdcss) \
