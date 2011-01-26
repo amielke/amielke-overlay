@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/media-plugins/vdr-live/vdr-live-0.2.0.ebuild,v 1.5 2010/01/03 20:13:02 hd_brummy Exp $
 
-inherit git  #vdr-plugin
+inherit git  vdr-plugin
 
 #MY_PV=$(get_version_component_range 1)
 #MY_P="${PN}-${MY_PV}"
