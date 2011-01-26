@@ -19,7 +19,7 @@ RDEPEND="${DEPEND}"
 pkg_postinst() {
 	echo
 	elog "The integrated call monitor (available in Fritz!Box official"
-	elog "firmware releases >= 29.04.29) has to be enabled in order to"
+	elog "firmware releases >= XX.04.29) has to be enabled in order to"
 	elog "have the vdr-fritzbox plugin display anything on your tv. To"
 	elog "enable it call #96*5* from your telephone. If that doesn't"
 	elog "work for you, read the documentation for further instructions."
