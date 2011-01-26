@@ -14,7 +14,8 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND=">=media-video/vdr-1.4.6
-		dev-libs/libgcrypt"
+		dev-libs/libgcrypt
+		dev-cpp/commoncpp2"
 RDEPEND="${DEPEND}"
 
 pkg_postinst() {
