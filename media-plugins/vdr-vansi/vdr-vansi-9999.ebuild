@@ -24,26 +24,27 @@ DEPEND=">=media-video/vdr-1.7.14"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
-        git_src_unpack
-        cd "${WORKDIR}"
-        mv vnsiserver-9999/xbmc/pvrclients/vdr-vnsi/vdr-plugin-vnsiserver .
-        S="${WORKDIR}/vdr-plugin-vnsiserver/"
+		git_src_unpack
+		cd "${WORKDIR}"
+#		mv vnsiserver-9999/xbmc/pvrclients/vdr-vnsi/vdr-plugin-vnsiserver .
+		mv vnsi-9999/xbmc/pvrclients/vdr-vnsi/vdr-plugin-vnsiserver .
+		S="${WORKDIR}/vdr-plugin-vnsiserver/"
 }
 
 src_prepare() {
-        vdr-plugin_src_prepare
+		vdr-plugin_src_prepare
 
-        sed -i 's/vnsi-server/vnsiserver/g' config.h || die 'sed failed'
+		sed -i 's/vnsi-server/vnsiserver/g' config.h || die 'sed failed'
 
-        fix_vdr_libsi_include recplayer.c
-        fix_vdr_libsi_include receiver.c
+		fix_vdr_libsi_include recplayer.c
+		fix_vdr_libsi_include receiver.c
 }
 
 src_install() {
-        vdr-plugin_src_install
+		vdr-plugin_src_install
 
-        insinto /etc/vdr/plugins/vnsiserver
-        doins vnsiserver/allowed_hosts.conf
-        doins vnsiserver/noSignal.mpg
-        diropts -gvdr -ovdr
-} 
+		insinto /etc/vdr/plugins/vnsiserver
+		doins vnsiserver/allowed_hosts.conf
+		doins vnsiserver/noSignal.mpg
+		diropts -gvdr -ovdr
+}
