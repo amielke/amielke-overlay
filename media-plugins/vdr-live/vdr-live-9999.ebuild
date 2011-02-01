@@ -4,6 +4,8 @@
 
 inherit git  vdr-plugin
 
+EAPI="3"
+
 #MY_PV=$(get_version_component_range 1)
 #MY_P="${PN}-${MY_PV}"
 
@@ -14,10 +16,10 @@ EGIT_REPO_URI="git://projects.vdr-developer.org/vdr-plugin-live.git"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE=""
+IUSE="ssl"
 
 DEPEND="media-video/vdr
-	<dev-libs/tntnet-2.0
+	>=dev-libs/tntnet-2.0[ssl=,sdk]
 	>=dev-libs/cxxtools-1.4.3"
 RDEPEND="${DEPEND}"
 
