@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 DEPEND="media-video/vdr
-	>=dev-libs/tntnet-1.5.3
+	<dev-libs/tntnet-2.0
 	>=dev-libs/cxxtools-1.4.3"
 RDEPEND="${DEPEND}"
 
