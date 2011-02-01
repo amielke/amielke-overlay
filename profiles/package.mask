@@ -2,4 +2,4 @@
 
 media-video/vdr-yacoto
 media-video/yacoto-scripts
-
+media-libs/xine-lib
