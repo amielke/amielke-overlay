@@ -84,7 +84,8 @@ cd "${S}" || die "cd failed"
 
 
 use vdr && sed -i src/vdr/input_vdr.c -e '/define VDR_ABS_FIFO_DIR/s|".*"|"/var/vdr/xine"|'
-use vdpau && epatch "${FILESDIR}/xinelib1.2r11577vdpauextensionsv14streamstart.diff"
+use vdpau && epatch
+"${FILESDIR}/xine-lib-1.2-r11592-vdpau-extensions-v20-stream-start-v100614.diff"
 epatch "${FILESDIR}/longrunninggrabfix.diff"
 }
 
