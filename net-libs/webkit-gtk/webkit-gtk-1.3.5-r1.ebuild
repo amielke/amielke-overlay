@@ -26,7 +26,7 @@ RDEPEND="
 	!=net-libs/webkit-gtk-1.3.4
 	dev-libs/libxml2
 	dev-libs/libxslt
-	media-libs/jpeg:0
+	virtual/jpeg:0
 	media-libs/libpng
 	x11-libs/cairo
 	>=x11-libs/gtk+-2.10

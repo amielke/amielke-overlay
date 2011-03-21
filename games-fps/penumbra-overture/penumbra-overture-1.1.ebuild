@@ -31,7 +31,7 @@ RDEPEND="x11-misc/xdg-utils
 		media-libs/sdl-ttf
 		virtual/glu
 		virtual/opengl
-		x11-libs/fltk:1.1 )
+		x11-libs/fltk:1.3 )
 	amd64? (
 		app-emulation/emul-linux-x86-sdl
 		app-emulation/emul-linux-x86-soundlibs
