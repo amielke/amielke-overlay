@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit autotools bzr
+inherit cmake-utils bzr
 
 EBZR_REPO_URI="lp:cairo-dock-core"
 
@@ -39,19 +39,21 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 "
 
-src_prepare() {
-	bzr_src_prepare
-	intltoolize --automake --copy --force || die "intltoolize failed"
-	eautoreconf
-}
+#src_prepare() {
+#	bzr_src_prepare
+#	intltoolize --automake --copy --force || die "intltoolize failed"
+#	eautoreconf
+#}
 
-src_configure() {
-	econf $(use_enable xcomposite xextend)
-}
+#src_configure() {
+#	econf $(use_enable xcomposite xextend)
+#}
 
-src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
-}
+#src_install() {
+#	emake DESTDIR="${D}" install || die "emake install failed"
+#}
+
+MAKE_IN_SOURCE_BUILD=true
 
 pkg_postinst() {
 	ewarn "THIS IS A LIVE EBUILD, SO YOU KNOW THE RISKS !"
