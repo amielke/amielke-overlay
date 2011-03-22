@@ -34,6 +34,7 @@ $(use_enable debug debug extra-debug werror) \
 $(use_enable ipv6) \
 $(use_with xmlrpc xmlrpc-c) \
 || die "econf failed"
+epatch "${FILESDIR}"/rtorrent-0.8.7-canvas-patch-fix-for-ncurses-5.8.patch
 }
 
 src_install() {
