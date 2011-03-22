@@ -13,7 +13,7 @@ SRC_URI=""
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE="alsa compiz dnd exif extras gio gmenu gnome kde mail musicplayer networkmonitor powermanager rss terminal tomboy webkit wifi xfce xgamma xrandr xklavier"
 
 RDEPEND="x11-libs/cairo
