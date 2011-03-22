@@ -55,9 +55,7 @@ src_prepare() {
 }
 
 src_configure() {
-	econf --disable-dependency-tracking \
-		--disable-old-gnome-integration \
-		$(use_enable alsa alsa-mixer) \
+	econf 	$(use_enable alsa alsa-mixer) \
 		$(use_enable compiz compiz-icon) \
 		$(use_enable dnd dnd2share) \
 		$(use_enable exif) \
