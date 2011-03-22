@@ -43,10 +43,10 @@ pkg_setup() {
 	fi
 }
 
-src_prepare() {
-	intltoolize --automake --copy --force || die "intltoolize failed"
-	eautoreconf -isvf
-}
+#src_prepare() {
+#	intltoolize --automake --copy --force || die "intltoolize failed"
+#	eautoreconf -isvf
+#}
 
 # Additional config options
 #dnd2share
