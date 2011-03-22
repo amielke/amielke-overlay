@@ -14,7 +14,7 @@ SRC_URI=""
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="alsa compiz exif gio gmenu gnome kde mail musicplayer network-monitor powermanager terminal tomboy webkit wifi xfce xgamma xklavier"
+IUSE="alsa exif gmenu kde terminal tomboy webkit xfce xgamma xklavier"
 
 RDEPEND="
 	~x11-misc/cairo-dock-${PV}
