@@ -13,7 +13,7 @@ SRC_URI=""
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS=""
 IUSE="alsa compiz exif gio gmenu gnome kde mail musicplayer network-monitor powermanager terminal tomboy webkit wifi xfce xgamma xklavier"
 
 RDEPEND="
@@ -42,41 +42,7 @@ pkg_setup() {
 		fi
 	fi
 }
+
 MAKE_IN_SOURCE_BUILD=true
-#src_prepare() {
-#	intltoolize --automake --copy --force || die "intltoolize failed"
-#	eautoreconf -isvf
-#}
 
-# Additional config options
-#dnd2share
-#rssreader
-#xrandr-in-show-desktop
-#scooby-do
-#src_configure() {
-#	econf --disable-dependency-tracking       \
-#		--disable-old-gnome-integration       \
-#		$(use_enable alsa  alsa-mixer)        \
-#		$(use_enable compiz compiz-icon)      \
-#		$(use_enable exif)                    \
-#		$(use_enable gio gio-in-gmenu)        \
-#		$(use_enable gio gmenu)               \
-#		$(use_enable gmenu)                   \
-#		$(use_enable gnome gnome-integration) \
-#		$(use_enable kde kde-integration)     \
-#		$(use_enable mail)                    \
-#		$(use_enable musicplayer)             \
-#		$(use_enable network-monitor)         \
-#		$(use_enable powermanager)            \
-#		$(use_enable terminal)                \
-#		$(use_enable tomboy)                  \
-#		$(use_enable webkit weblets)          \
-#		$(use_enable wifi)                    \
-#		$(use_enable xfce  xfce-integration)  \
-#		$(use_enable xgamma)                  \
-#		$(use_enable xklavier keyboard-indicator)
-#}
 
-#src_install() {
-#	emake DESTDIR="${D}" install || die "emake install failed"
-#}
