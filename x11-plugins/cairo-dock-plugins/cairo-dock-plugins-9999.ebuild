@@ -5,7 +5,7 @@
 EAPI="2"
 EBZR_REPO_URI="lp:cairo-dock-plug-ins"
 
-inherit bzr
+inherit cmake-utils bzr
 
 DESCRIPTION="Official plugins for cairo-dock"
 HOMEPAGE="https://launchpad.net/cairo-dock-plug-ins/"
