@@ -3,3 +3,8 @@
 media-video/vdr-yacoto
 media-video/yacoto-scripts
 media-libs/xine-lib
+=net-libs/libtorrent-9999
+=net-p2p/rtorrent-9999
+=x11-plugins/cairo-dock-plugins-9999
+=x11-misc/cairo-dock-9999
+
