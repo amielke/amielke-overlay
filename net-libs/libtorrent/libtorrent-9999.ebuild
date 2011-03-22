@@ -24,14 +24,15 @@ src_unpack() {
 subversion_src_unpack
 }
 
-src_prepare() {
-epatch "${FILESDIR}"/log_files.patch
-}
+#src_prepare() {
+#epatch "${FILESDIR}"/log_files.patch
+#}
 
 src_configure() {
 econf \
 $(use_enable debug debug werror) \
 $(use_enable ipv6)
+epatch "${FILESDIR}"/log_files.patch
 }
 
 src_compile() {
