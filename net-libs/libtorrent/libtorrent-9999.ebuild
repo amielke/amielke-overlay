@@ -22,6 +22,8 @@ RDEPEND=">=dev-libs/libsigc++-2.2.2"
 
 src_unpack() {
 subversion_src_unpack
+epatch "${FILESDIR}"/log_files.patch
+
 }
 
 #src_prepare() {
