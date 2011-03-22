@@ -42,7 +42,7 @@ pkg_setup() {
 		fi
 	fi
 }
-
+MAKE_IN_SOURCE_BUILD=true
 #src_prepare() {
 #	intltoolize --automake --copy --force || die "intltoolize failed"
 #	eautoreconf -isvf
