@@ -48,16 +48,16 @@ pkg_setup() {
 #rssreader
 #xrandr-in-show-desktop
 #scooby-do
-#src_configure() {
-#	econf --disable-dependency-tracking       \
+src_configure() {
+	econf --disable-dependency-tracking       \
 #		--disable-old-gnome-integration       \
-#		$(use_enable alsa  alsa-mixer)        \
+		$(use_enable alsa  alsa-mixer)        \
 #		$(use_enable compiz compiz-icon)      \
 #		$(use_enable exif)                    \
 #		$(use_enable gio gio-in-gmenu)        \
 #		$(use_enable gio gmenu)               \
 #		$(use_enable gmenu)                   \
-#		$(use_enable gnome gnome-integration) \
+		$(use_enable gnome gnome-integration) \
 #		$(use_enable kde kde-integration)     \
 #		$(use_enable mail)                    \
 #		$(use_enable musicplayer)             \
@@ -69,5 +69,5 @@ pkg_setup() {
 #		$(use_enable wifi)                    \
 #		$(use_enable xfce  xfce-integration)  \
 #		$(use_enable xgamma)                  \
-#		$(use_enable xklavier keyboard-indicator)
-#}
+		$(use_enable xklavier keyboard-indicator)
+}
