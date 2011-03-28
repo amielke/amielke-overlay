@@ -4,7 +4,7 @@
 
 inherit eutils
 
-At=dbvis_unix_7_1_4.tar.gz
+At=dbvis_unix_7_1_5.tar.gz
 
 DOWNLOAD_URL="http://www.minq.se/products/dbvis/download.html"
 
