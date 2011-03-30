@@ -7,4 +7,4 @@ media-libs/xine-lib
 =net-p2p/rtorrent-9999
 =x11-plugins/cairo-dock-plugins-9999
 =x11-misc/cairo-dock-9999
-
+=games-rpg/planeshift-bin-0.5.6
