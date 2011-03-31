@@ -8,7 +8,7 @@ RESTRICT="mirror strip"
 
 inherit vdr-plugin git
 
-EGIT_REPO_URI="https://github.com/opdenkamp/xbmc.git"
+EGIT_REPO_URI="https://github.com/pipelka/vdr-plugin-vnsiserver"
 EGIT_PROJECT="xbmc"
 
 DESCRIPTION="VDR plugin: VNSI Streamserver Plugin"
