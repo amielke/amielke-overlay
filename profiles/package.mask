@@ -10,3 +10,4 @@ media-libs/xine-lib
 =games-rpg/planeshift-bin-0.5.6
 gnome-extra/evolution-tray
 x11-misc/xplanet
+media-libs/libmpcdec
