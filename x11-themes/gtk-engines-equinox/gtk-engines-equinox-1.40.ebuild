@@ -9,7 +9,7 @@ MY_P=${P/gtk-engines-}
 DESCRIPTION="A heavily modified version of the Aurora engine"
 HOMEPAGE="http://gnome-look.org/content/show.php/Equinox+GTK+Engine?content=121881"
 SRC_URI="http://gnome-look.org/CONTENT/content-files/121881-${MY_P}.tar.gz
-				-> ${P}.tar.bz2"
+				-> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
