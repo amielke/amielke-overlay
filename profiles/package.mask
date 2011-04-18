@@ -9,3 +9,4 @@ media-libs/xine-lib
 =x11-misc/cairo-dock-9999
 =games-rpg/planeshift-bin-0.5.6
 gnome-extra/evolution-tray
+x11-misc/xplanet
