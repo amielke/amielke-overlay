@@ -55,7 +55,7 @@ RDEPEND="X? ( x11-libs/libXext
 	truetype? ( =media-libs/freetype-2* media-libs/fontconfig )
 	virtual/libiconv
 	wavpack? ( >=media-sound/wavpack-4.31 )
-	musepack? ( >media-sound/musepack-465 )
+	musepack? ( >=media-sound/musepack-465 )
 	xcb? ( >=x11-libs/libxcb-1.0 )
 	jack? ( >=media-sound/jack-audio-connection-kit-0.100 )
 	real? (
