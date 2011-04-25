@@ -68,6 +68,7 @@ src_prepare() {
 	# Don't build tests if not needed, part of bug #343249
 	epatch "${FILESDIR}/${PN}-1.2.5-tests-build.patch"
 	epatch "${FILESDIR}/testwebdatasource.patch"
+	epatch "${FILESDIR}/annotationset.patch"
 
 	epatch "${FILESDIR}"/${P}-libpng15.patch
 

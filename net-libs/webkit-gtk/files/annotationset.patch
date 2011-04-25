@@ -1,0 +1,97 @@
+From 8c686db156dd7d89d20d3ca33e0015b46f60b1fb Mon Sep 17 00:00:00 2001
+From: Gustavo Noronha Silva <gns@gnome.org>
+Date: Tue, 24 Aug 2010 21:03:33 -0300
+Subject: [PATCH] get/set settings, get_inspector and get_window_features
+
+---
+ WebKit/gtk/ChangeLog                |   12 ++++++++++++
+ WebKit/gtk/webkit/webkitwebview.cpp |   31 +++++++++++++++++++++++++++----
+ 2 files changed, 39 insertions(+), 4 deletions(-)
+
+diff --git a/WebKit/gtk/ChangeLog b/WebKit/gtk/ChangeLog
+index ec0801c..9e04a29 100644
+--- a/WebKit/gtk/ChangeLog
++++ b/WebKit/gtk/ChangeLog
+@@ -1,3 +1,15 @@
++2010-08-24  Gustavo Noronha Silva  <gns@gnome.org>
++
++        Reviewed by NOBODY (OOPS!).
++
++        [GTK] WebKitGTK+ needs proper introspection annotation for most types and methods
++        https://bugs.webkit.org/show_bug.cgi?id=44565
++
++        Add documentation and introspection specific information to a few
++        getter and setter methods.
++
++        * webkit/webkitwebview.cpp:
++
+ 2010-08-24  Gustavo Noronha Silva  <gustavo.noronha@collabora.co.uk>
+ 
+         Rubber-stamped by Xan Lopez.
+diff --git a/WebKit/gtk/webkit/webkitwebview.cpp b/WebKit/gtk/webkit/webkitwebview.cpp
+index 75edd35..5aa3d51 100644
+--- a/WebKit/gtk/webkit/webkitwebview.cpp
++++ b/WebKit/gtk/webkit/webkitwebview.cpp
+@@ -3199,6 +3199,18 @@ bool webkit_web_view_use_primary_for_paste(WebKitWebView* webView)
+     return webView->priv->usePrimaryForPaste;
+ }
+ 
++/**
++ * webkit_web_view_set_settings:
++ * @web_view: a #WebKitWebView
++ * @settings: (transfer none): the #WebKitWebSettings to be set
++ *
++ * Replaces the #WebKitWebSettings instance that is currently attached
++ * to @web_view with @settings. The reference held by the @web_view on
++ * the old #WebKitWebSettings instance is dropped, and the reference
++ * count of @settings is inscreased.
++ *
++ * The settings are automatically applied to @web_view.
++ */
+ void webkit_web_view_set_settings(WebKitWebView* webView, WebKitWebSettings* webSettings)
+ {
+     g_return_if_fail(WEBKIT_IS_WEB_VIEW(webView));
+@@ -3214,6 +3226,19 @@ void webkit_web_view_set_settings(WebKitWebView* webView, WebKitWebSettings* web
+     g_object_notify(G_OBJECT(webView), "settings");
+ }
+ 
++/**
++ * webkit_web_view_get_settings:
++ * @web_view: a #WebKitWebView
++ *
++ * Obtains the #WebKitWebSettings associated with the
++ * #WebKitWebView. The #WebKitWebView always has an associated
++ * instance of #WebKitWebSettings. The reference that is returned by
++ * this call is owned by the #WebKitWebView. You may need to increase
++ * its reference count if you intend to keep it alive for longer than
++ * the #WebKitWebView.
++ *
++ * Return value: (transfer none): the #WebKitWebSettings instance
++ */
+ WebKitWebSettings* webkit_web_view_get_settings(WebKitWebView* webView)
+ {
+     g_return_val_if_fail(WEBKIT_IS_WEB_VIEW(webView), NULL);
+@@ -3232,9 +3257,7 @@ WebKitWebSettings* webkit_web_view_get_settings(WebKitWebView* webView)
+  * so this function will only return NULL if the argument is not a
+  * valid #WebKitWebView.
+  *
+- * Returns: the #WebKitWebInspector instance associated with the
+- * #WebKitWebView; %NULL is only returned if the argument is not a
+- * valid #WebKitWebView.
++ * Return value: (transfer none): the #WebKitWebInspector instance.
+  *
+  * Since: 1.0.3
+  */
+@@ -3269,7 +3292,7 @@ static void webkit_web_view_set_window_features(WebKitWebView* webView, WebKitWe
+  * Returns the instance of #WebKitWebWindowFeatures held by the given
+  * #WebKitWebView.
+  *
+- * Return value: the #WebKitWebWindowFeatures
++ * Return value: (transfer none): the #WebKitWebWindowFeatures
+  *
+  * Since: 1.0.3
+  */
+-- 
+1.7.1
+
+
