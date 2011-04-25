@@ -51,7 +51,6 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	epatch "${FILESDIR}/annotationset.patch"
 	# FIXME: Fix unaligned accesses on ARM, IA64 and SPARC
 	# https://bugs.webkit.org/show_bug.cgi?id=19775
 	use sparc && epatch "${FILESDIR}"/${PN}-1.2.3-fix-pool-sparc.patch
@@ -68,7 +67,6 @@ src_prepare() {
 
 	# Don't build tests if not needed, part of bug #343249
 	epatch "${FILESDIR}/${PN}-1.2.5-tests-build.patch"
-	epatch "${FILESDIR}/testwebdatasource.patch"
 
 	epatch "${FILESDIR}"/${P}-libpng15.patch
 
