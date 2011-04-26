@@ -44,6 +44,7 @@ pkg_setup() {
 	epatch "${FILESDIR}/LinkMonitorTweack.patch"
 }
 src_prepare() {
+	gnome2_src_prepare
 	epatch "${FILESDIR}/GConfSwitchTweack.patch"
 	epatch "${FILESDIR}/LinkMonitorTweack.patch"
 }
