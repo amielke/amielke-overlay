@@ -42,7 +42,10 @@ pkg_setup() {
 	python_set_active_version 2
 	epatch "${FILESDIR}/GConfSwitchTweack.patch"
 	epatch "${FILESDIR}/LinkMonitorTweack.patch"
-
+}
+src_prepare() {
+	epatch "${FILESDIR}/GConfSwitchTweack.patch"
+	epatch "${FILESDIR}/LinkMonitorTweack.patch"
 }
 src_install() {
 	gnome2_src_install
