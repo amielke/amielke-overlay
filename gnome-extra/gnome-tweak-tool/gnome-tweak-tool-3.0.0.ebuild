@@ -40,13 +40,10 @@ pkg_setup() {
 	DOCS="NEWS README"
 	G2CONF="${G2CONF} --disable-schemas-compile"
 	python_set_active_version 2
-}
-src_prepare() {
-	gnome-tweak-too
 	epatch "${FILESDIR}/GConfSwitchTweack.patch"
 	epatch "${FILESDIR}/LinkMonitorTweack.patch"
-}
 
+}
 src_install() {
 	gnome2_src_install
 	python_convert_shebangs 2 "${ED}"/usr/bin/gnome-tweak-tool
