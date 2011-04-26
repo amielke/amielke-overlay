@@ -42,6 +42,7 @@ pkg_setup() {
 	python_set_active_version 2
 }
 src_prepare() {
+	gnome-tweak-too
 	epatch "${FILESDIR}/GConfSwitchTweack.patch"
 	epatch "${FILESDIR}/LinkMonitorTweack.patch"
 }
