@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 
-RDEPEND=">=app-misc/zeitgeist-0.3.1
+RDEPEND=">=app-misc/zeitgeist-0.7.1
 	dev-python/pygtk
 	dev-python/pygobject
 	dev-python/gconf-python
