@@ -11,12 +11,12 @@ inherit distutils fdo-mime python
 
 DESCRIPTION="OpenShot Video Editor is a non-linear video editor"
 HOMEPAGE="http://www.openshotvideo.com"
-SRC_URI="http://launchpad.net/openshot/1.2/${PV}/+download/${P}.tar.gz"
+SRC_URI="http://launchpad.net/openshot/1.3/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="dv faac faad flac ieee1394 mp3 ogg quicktime theora vorbis wavpack x264 xvid"
+IUSE="dv faac flac ieee1394 mp3 ogg quicktime theora vorbis wavpack x264 xvid"
 
 DEPEND=""
 RDEPEND="
@@ -25,9 +25,11 @@ RDEPEND="
 	dev-python/pygoocanvas
 	dev-python/pyxdg
 	dev-python/librsvg-python
+	dev-python/httplib2
 	>=media-libs/mlt-0.4.6-r1[dv?,ffmpeg,frei0r,gtk,melt,python,quicktime?,sdl,vorbis?,xml]
 	media-sound/sox[encode,ffmpeg,flac?,ogg?,wavpack?]
-	media-video/ffmpeg[encode,faac?,faad?,ieee1394?,mp3?,sdl,theora?,vorbis?,vpx,x264?,xvid?]
+	>=media-video/ffmpeg-0.6[encode,faac?,ieee1394?,mp3?,sdl,theora?,vorbis?,vpx,x264?,xvid?]
+	dev-python/imaging
 	"
 
 pkg_setup() {
@@ -67,3 +69,4 @@ pkg_postrm() {
 	fdo-mime_desktop_database_update
 	distutils_pkg_postrm
 }
+
