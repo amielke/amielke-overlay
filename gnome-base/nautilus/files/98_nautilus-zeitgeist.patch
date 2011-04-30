@@ -1,0 +1,73 @@
+diff -crB nautilus.orig/src/nautilus-places-sidebar.c nautilus.new/src/nautilus-places-sidebar.c
+*** nautilus.orig/src/nautilus-places-sidebar.c	2010-03-02 00:18:10.000000000 -0500
+--- nautilus.new/src/nautilus-places-sidebar.c	2010-03-04 15:12:15.000000000 -0500
+***************
+*** 217,223 ****
+  	int icon_size;
+  	gboolean show_eject, show_unmount;
+  	gboolean show_eject_button;
+! 
+  	icon_size = nautilus_get_icon_size_for_stock_size (GTK_ICON_SIZE_MENU);
+  	icon_info = nautilus_icon_info_lookup (icon, icon_size);
+  
+--- 218,224 ----
+  	int icon_size;
+  	gboolean show_eject, show_unmount;
+  	gboolean show_eject_button;
+! 	
+  	icon_size = nautilus_get_icon_size_for_stock_size (GTK_ICON_SIZE_MENU);
+  	icon_info = nautilus_icon_info_lookup (icon, icon_size);
+  
+***************
+*** 262,267 ****
+--- 263,292 ----
+  	return child_iter;
+  }
+  
++ GtkTreeIter
++ add_new_zeigeist_source (NautilusPlacesSidebar *sidebar, gchar *name, gchar *icon_name, gchar *mount_uri, PlaceType type, int index)
++ {
++ 	GtkTreeIter last_iter;
++ 	GIcon *icon;
++ 
++ 	icon = g_themed_icon_new(icon_name);
++ 	last_iter = add_place (sidebar, type, name, icon, mount_uri,
++                                NULL, NULL, NULL, index);
++ 	g_object_unref (icon);
++ 	return last_iter;
++ }
++ 
++ void
++ update_zeitgeist_places (NautilusPlacesSidebar *sidebar)
++ {	
++ 	add_new_zeigeist_source(sidebar, "SEPARATOR", "applications-other", "file:///", PLACES_SEPARATOR, 0);
++ 	add_new_zeigeist_source(sidebar, _("Commonly Accessed"), "gnome-other", "file:///tmp/zgfs/CommonlyAccessed", PLACES_BOOKMARK, 1);
++ 	/*time based sources*/
++ 	add_new_zeigeist_source(sidebar, "SEPARATOR", "applications-other", "file:///", PLACES_SEPARATOR, 2);
++ 	add_new_zeigeist_source(sidebar, _("Today"), "stock_timer", "file:///tmp/zgfs/Today", PLACES_BOOKMARK, 3);
++ 	add_new_zeigeist_source(sidebar, _("Yesterday"), "stock_timer", "file:///tmp/zgfs/Yesterday", PLACES_BOOKMARK, 4);
++ }
++ 
+  static void
+  update_places (NautilusPlacesSidebar *sidebar)
+  {
+***************
+*** 524,529 ****
+--- 549,555 ----
+  		g_object_unref (icon);
+  		g_free (mount_uri);
+  	}
++ 	update_zeitgeist_places (sidebar);
+  	g_free (location);
+  }
+  
+***************
+*** 542,547 ****
+--- 568,574 ----
+  
+    	return FALSE;
+  }
++ /* Zeitgeist Work */
+  
+  static void
+  mount_added_callback (GVolumeMonitor *volume_monitor,

@@ -11,3 +11,4 @@ media-libs/xine-lib
 gnome-extra/evolution-tray
 x11-misc/xplanet
 media-libs/libmpcdec
+gnome-extra/gnome-activity-journal
