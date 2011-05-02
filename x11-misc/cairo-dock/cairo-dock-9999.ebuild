@@ -41,7 +41,7 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	bzr_src_prepare
-	intltoolize --automake --copy --force || die "intltoolize failed"
+#	intltoolize --automake --copy --force || die "intltoolize failed"
 	eautoreconf
 }
 
