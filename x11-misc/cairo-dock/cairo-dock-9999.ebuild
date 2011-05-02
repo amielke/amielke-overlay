@@ -45,13 +45,13 @@ DEPEND="${RDEPEND}
 #	eautoreconf
 #}
 
-#src_configure() {
-#	econf $(use_enable xcomposite xextend)
-#}
-
-src_install() {
-	emake DESTDIR="${D}" install || die "emake install failed"
+src_configure() {
+	econf $(use_enable xcomposite xextend)
 }
+
+#src_install() {
+#	#emake DESTDIR="${D}" install || die "emake install failed"
+#}
 
 MAKE_IN_SOURCE_BUILD=true
 
