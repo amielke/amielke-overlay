@@ -29,6 +29,6 @@ src_unpack() {
 	bzr_src_unpack
 }
 
-#src_configure() {
-#	econf VALAC=$(type -P valac-0.12)
-#}
+src_configure() {
+	econf VALAC=$(type -P valac-0.12)
+}
