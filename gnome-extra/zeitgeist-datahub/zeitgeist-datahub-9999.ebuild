@@ -25,3 +25,12 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	dev-util/pkgconfig"
 
+
+src_unpack() {
+	bzr_src_unpack
+
+		# This should go to src_compile, but... (;
+	     sh autogen.sh || die "autogen"
+	    ./configure
+}
+
