@@ -28,7 +28,7 @@ DEPEND="${CDEPEND}
 src_unpack() {
 	bzr_src_unpack
 	cd "${S}"
-	eautoreconf
+	autogen.sh
 }
 
 src_compile() {
