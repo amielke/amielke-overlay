@@ -13,3 +13,5 @@ x11-misc/xplanet
 media-libs/libmpcdec
 gnome-extra/gnome-activity-journal
 mail-filter/MailScanner
+gnome-extra/zeitgeist-datahub
+gnome-extra/zeitgeist
