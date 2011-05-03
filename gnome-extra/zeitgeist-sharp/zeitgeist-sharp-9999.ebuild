@@ -34,6 +34,6 @@ src_unpack() {
 		# This should go to src_compile, but... (;
 		cd "${S}"
 	     sh autogen.sh || die "autogen"
-	    ./configure
+#	    ./configure
 }
 
