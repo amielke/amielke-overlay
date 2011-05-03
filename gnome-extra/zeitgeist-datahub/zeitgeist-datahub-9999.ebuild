@@ -5,8 +5,8 @@
 EAPI=4
 inherit versionator bzr
 
-EBZR_REPO_URI="lp:zeitgeist-dataproviders"
-##EBZR_REPO_URI="lp:~zeitgeist/zeitgeist/remove-datahub"
+#EBZR_REPO_URI="lp:zeitgeist-dataproviders"
+EBZR_REPO_URI="lp:~zeitgeist/zeitgeist/remove-datahub"
 #EBZR_REPO_URI="lp:~zeitgeist-dataproviders/zeitgeist-datahub/trunk"
 
 #EBZR_REPO_URI="lp:~manishsinha/zeitgeist-dataproviders/add-ff-36-support-bug-775817"
