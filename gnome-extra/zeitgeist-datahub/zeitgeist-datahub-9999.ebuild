@@ -3,7 +3,7 @@
 # $Header: /var/cvsroot/gentoo-x86/gnome-extra/zeitgeist-datahub/zeitgeist-datahub-0.7.0.ebuild,v 1.2 2011/03/05 01:54:44 signals Exp $
 
 EAPI=4
-inherit versionator bzr cmake-utils
+inherit versionator bzr
 
 EBZR_REPO_URI="lp:zeitgeist-dataproviders"
 DESCRIPTION="Provides passive plugins to insert events into zeitgeist"
