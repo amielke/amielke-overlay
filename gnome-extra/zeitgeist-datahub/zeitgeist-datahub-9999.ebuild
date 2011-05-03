@@ -25,19 +25,3 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	dev-util/pkgconfig"
 
-src_unpack() {
-	bzr_src_unpack
-	cd "${S}"
-	autogen.sh
-}
-
-src_compile() {
-	econf --with-lispdir="${D}/${SITELISP}/${PN}"
-	--infodir="${D}/usr/share/info" \
-	|| die "econf failed"
-	emake MKDIR_P="mkdir -p" || die
-}
-src_install() {
-	emake MKDIR_P="mkdir -p" DESTDIR="${D}" install || die
-	elisp-site-file-install "${FILESDIR}/${SITEFILE}"
-}
