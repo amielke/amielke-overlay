@@ -28,4 +28,9 @@ DEPEND="${CDEPEND}
 src_unpack() {
 	bzr_src_unpack
 }
-MAKE_IN_SOURCE_BUILD=true
+src_compile() {
+	bzr_src_compile
+}
+src_install() {
+	bzr_src_install
+}
