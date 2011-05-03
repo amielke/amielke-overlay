@@ -37,7 +37,7 @@ python_pkg_setup
 }
 
 src_prepare() {
-epatch "${FILESDIR}"/${P}-no-rdfpipe.patch
+#epatch "${FILESDIR}"/${P}-no-rdfpipe.patch
 eautoreconf
 }
 
