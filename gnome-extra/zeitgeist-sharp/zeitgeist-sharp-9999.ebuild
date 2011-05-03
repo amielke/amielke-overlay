@@ -18,6 +18,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 CDEPEND="dev-libs/libzeitgeist
+	app-misc/tomboy
 	dev-libs/glib:2
 	x11-libs/gtk+:2
 	dev-lang/vala:0.12"
