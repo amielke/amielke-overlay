@@ -17,7 +17,7 @@ SRC_URI=""
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="alsa exif gmenu kde terminal tomboy webkit xfce xgamma xklavier"
+IUSE="alsa exif gmenu kde terminal tomboy vala webkit xfce xgamma xklavier"
 
 RDEPEND="
 	~x11-misc/cairo-dock-${PV}
@@ -30,6 +30,7 @@ RDEPEND="
 	xfce? ( xfce-base/thunar )
 	xgamma? ( x11-libs/libXxf86vm )
 	xklavier? ( x11-libs/libxklavier )
+	vala? ( dev-lang/vala:0.12 )
 "
 
 DEPEND="${RDEPEND}
