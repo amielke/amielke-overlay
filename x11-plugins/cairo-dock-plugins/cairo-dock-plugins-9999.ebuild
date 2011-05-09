@@ -30,7 +30,7 @@ RDEPEND="
 	xfce? ( xfce-base/thunar )
 	xgamma? ( x11-libs/libXxf86vm )
 	xklavier? ( x11-libs/libxklavier )
-	vala? ( dev-lang/vala:0.10 )
+	vala? ( dev-lang/vala:0.12 )
 "
 
 DEPEND="${RDEPEND}
