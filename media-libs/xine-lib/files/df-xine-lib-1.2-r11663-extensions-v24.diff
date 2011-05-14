@@ -1,0 +1,1914 @@
+diff --git a/configure.ac b/configure.ac
+index d646121..0f46bd4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -298,6 +298,30 @@ test x"$have_zlib" != x"yes" && AC_MSG_ERROR(zlib needed)
+ AC_SUBST(ZLIB_CPPFLAGS)
+ AC_SUBST(ZLIB_LIBS)
+ 
++dnl libjpeg (optional; enabled by default)
++AC_ARG_WITH([jpeglib-prefix], 
++            [AS_HELP_STRING([--with-jpeglib-prefix=PREFIX], [path to jpeg compression library])],
++            [if test x"$withval" != x"no"; then
++                 JPEGLIB_CPPFLAGS="-I$withval/include"
++                 JPEGLIB_LIBS="-L$withval/lib"
++             else
++                 have_jpeglib=no
++             fi])
++if test x"$have_jpeglib" != x"no" ; then
++		AC_CHECK_LIB([jpeg], [jpeg_start_compress],
++		             [JPEGLIB_LIBS="$JPEGLIB_LIBS -ljpeg"
++		              ac_save_CPPFLAGS="$CPPFLAGS" CPPFLAGS="$CPPFLAGS $JPEGLIB_CPPFLAGS"
++		              AC_CHECK_HEADER([jpeglib.h], [have_jpeglib=yes], [have_jpeglib=no])
++		              CPPFLAGS="$ac_save_CPPFLAGS"],
++		             [have_jpeglib=no],
++		             ["$JPEGLIB_LIBS"])
++    if test x"$have_jpeglib" = x"yes"; then
++        AC_DEFINE([HAVE_JPEGLIB], 1, [Define this if you have jpeg library])
++				AC_SUBST(JPEGLIB_CPPFLAGS)
++				AC_SUBST(JPEGLIB_LIBS)
++		fi
++fi
++
+ dnl FreeType2 (optional; disabled by default)
+ AC_ARG_WITH([freetype],
+ 	    [AS_HELP_STRING([--with-freetype], [Build with FreeType2 library])],
+diff --git a/debian/control b/debian/control
+index f21a303..17c1f4d 100644
+--- a/debian/control
++++ b/debian/control
+@@ -28,13 +28,13 @@ Build-Depends: debhelper (>= 5.0.1), binutils (>= 2.12.90.0.9), pkg-config,
+ 	libsmbclient-dev, libspeex-dev, libmng-dev,
+ 	libmad0-dev, libmpcdec-dev, libcdio-dev (>= 0.76-1), libvcdinfo-dev,
+ 	libdvdnav-dev, libdvdread-dev,
+-	zlib1g-dev, w3m, xmlto, librsvg2-bin
++	zlib1g-dev, w3m, xmlto, librsvg2-bin, libjpeg62-dev
+ Standards-Version: 3.7.2
+ 
+ Package: libxine-dev
+ Architecture: any
+ Section: libdevel
+-Depends: libxine2 (= ${Source-Version}), libc6-dev, zlib1g-dev | libz-dev, libslang2-dev | slang1-dev, libfreetype6-dev, pkg-config
++Depends: libxine2 (= ${Source-Version}), libc6-dev, zlib1g-dev | libz-dev, libjpeg62-dev, libslang2-dev | slang1-dev, libfreetype6-dev, pkg-config
+ Conflicts: xine-ui (<< 0.9.10), libxine-dev
+ Description: the xine video player library, development packages
+  This contains development files (headers, documentation and the like)
+diff --git a/include/xine.h b/include/xine.h
+index 0d8b176..d6f54b7 100644
+--- a/include/xine.h
++++ b/include/xine.h
+@@ -460,6 +460,83 @@ int  xine_get_current_frame_data (xine_stream_t *stream,
+ int64_t xine_get_current_vpts(xine_stream_t *stream) XINE_PROTECTED;
+ 
+ 
++/*
++ * Continuous video frame grabbing feature.
++ *
++ * In opposite to the 'xine_get_current_frame' based snapshot function this grabbing
++ * feature allow continuous grabbing of last or next displayed video frame.
++ * Grabbed video frames are returned in simple three byte RGB format.
++ *
++ * Depending on the capabilities of the used video output driver video image data is
++ * taken as close as possible at the end of the video processing chain. Thus a returned
++ * video image could contain the blended OSD data, is deinterlaced, cropped and scaled
++ * and video properties like hue, sat could be applied.
++ * If a video output driver does not have a decent grabbing implementation then there
++ * is a generic fallback feature that grabs the video frame as they are taken from the video
++ * display queue (like the xine_get_current_frame' function).
++ * In this case color correct conversation to a RGB image incorporating source cropping
++ * and scaling to the requested grab size is also supported.
++ *
++ * The caller must first request a new video grab frame using the public 'xine_new_grab_video_frame'
++ * function. Then the caller should populate the frame with the wanted source cropping, grab image
++ * size and control flags. After that grab requests could be done by calling the supplied grab() feature
++ * of the frame. At the end a call to the supplied dispose() feature of the frame releases all needed
++ * resources.
++ * The caller should have acquired a port ticket while calling these features.
++ *
++ */
++#define HAVE_XINE_GRAB_VIDEO_FRAME      1
++
++/*
++ * frame structure used for grabbing video frames of format RGB.
++ */
++typedef struct xine_grab_video_frame_s xine_grab_video_frame_t;
++struct xine_grab_video_frame_s {
++  /*
++   *  grab last/next displayed image.
++   *  returns 0 if grab is successful, 1 on timeout and -1 on error
++   */
++  int (*grab) (xine_grab_video_frame_t *self);
++
++  /*
++   *  free all resources.
++   */
++  void (*dispose) (xine_grab_video_frame_t *self);
++
++  /*
++   *  Cropping of source image. Has to be specified by caller.
++   */
++  int crop_left;
++  int crop_right;
++  int crop_top;
++  int crop_bottom;
++
++  /*
++   * Parameters of returned RGB image.
++   * Caller can specify wanted frame size giving width and/or height a value > 0.
++   * In this case the grabbed image is scaled to the requested size.
++   * Otherwise the grab function returns the actual size of the grabbed image
++   * in width/height without scaling the image.
++   */
++  int width, height; /* requested/returned size of image */
++  uint8_t *img;      /* returned RGB image data taking three bytes per pixel */
++  int64_t vpts;      /* virtual presentation timestamp (1/90000 sec) of returned frame */
++
++  int timeout;       /* Max. time to wait for next displayed frame in milliseconds */
++  int flags;         /* Controlling flags. See XINE_GRAB_VIDEO_FRAME_FLAGS_* definitions */
++};
++
++#define XINE_GRAB_VIDEO_FRAME_FLAGS_CONTINUOUS  0x01    /* optimize resource allocation for continuous frame grabbing */
++#define XINE_GRAB_VIDEO_FRAME_FLAGS_WAIT_NEXT   0x02    /* wait for next display frame instead of using last displayed frame */
++
++#define XINE_GRAB_VIDEO_FRAME_DEFAULT_TIMEOUT   500
++
++/*
++ * Allocate new grab video frame. Returns NULL on error.
++ */
++xine_grab_video_frame_t*  xine_new_grab_video_frame (xine_stream_t *stream) XINE_PROTECTED;
++
++
+ /*********************************************************************
+  * media processing                                                  *
+  *********************************************************************/
+diff --git a/include/xine/vdr.h b/include/xine/vdr.h
+index 4093472..5b58522 100644
+--- a/include/xine/vdr.h
++++ b/include/xine/vdr.h
+@@ -22,7 +22,7 @@
+ #define __VDR_H
+ 
+ 
+-#define XINE_VDR_VERSION 901
++#define XINE_VDR_VERSION 1901
+ 
+ 
+ enum funcs
+@@ -416,6 +416,11 @@ data_set_video_window_t;
+ typedef struct __attribute__((packed)) data_grab_image_s
+ {
+   data_header_t header;
++
++  uint16_t width;
++  uint16_t height;
++  uint16_t jpeg;
++  uint16_t quality;
+ }
+ data_grab_image_t;
+ 
+diff --git a/include/xine/video_out.h b/include/xine/video_out.h
+index 799e8f7..5a04011 100644
+--- a/include/xine/video_out.h
++++ b/include/xine/video_out.h
+@@ -196,6 +196,9 @@ struct xine_video_port_s {
+ 			    uint32_t height, double ratio,
+ 			    int format, int flags);
+ 
++  /* create a new grab video frame */
++  xine_grab_video_frame_t* (*new_grab_video_frame) (xine_video_port_t *self);
++
+   /* retrieves the last displayed frame (useful for taking snapshots) */
+   vo_frame_t* (*get_last_frame) (xine_video_port_t *self);
+ 
+@@ -388,6 +391,9 @@ struct vo_driver_s {
+    */
+   int (*redraw_needed) (vo_driver_t *self);
+ 
++  /* Create a new grab video frame */
++  xine_grab_video_frame_t* (*new_grab_video_frame)(vo_driver_t *self);
++
+   /*
+    * free all resources, close driver
+    */
+diff --git a/src/vdr/Makefile.am b/src/vdr/Makefile.am
+index 09435a8..3c6d2df 100644
+--- a/src/vdr/Makefile.am
++++ b/src/vdr/Makefile.am
+@@ -1,7 +1,7 @@
+ include $(top_builddir)/misc/Makefile.plugins
+ include $(top_srcdir)/misc/Makefile.common
+ 
+-AM_CFLAGS  = $(DEFAULT_OCFLAGS) $(VISIBILITY_FLAG)
++AM_CFLAGS  = $(DEFAULT_OCFLAGS) $(VISIBILITY_FLAG) $(JPEGLIB_CPPFLAGS)
+ AM_LDFLAGS = $(xineplug_ldflags)
+ 
+ if ENABLE_VDR
+@@ -9,4 +9,4 @@ xineplug_LTLIBRARIES = xineplug_vdr.la
+ endif
+ 
+ xineplug_vdr_la_SOURCES = combined_vdr.c combined_vdr.h input_vdr.c post_vdr_video.c post_vdr_audio.c
+-xineplug_vdr_la_LIBADD = $(XINE_LIB) $(PTHREAD_LIBS)
++xineplug_vdr_la_LIBADD = $(XINE_LIB) $(PTHREAD_LIBS) $(JPEGLIB_LIBS)
+diff --git a/src/vdr/input_vdr.c b/src/vdr/input_vdr.c
+index ed478c8..17f69c0 100644
+--- a/src/vdr/input_vdr.c
++++ b/src/vdr/input_vdr.c
+@@ -49,6 +49,16 @@
+ #include "combined_vdr.h"
+ 
+ 
++#ifdef HAVE_XINE_GRAB_VIDEO_FRAME
++#ifdef HAVE_JPEGLIB
++#ifdef boolean
++# define HAVE_BOOLEAN
++#endif
++#include <jpeglib.h>
++#undef boolean 
++#endif /*HAVE_JPEGLIB*/
++#endif /*HAVE_XINE_GRAB_VIDEO_FRAME*/
++
+ 
+ #define VDR_MAX_NUM_WINDOWS 16
+ #define VDR_ABS_FIFO_DIR "/tmp/vdr-xine"
+@@ -183,6 +193,55 @@ typedef struct
+ vdr_input_class_t;
+ 
+ 
++#ifdef HAVE_XINE_GRAB_VIDEO_FRAME
++#ifdef HAVE_JPEGLIB
++#define JPEGCOMPRESSMEM 500000
++
++typedef struct tJpegCompressData_s {
++  int size;
++  unsigned char *mem;
++} tJpegCompressData;
++
++static void JpegCompressInitDestination(const j_compress_ptr cinfo)
++{
++  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
++  if (jcd) {
++     cinfo->dest->free_in_buffer = jcd->size = JPEGCOMPRESSMEM;
++     cinfo->dest->next_output_byte = jcd->mem = 
++       (unsigned char *)malloc(jcd->size);
++     }
++}
++
++static boolean JpegCompressEmptyOutputBuffer(const j_compress_ptr cinfo)
++{
++  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
++  if (jcd) {
++     int Used = jcd->size;
++     jcd->size += JPEGCOMPRESSMEM;
++     jcd->mem = (unsigned char *)realloc(jcd->mem, jcd->size);
++     if (jcd->mem) {
++        cinfo->dest->next_output_byte = jcd->mem + Used;
++        cinfo->dest->free_in_buffer = jcd->size - Used;
++        return TRUE;
++        }
++     }
++  return FALSE;
++}
++
++static void JpegCompressTermDestination(const j_compress_ptr cinfo)
++{
++  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
++  if (jcd) {
++     int Used = cinfo->dest->next_output_byte - jcd->mem;
++     if (Used < jcd->size) {
++        jcd->size = Used;
++        jcd->mem = (unsigned char *)realloc(jcd->mem, jcd->size);
++        }
++     }
++}
++#endif /*HAVE_JPEGLIB */
++#endif /*HAVE_XINE_GRAB_VIDEO_FRAME*/
++
+ 
+ static int vdr_write(int f, void *b, int n)
+ {
+@@ -430,6 +489,12 @@ static off_t vdr_execute_rpc_command(vdr_input_plugin_t *this)
+ 
+       if (this->osd_supports_custom_extent && data->w_ref > 0 && data->h_ref > 0)
+         xine_osd_set_extent(this->osd[ data->window ].window, data->w_ref, data->h_ref);
++ 
++      /*
++       * We use a new object type id for osd objects coming from this input plugin so that
++       * post plugins like autocrop can do special handling
++       */
++      this->osd[ data->window ].window->osd.renderer->event.object.object_type = 2;
+     }
+     break;
+ 
+@@ -1112,7 +1177,109 @@ t3 = _now();
+   case func_grab_image:
+     {
+       READ_DATA_OR_FAIL(grab_image, lprintf("got GRABIMAGE\n"));
++#ifdef HAVE_XINE_GRAB_VIDEO_FRAME
++      {
++        int size = 0;
++        char *img = NULL;
++
++        result_grab_image_t result_grab_image;
++        memset(&result_grab_image, 0, sizeof(result_grab_image));
++        result_grab_image.header.func = data->header.func;
++        result_grab_image.header.len  = sizeof (result_grab_image);
++
++        xine_grab_video_frame_t *grab_frame = xine_new_grab_video_frame(this->stream);
++        if (grab_frame)
++        {
++          grab_frame->width = data->width;
++          grab_frame->height = data->height;
++          if (!grab_frame->grab(grab_frame))
++          {
++            if (!data->jpeg) /* convert to PNM */
++            {
++              /* allocate memory for result */
++              size_t bytes = grab_frame->width * grab_frame->height * 3;
++              img = malloc(bytes + 64);
++              if (img)
++              {
++                /* PNM header */
++                sprintf(img, "P6\n%d\n%d\n255\n", grab_frame->width, grab_frame->height);
++                int hdrlen = strlen(img);
+ 
++                /* copy image */
++                xine_fast_memcpy(img + hdrlen, grab_frame->img, bytes);
++
++                size = bytes + hdrlen;
++              }
++            }
++            else /* JPEG */
++            {
++#ifdef HAVE_JPEGLIB
++              /* Compress JPEG */
++              struct jpeg_destination_mgr jdm;
++              struct jpeg_compress_struct cinfo;
++              struct jpeg_error_mgr jerr;
++              tJpegCompressData jcd;
++
++              jdm.init_destination = JpegCompressInitDestination;
++              jdm.empty_output_buffer = JpegCompressEmptyOutputBuffer;
++              jdm.term_destination = JpegCompressTermDestination;
++              cinfo.err = jpeg_std_error(&jerr);
++              jpeg_create_compress(&cinfo);
++              cinfo.dest = &jdm;
++              cinfo.client_data = &jcd;
++              cinfo.image_width = grab_frame->width;
++              cinfo.image_height = grab_frame->height;
++              cinfo.input_components = 3;
++              cinfo.in_color_space = JCS_RGB;
++
++              jpeg_set_defaults(&cinfo);
++              jpeg_set_quality(&cinfo, data->quality, TRUE);
++              jpeg_start_compress(&cinfo, TRUE);
++
++              JSAMPROW rp[grab_frame->height];
++              int rs = grab_frame->width * 3;
++              int k;
++              for (k = 0; k < grab_frame->height; k++)
++                rp[k] = grab_frame->img + k * rs;
++              jpeg_write_scanlines(&cinfo, rp, grab_frame->height);
++
++              jpeg_finish_compress(&cinfo);
++              jpeg_destroy_compress(&cinfo);
++
++              size = jcd.size;
++              img = (char*)jcd.mem;
++#else
++              lprintf("no JPEG support present!\n");
++#endif
++            }
++          }
++
++          if (img && size > 0)
++          {
++            result_grab_image.width       = grab_frame->width;
++            result_grab_image.height      = grab_frame->height;
++          }
++          else
++            size = 0;
++
++          grab_frame->dispose(grab_frame);
++        }
++
++        result_grab_image.header.len  += size;
++
++        int ok = 0;
++        if (sizeof (result_grab_image) == vdr_write(this->fh_result, &result_grab_image, sizeof (result_grab_image)))
++        {
++            if (!size || (size == vdr_write(this->fh_result, img, size)))
++              ok = 1;
++        }
++
++        free(img);
++
++        if (!ok)
++          return -1;
++      }
++#else
+       {
+         off_t ret_val   = -1;
+ 
+@@ -1161,6 +1328,7 @@ t3 = _now();
+         if (ret_val != 0)
+           return ret_val;
+       }
++#endif /*HAVE_XINE_GRAB_VIDEO_FRAME*/
+     }
+     break;
+ 
+diff --git a/src/video_dec/libvdpau/vdpau_h264.c b/src/video_dec/libvdpau/vdpau_h264.c
+index 9bcddd9..205d878 100644
+--- a/src/video_dec/libvdpau/vdpau_h264.c
++++ b/src/video_dec/libvdpau/vdpau_h264.c
+@@ -582,8 +582,8 @@ static int vdpau_decoder_render(video_decoder_t *this_gen, VdpBitstreamBuffer *v
+ 
+   /*xprintf(this->xine, XINE_VERBOSITY_DEBUG,
+       "Decode: NUM: %d, REF: %d, BYTES: %d, PTS: %lld\n", pic.frame_num, pic.is_reference, vdp_buffer->bitstream_bytes, this->completed_pic->pts);*/
+-  VdpStatus status = this->vdpau_accel->vdp_decoder_render(this->decoder,
+-      surface, (VdpPictureInfo*)&pic, 1, vdp_buffer);
++  VdpStatus status;
++  VDPAU_PROFILE(status = this->vdpau_accel->vdp_decoder_render(this->decoder, surface, (VdpPictureInfo*)&pic, 1, vdp_buffer));
+ 
+   /* free the image data */
+   if(((uint8_t*)vdp_buffer->bitstream) != NULL) {
+diff --git a/src/video_dec/libvdpau/vdpau_mpeg12.c b/src/video_dec/libvdpau/vdpau_mpeg12.c
+index 1067f86..fbe3e7d 100644
+--- a/src/video_dec/libvdpau/vdpau_mpeg12.c
++++ b/src/video_dec/libvdpau/vdpau_mpeg12.c
+@@ -687,7 +687,7 @@ static void decode_render( vdpau_mpeg12_decoder_t *vd, vdpau_accel_t *accel )
+   vbit.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
+   vbit.bitstream = pic->slices;
+   vbit.bitstream_bytes = (pic->vdp_infos.picture_structure==PICTURE_FRAME)? pic->slices_pos : pic->slices_pos_top;
+-  st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit );
++  VDPAU_PROFILE(st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit ));
+   if ( st!=VDP_STATUS_OK )
+     lprintf( "decoder failed : %d!! %s\n", st, accel->vdp_get_error_string( st ) );
+   else {
+@@ -715,7 +715,7 @@ static void decode_render( vdpau_mpeg12_decoder_t *vd, vdpau_accel_t *accel )
+     vbit.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
+     vbit.bitstream = pic->slices+pic->slices_pos_top;
+     vbit.bitstream_bytes = pic->slices_pos-pic->slices_pos_top;
+-    st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos2, 1, &vbit );
++    VDPAU_PROFILE(st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos2, 1, &vbit ));
+     if ( st!=VDP_STATUS_OK )
+       lprintf( "decoder failed : %d!! %s\n", st, accel->vdp_get_error_string( st ) );
+     else
+diff --git a/src/video_dec/libvdpau/vdpau_mpeg4.c b/src/video_dec/libvdpau/vdpau_mpeg4.c
+index 7d940a5..d88bdc6 100644
+--- a/src/video_dec/libvdpau/vdpau_mpeg4.c
++++ b/src/video_dec/libvdpau/vdpau_mpeg4.c
+@@ -847,7 +847,7 @@ static void decode_render( vdpau_mpeg4_decoder_t *vd, vdpau_accel_t *accel, uint
+   vbit.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
+   vbit.bitstream = buf;
+   vbit.bitstream_bytes = len;
+-  st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit );
++  VDPAU_PROFILE(st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit ));
+   if ( st!=VDP_STATUS_OK )
+     fprintf(stderr, "vdpau_mpeg4: decoder failed : %d!! %s\n", st, accel->vdp_get_error_string( st ) );
+   else {
+diff --git a/src/video_dec/libvdpau/vdpau_vc1.c b/src/video_dec/libvdpau/vdpau_vc1.c
+index 02545a7..dbaba30 100644
+--- a/src/video_dec/libvdpau/vdpau_vc1.c
++++ b/src/video_dec/libvdpau/vdpau_vc1.c
+@@ -654,7 +654,7 @@ static void decode_render( vdpau_vc1_decoder_t *vd, vdpau_accel_t *accel, uint8_
+   vbit.bitstream_bytes = len;
+   if ( pic->field )
+     vbit.bitstream_bytes = pic->field;
+-  st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit );
++  VDPAU_PROFILE(st = accel->vdp_decoder_render( vd->decoder, accel->surface, (VdpPictureInfo*)&pic->vdp_infos, 1, &vbit ));
+   if ( st!=VDP_STATUS_OK )
+     fprintf(stderr, "vdpau_vc1: decoder failed : %d!! %s\n", st, accel->vdp_get_error_string( st ) );
+   else {
+diff --git a/src/video_out/video_out_vdpau.c b/src/video_out/video_out_vdpau.c
+index fb56c95..def7d9c 100644
+--- a/src/video_out/video_out_vdpau.c
++++ b/src/video_out/video_out_vdpau.c
+@@ -134,7 +134,9 @@ VdpVideoSurfaceGetParameters *vdp_video_surface_get_parameters;
+ VdpOutputSurfaceCreate *vdp_output_surface_create;
+ VdpOutputSurfaceDestroy *vdp_output_surface_destroy;
+ VdpOutputSurfaceRenderBitmapSurface *vdp_output_surface_render_bitmap_surface;
++VdpOutputSurfaceRenderOutputSurface *vdp_output_surface_render_output_surface;
+ VdpOutputSurfacePutBitsNative *vdp_output_surface_put_bits;
++VdpOutputSurfaceGetBitsNative *vdp_output_surface_get_bits;
+ 
+ VdpVideoMixerCreate *vdp_video_mixer_create;
+ VdpVideoMixerDestroy *vdp_video_mixer_destroy;
+@@ -186,31 +188,30 @@ static VdpDecoderCreate *orig_vdp_decoder_create;
+ static VdpDecoderDestroy *orig_vdp_decoder_destroy;
+ static VdpDecoderRender *orig_vdp_decoder_render;
+ 
++#ifdef LOCKDISPLAY
++#define DO_LOCKDISPLAY          if (guarded_display) XLockDisplay(guarded_display);
++#define DO_UNLOCKDISPLAY        if (guarded_display) XUnlockDisplay(guarded_display);
+ static Display *guarded_display;
++#else
++#define DO_LOCKDISPLAY
++#define DO_UNLOCKDISPLAY
++#endif
+ 
+ static VdpStatus guarded_vdp_video_surface_putbits_ycbcr(VdpVideoSurface surface, VdpYCbCrFormat source_ycbcr_format, void const *const *source_data, uint32_t const *source_pitches)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_video_surface_putbits_ycbcr(surface, source_ycbcr_format, source_data, source_pitches);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ static VdpStatus guarded_vdp_video_surface_create(VdpDevice device, VdpChromaType chroma_type, uint32_t width, uint32_t height,VdpVideoSurface *surface)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_video_surface_create(device, chroma_type, width, height, surface);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+@@ -226,71 +227,62 @@ static VdpStatus guarded_vdp_video_surface_destroy(VdpVideoSurface surface)
+ static VdpStatus guarded_vdp_output_surface_create(VdpDevice device, VdpChromaType chroma_type, uint32_t width, uint32_t height,VdpVideoSurface *surface)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_output_surface_create(device, chroma_type, width, height, surface);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ static VdpStatus guarded_vdp_output_surface_destroy(VdpVideoSurface surface)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_output_surface_destroy(surface);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ static VdpStatus guarded_vdp_decoder_create(VdpDevice device, VdpDecoderProfile profile, uint32_t width, uint32_t height, uint32_t max_references, VdpDecoder *decoder)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_decoder_create(device, profile, width, height, max_references, decoder);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ static VdpStatus guarded_vdp_decoder_destroy(VdpDecoder decoder)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_decoder_destroy(decoder);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ static VdpStatus guarded_vdp_decoder_render(VdpDecoder decoder, VdpVideoSurface target, VdpPictureInfo const *picture_info, uint32_t bitstream_buffer_count, VdpBitstreamBuffer const *bitstream_buffers)
+ {
+   VdpStatus r;
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   r = orig_vdp_decoder_render(decoder, target, picture_info, bitstream_buffer_count, bitstream_buffers);
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   return r;
+ }
+ 
+ 
+ 
+ typedef struct {
++  xine_grab_video_frame_t grab_frame;
++
++  vo_driver_t *vo_driver;
++  VdpOutputSurface render_surface;
++  int vdp_runtime_nr;
++  int width, height;
++  uint32_t *rgba;
++} vdpau_grab_video_frame_t;
++
++
++typedef struct {
+   VdpBitmapSurface ovl_bitmap;
+   uint32_t  bitmap_width, bitmap_height;
+   int ovl_w, ovl_h; /* overlay's width and height */
+@@ -375,6 +367,10 @@ typedef struct {
+   uint8_t              init_queue;
+   uint8_t              queue_length;
+ 
++  vdpau_grab_video_frame_t *pending_grab_request;
++  pthread_mutex_t      grab_lock;
++  pthread_cond_t       grab_cond;
++
+   VdpVideoMixer        video_mixer;
+   VdpChromaType        video_mixer_chroma;
+   uint32_t             video_mixer_width;
+@@ -511,7 +507,8 @@ static void vdpau_process_argb_ovls(vdpau_driver_t *this_gen, vo_frame_t *frame_
+       if (this->argb_overlay != VDP_INVALID_HANDLE)
+         vdp_output_surface_destroy(this->argb_overlay);
+ 
+-      VdpStatus st = vdp_output_surface_create(vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, total_extent_width, total_extent_height, &this->argb_overlay);
++      VdpStatus st;
++      VDPAU_PROFILE(st = vdp_output_surface_create(vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, total_extent_width, total_extent_height, &this->argb_overlay));
+       if (st != VDP_STATUS_OK)
+         fprintf(stderr, "vdpau_process_argb_ovl: vdp_output_surface_create failed : %s\n", vdp_get_error_string(st));
+ 
+@@ -554,7 +551,8 @@ static void vdpau_process_argb_ovls(vdpau_driver_t *this_gen, vo_frame_t *frame_
+       if (zeros) {
+         uint32_t pitch = curr_ovl_data->w * 4;
+         VdpRect dest = { curr_ovl_data->x, curr_ovl_data->y, curr_ovl_data->x + curr_ovl_data->w, curr_ovl_data->y + curr_ovl_data->h };
+-        VdpStatus st = vdp_output_surface_put_bits(this->argb_overlay, (void *)&zeros, &pitch, &dest);
++        VdpStatus st;
++        VDPAU_PROFILE(st = vdp_output_surface_put_bits(this->argb_overlay, (void *)&zeros, &pitch, &dest));
+         if (st != VDP_STATUS_OK)
+           fprintf(stderr, "vdpau_process_argb_ovl: vdp_output_surface_put_bits_native failed : %s\n", vdp_get_error_string(st));
+       }
+@@ -572,7 +570,8 @@ static void vdpau_process_argb_ovls(vdpau_driver_t *this_gen, vo_frame_t *frame_
+     ovl[i]->argb_layer->x2 = 0;
+     ovl[i]->argb_layer->y2 = 0;
+ 
+-    VdpStatus st = vdp_output_surface_put_bits(this->argb_overlay, (void *)&buffer_start, &pitch, &dest);
++    VdpStatus st;
++    VDPAU_PROFILE(st = vdp_output_surface_put_bits(this->argb_overlay, (void *)&buffer_start, &pitch, &dest));
+     if (st != VDP_STATUS_OK)
+       fprintf(stderr, "vdpau_process_argb_ovl: vdp_output_surface_put_bits_native failed : %s\n", vdp_get_error_string(st));
+     else
+@@ -599,10 +598,11 @@ static int vdpau_process_ovl( vdpau_driver_t *this_gen, vo_overlay_t *overlay )
+ 
+   if ( (ovl->bitmap_width < overlay->width ) || (ovl->bitmap_height < overlay->height) || (ovl->ovl_bitmap == VDP_INVALID_HANDLE) ) {
+     if (ovl->ovl_bitmap != VDP_INVALID_HANDLE) {
+-      vdp_bitmap_destroy( ovl->ovl_bitmap );
++      VDPAU_PROFILE(vdp_bitmap_destroy( ovl->ovl_bitmap ));
+       ovl->ovl_bitmap = VDP_INVALID_HANDLE;
+     }
+-    VdpStatus st = vdp_bitmap_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, overlay->width, overlay->height, 0, &ovl->ovl_bitmap );
++    VdpStatus st;
++    VDPAU_PROFILE(st = vdp_bitmap_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, overlay->width, overlay->height, 0, &ovl->ovl_bitmap ));
+     if ( st != VDP_STATUS_OK ) {
+       fprintf(stderr, "vdpau_process_ovl: vdp_bitmap_create failed : %s\n", vdp_get_error_string(st) );
+     }
+@@ -666,7 +666,8 @@ static int vdpau_process_ovl( vdpau_driver_t *this_gen, vo_overlay_t *overlay )
+   }
+   uint32_t pitch = ovl->ovl_w*4;
+   VdpRect dest = { 0, 0, ovl->ovl_w, ovl->ovl_h };
+-  VdpStatus st = vdp_bitmap_put_bits( ovl->ovl_bitmap, &buf, &pitch, &dest);
++  VdpStatus st;
++  VDPAU_PROFILE(st = vdp_bitmap_put_bits( ovl->ovl_bitmap, &buf, &pitch, &dest));
+   if ( st != VDP_STATUS_OK ) {
+     fprintf(stderr, "vdpau_process_ovl: vdp_bitmap_put_bits failed : %s\n", vdp_get_error_string(st) );
+   }
+@@ -760,7 +761,7 @@ static void vdpau_overlay_end (vo_driver_t *this_gen, vo_frame_t *frame)
+   int out_h = (h>frame->height) ? h : frame->height;
+ 
+   if ( (this->overlay_output_width!=out_w || this->overlay_output_height!=out_h) && this->overlay_output != VDP_INVALID_HANDLE ) {
+-    st = vdp_output_surface_destroy( this->overlay_output );
++    VDPAU_PROFILE(st = vdp_output_surface_destroy( this->overlay_output ));
+     if ( st != VDP_STATUS_OK ) {
+       fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_destroy failed : %s\n", vdp_get_error_string(st) );
+     }
+@@ -781,7 +782,7 @@ static void vdpau_overlay_end (vo_driver_t *this_gen, vo_frame_t *frame)
+   }
+ 
+   if ( (this->overlay_unscaled_width!=w || this->overlay_unscaled_height!=h) && this->overlay_unscaled != VDP_INVALID_HANDLE ) {
+-    st = vdp_output_surface_destroy( this->overlay_unscaled );
++    VDPAU_PROFILE(st = vdp_output_surface_destroy( this->overlay_unscaled ));
+     if ( st != VDP_STATUS_OK ) {
+       fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_destroy failed : %s\n", vdp_get_error_string(st) );
+     }
+@@ -792,13 +793,13 @@ static void vdpau_overlay_end (vo_driver_t *this_gen, vo_frame_t *frame)
+   this->overlay_unscaled_height = h;
+ 
+   if ( this->overlay_unscaled == VDP_INVALID_HANDLE ) {
+-    st = vdp_output_surface_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, this->overlay_unscaled_width, this->overlay_unscaled_height, &this->overlay_unscaled );
++    VDPAU_PROFILE(st = vdp_output_surface_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, this->overlay_unscaled_width, this->overlay_unscaled_height, &this->overlay_unscaled ));
+     if ( st != VDP_STATUS_OK )
+       fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_create failed : %s\n", vdp_get_error_string(st) );
+   }
+ 
+   if ( this->overlay_output == VDP_INVALID_HANDLE ) {
+-    st = vdp_output_surface_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, this->overlay_output_width, this->overlay_output_height, &this->overlay_output );
++    VDPAU_PROFILE(st = vdp_output_surface_create( vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, this->overlay_output_width, this->overlay_output_height, &this->overlay_output ));
+     if ( st != VDP_STATUS_OK )
+       fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_create failed : %s\n", vdp_get_error_string(st) );
+   }
+@@ -809,12 +810,12 @@ static void vdpau_overlay_end (vo_driver_t *this_gen, vo_frame_t *frame)
+   uint32_t *buf = (uint32_t*)calloc(w*4,h);
+   uint32_t pitch = w*4;
+   VdpRect clear = { 0, 0, this->overlay_output_width, this->overlay_output_height };
+-  st = vdp_output_surface_put_bits( this->overlay_output, &buf, &pitch, &clear );
++  VDPAU_PROFILE(st = vdp_output_surface_put_bits( this->overlay_output, &buf, &pitch, &clear ));
+   if ( st != VDP_STATUS_OK ) {
+     fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_put_bits (clear) failed : %s\n", vdp_get_error_string(st) );
+   }
+   clear.x1 = this->overlay_unscaled_width; clear.y1 = this->overlay_unscaled_height;
+-  st = vdp_output_surface_put_bits( this->overlay_unscaled, &buf, &pitch, &clear );
++  VDPAU_PROFILE(st = vdp_output_surface_put_bits( this->overlay_unscaled, &buf, &pitch, &clear ));
+   if ( st != VDP_STATUS_OK ) {
+     fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_put_bits (clear) failed : %s\n", vdp_get_error_string(st) );
+   }
+@@ -831,7 +832,7 @@ static void vdpau_overlay_end (vo_driver_t *this_gen, vo_frame_t *frame)
+     }
+     VdpRect src = { 0, 0, this->overlays[i].ovl_w, this->overlays[i].ovl_h };
+     surface = (this->overlays[i].unscaled) ? &this->overlay_unscaled : &this->overlay_output;
+-    st = vdp_output_surface_render_bitmap_surface( *surface, &dest, this->overlays[i].ovl_bitmap, &src, 0, &blend, 0 );
++    VDPAU_PROFILE(st = vdp_output_surface_render_bitmap_surface( *surface, &dest, this->overlays[i].ovl_bitmap, &src, 0, &blend, 0 ));
+     if ( st != VDP_STATUS_OK ) {
+       fprintf(stderr, "vdpau_overlay_end: vdp_output_surface_render_bitmap_surface failed : %s\n", vdp_get_error_string(st) );
+     }
+@@ -965,7 +966,7 @@ static void vdpau_provide_standard_frame_data (vo_frame_t *this, xine_current_fr
+   }
+ 
+   if (data->img) {
+-    st = vdp_video_surface_getbits_ycbcr(accel->surface, format, base, pitches);
++    VDPAU_PROFILE(st = vdp_video_surface_getbits_ycbcr(accel->surface, format, base, pitches));
+     if (st != VDP_STATUS_OK)
+       fprintf(stderr, "vo_vdpau: failed to get surface bits !! %s\n", vdp_get_error_string(st));
+   }
+@@ -1004,11 +1005,11 @@ static void vdpau_duplicate_frame_data (vo_frame_t *this_gen, vo_frame_t *origin
+     format = VDP_YCBCR_FORMAT_YUYV;
+   }
+ 
+-  st = vdp_video_surface_getbits_ycbcr(orig->vdpau_accel_data.surface, format, this->vo_frame.base, this->vo_frame.pitches);
++  VDPAU_PROFILE(st = vdp_video_surface_getbits_ycbcr(orig->vdpau_accel_data.surface, format, this->vo_frame.base, this->vo_frame.pitches));
+   if (st != VDP_STATUS_OK)
+     fprintf(stderr, "vo_vdpau: failed to get surface bits !! %s\n", vdp_get_error_string(st));
+ 
+-  st = vdp_video_surface_putbits_ycbcr(this->vdpau_accel_data.surface, format, this->vo_frame.base, this->vo_frame.pitches);
++  VDPAU_PROFILE(st = vdp_video_surface_putbits_ycbcr(this->vdpau_accel_data.surface, format, this->vo_frame.base, this->vo_frame.pitches));
+   if (st != VDP_STATUS_OK)
+     fprintf(stderr, "vo_vdpau: failed to put surface bits !! %s\n", vdp_get_error_string(st));
+ 
+@@ -1588,6 +1589,117 @@ static void vdpau_check_output_size( vo_driver_t *this_gen )
+ }
+ 
+ 
++static void vdpau_grab_current_output_surface (vdpau_driver_t *this, int64_t vpts)
++{
++  pthread_mutex_lock(&this->grab_lock);
++
++  vdpau_grab_video_frame_t *frame = this->pending_grab_request;
++  if (frame) {
++    VdpStatus st;
++
++    this->pending_grab_request = NULL;
++    frame->grab_frame.vpts = -1;
++
++    VdpOutputSurface grab_surface = this->output_surface[this->current_output_surface];
++    int width = this->output_surface_width[this->current_output_surface];
++    int height = this->output_surface_height[this->current_output_surface];
++
++    /* take cropping parameters into account */
++    width = width - frame->grab_frame.crop_left - frame->grab_frame.crop_right;
++    height = height - frame->grab_frame.crop_top - frame->grab_frame.crop_bottom;
++    if (width < 1)
++      width = 1;
++    if (height < 1)
++      height = 1;
++
++    /* if caller does not specify frame size we return the actual size of grabbed frame */
++    if (frame->grab_frame.width <= 0)
++      frame->grab_frame.width = width;
++    if (frame->grab_frame.height <= 0)
++      frame->grab_frame.height = height;
++
++    if (frame->vdp_runtime_nr != this->vdp_runtime_nr)
++      frame->render_surface = VDP_INVALID_HANDLE;
++
++    if (frame->grab_frame.width != frame->width || frame->grab_frame.height != frame->height) {
++      free(frame->rgba);
++      free(frame->grab_frame.img);
++      frame->rgba = NULL;
++      frame->grab_frame.img = NULL;
++
++      if (frame->render_surface != VDP_INVALID_HANDLE) {
++        VDPAU_PROFILE(st = vdp_output_surface_destroy(frame->render_surface));
++        frame->render_surface = VDP_INVALID_HANDLE;
++        if (st != VDP_STATUS_OK) {
++          fprintf(stderr, "vo_vdpau: Can't destroy grab render output surface: %s\n", vdp_get_error_string (st));
++          pthread_cond_broadcast(&this->grab_cond);
++          pthread_mutex_unlock(&this->grab_lock);
++          return;
++        }
++      }
++
++      frame->width = frame->grab_frame.width;
++      frame->height = frame->grab_frame.height;
++    }
++
++    if (frame->rgba == NULL) {
++      frame->rgba = (uint32_t *) calloc(frame->width * frame->height, sizeof(uint32_t));
++      if (frame->rgba == NULL) {
++        pthread_cond_broadcast(&this->grab_cond);
++        pthread_mutex_unlock(&this->grab_lock);
++        return;
++      }
++    }
++    if (frame->grab_frame.img == NULL) {
++      frame->grab_frame.img = (uint8_t *) calloc(frame->width * frame->height, 3);
++      if (frame->grab_frame.img == NULL) {
++        pthread_cond_broadcast(&this->grab_cond);
++        pthread_mutex_unlock(&this->grab_lock);
++        return;
++      }
++    }
++
++    uint32_t pitches = frame->width * sizeof(uint32_t);
++    VdpRect src_rect = { frame->grab_frame.crop_left, frame->grab_frame.crop_top, width+frame->grab_frame.crop_left, height+frame->grab_frame.crop_top };
++
++    if (frame->width != width || frame->height != height) {
++      st = VDP_STATUS_OK;
++      if (frame->render_surface == VDP_INVALID_HANDLE) {
++        frame->vdp_runtime_nr = this->vdp_runtime_nr;
++        VDPAU_PROFILE(st = vdp_output_surface_create(vdp_device, VDP_RGBA_FORMAT_B8G8R8A8, frame->width, frame->height, &frame->render_surface));
++      }
++      if (st == VDP_STATUS_OK) {
++        VDPAU_PROFILE(st = vdp_output_surface_render_output_surface(frame->render_surface, NULL, grab_surface, &src_rect, NULL, NULL, VDP_OUTPUT_SURFACE_RENDER_ROTATE_0));
++        if (st == VDP_STATUS_OK) {
++          VDPAU_PROFILE(st = vdp_output_surface_get_bits(frame->render_surface, NULL, &frame->rgba, &pitches));
++          if (st == VDP_STATUS_OK) {
++            if (!(frame->grab_frame.flags & XINE_GRAB_VIDEO_FRAME_FLAGS_CONTINUOUS)) {
++              VDPAU_PROFILE(st = vdp_output_surface_destroy(frame->render_surface));
++              if (st != VDP_STATUS_OK)
++                fprintf(stderr, "vo_vdpau: Can't destroy grab render output surface: %s\n", vdp_get_error_string (st));
++              frame->render_surface = VDP_INVALID_HANDLE;
++            }
++          } else
++            fprintf(stderr, "vo_vdpau: Can't get output surface bits for raw frame grabbing: %s\n", vdp_get_error_string (st));
++        } else
++          fprintf(stderr, "vo_vdpau: Can't render output surface for raw frame grabbing: %s\n", vdp_get_error_string (st));
++      } else
++        fprintf(stderr, "vo_vdpau: Can't create render output surface for raw frame grabbing: %s\n", vdp_get_error_string (st));
++    } else {
++      VDPAU_PROFILE(st = vdp_output_surface_get_bits(grab_surface, &src_rect, &frame->rgba, &pitches));
++      if (st != VDP_STATUS_OK)
++        fprintf(stderr, "vo_vdpau: Can't get output surface bits for raw frame grabbing: %s\n", vdp_get_error_string (st));
++    }
++
++    if (st == VDP_STATUS_OK)
++      frame->grab_frame.vpts = vpts;
++
++    pthread_cond_broadcast(&this->grab_cond);
++  }
++
++  pthread_mutex_unlock(&this->grab_lock);
++}
++
+ 
+ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+ {
+@@ -1634,20 +1746,20 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+       this->soft_surface_width = frame->width;
+       this->soft_surface_height = frame->height;
+       this->soft_surface_format = frame->format;
+-      vdp_video_surface_destroy( this->soft_surface );
++      VDPAU_PROFILE(vdp_video_surface_destroy( this->soft_surface ));
+       this->soft_surface = VDP_INVALID_HANDLE;
+-      vdp_video_surface_create( vdp_device, chroma, this->soft_surface_width, this->soft_surface_height, &this->soft_surface );
++      VDPAU_PROFILE(vdp_video_surface_create( vdp_device, chroma, this->soft_surface_width, this->soft_surface_height, &this->soft_surface ));
+     }
+     /* FIXME: have to swap U and V planes to get correct colors !! */
+     uint32_t pitches[] = { frame->vo_frame.pitches[0], frame->vo_frame.pitches[2], frame->vo_frame.pitches[1] };
+     void* data[] = { frame->vo_frame.base[0], frame->vo_frame.base[2], frame->vo_frame.base[1] };
+     if ( frame->format==XINE_IMGFMT_YV12 ) {
+-      st = vdp_video_surface_putbits_ycbcr( this->soft_surface, VDP_YCBCR_FORMAT_YV12, &data, pitches );
++      VDPAU_PROFILE(st = vdp_video_surface_putbits_ycbcr( this->soft_surface, VDP_YCBCR_FORMAT_YV12, &data, pitches ));
+       if ( st != VDP_STATUS_OK )
+         fprintf(stderr, "vo_vdpau: vdp_video_surface_putbits_ycbcr YV12 error : %s\n", vdp_get_error_string( st ) );
+     }
+     else {
+-      st = vdp_video_surface_putbits_ycbcr( this->soft_surface, VDP_YCBCR_FORMAT_YUYV, &data, pitches );
++      VDPAU_PROFILE(st = vdp_video_surface_putbits_ycbcr( this->soft_surface, VDP_YCBCR_FORMAT_YUYV, &data, pitches ));
+       if ( st != VDP_STATUS_OK )
+         fprintf(stderr, "vo_vdpau: vdp_video_surface_putbits_ycbcr YUY2 error : %s\n", vdp_get_error_string( st ) );
+     }
+@@ -1673,7 +1785,7 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+   if ( (mix_w != this->video_mixer_width) || (mix_h != this->video_mixer_height) || (chroma != this->video_mixer_chroma)) {
+     vdpau_release_back_frames( this_gen ); /* empty past frames array */
+     lprintf("vo_vdpau: recreate mixer to match frames: width=%d, height=%d, chroma=%d\n", mix_w, mix_h, chroma);
+-    vdp_video_mixer_destroy( this->video_mixer );
++    VDPAU_PROFILE(vdp_video_mixer_destroy( this->video_mixer ));
+     this->video_mixer = VDP_INVALID_HANDLE;
+     VdpVideoMixerFeature features[15];
+     int features_count = 0;
+@@ -1708,7 +1820,7 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+           VDP_VIDEO_MIXER_PARAMETER_CHROMA_TYPE, VDP_VIDEO_MIXER_PARAMETER_LAYERS };
+     int num_layers = 3;
+     void const *param_values[] = { &mix_w, &mix_h, &chroma, &num_layers };
+-    vdp_video_mixer_create( vdp_device, features_count, features, 4, params, param_values, &this->video_mixer );
++    VDPAU_PROFILE(vdp_video_mixer_create( vdp_device, features_count, features, 4, params, param_values, &this->video_mixer ));
+     this->video_mixer_chroma = chroma;
+     this->video_mixer_width = mix_w;
+     this->video_mixer_height = mix_h;
+@@ -1744,8 +1856,8 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+ 
+   VdpTime last_time;
+ 
+-  if ( this->init_queue>1 )
+-    vdp_queue_block( vdp_queue, this->output_surface[this->current_output_surface], &last_time );
++  if ( this->init_queue >= this->queue_length )
++    VDPAU_PROFILE(vdp_queue_block( vdp_queue, this->output_surface[this->current_output_surface], &last_time ));
+ 
+   uint32_t layer_count;
+   VdpLayer layer[3];
+@@ -1792,9 +1904,7 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+   else
+     non_progressive = (this->honor_progressive && !frame->vo_frame.progressive_frame) || !this->honor_progressive;
+ 
+-#ifdef LOCKDISPLAY
+-  XLockDisplay( this->display );
+-#endif
++  DO_LOCKDISPLAY
+ 
+   if ( frame->format==XINE_IMGFMT_VDPAU && this->deinterlace && non_progressive && !(frame->vo_frame.flags & VO_STILL_IMAGE) && frame_duration>2500 ) {
+     VdpTime current_time = 0;
+@@ -1806,13 +1916,14 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+     future[0] = surface;
+     picture_structure = ( frame->vo_frame.top_field_first ) ? VDP_VIDEO_MIXER_PICTURE_STRUCTURE_TOP_FIELD : VDP_VIDEO_MIXER_PICTURE_STRUCTURE_BOTTOM_FIELD;
+ 
+-    st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, picture_structure,
+-                               2, past, surface, 1, future, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL );
++    VDPAU_PROFILE(st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, picture_structure,
++                               2, past, surface, 1, future, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL ));
+     if ( st != VDP_STATUS_OK )
+       fprintf(stderr, "vo_vdpau: vdp_video_mixer_render error : %s\n", vdp_get_error_string( st ) );
+ 
+-    vdp_queue_get_time( vdp_queue, &current_time );
+-    vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, 0 ); /* display _now_ */
++    vdpau_grab_current_output_surface( this, frame->vo_frame.vpts );
++    VDPAU_PROFILE(vdp_queue_get_time( vdp_queue, &current_time ));
++    VDPAU_PROFILE(vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, 0 )); /* display _now_ */
+     vdpau_shift_queue( this_gen );
+ 
+     int dm;
+@@ -1822,14 +1933,10 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+       dm = this->deinterlacers_method[this->deinterlace_method_hd];
+     
+     if ( (dm != DEINT_HALF_TEMPORAL) && (dm != DEINT_HALF_TEMPORAL_SPATIAL) && frame->vo_frame.future_frame ) {  /* process second field */
+-      if ( this->init_queue>=this->queue_length ) {
+-#ifdef LOCKDISPLAY
+-        XUnlockDisplay(this->display);
+-#endif
+-        vdp_queue_block( vdp_queue, this->output_surface[this->current_output_surface], &last_time );
+-#ifdef LOCKDISPLAY
+-        XLockDisplay(this->display);
+-#endif
++      if ( this->init_queue >= this->queue_length ) {
++        DO_UNLOCKDISPLAY
++        VDPAU_PROFILE(vdp_queue_block( vdp_queue, this->output_surface[this->current_output_surface], &last_time ));
++        DO_LOCKDISPLAY
+       }
+ 
+       vdpau_check_output_size( this_gen );
+@@ -1841,33 +1948,32 @@ static void vdpau_display_frame (vo_driver_t *this_gen, vo_frame_t *frame_gen)
+       else
+         future[0] = VDP_INVALID_HANDLE;
+ 
+-      st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, picture_structure,
+-                               2, past, surface, 1, future, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL );
++      VDPAU_PROFILE(st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, picture_structure,
++                               2, past, surface, 1, future, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL ));
+       if ( st != VDP_STATUS_OK )
+         fprintf(stderr, "vo_vdpau: vdp_video_mixer_render error : %s\n", vdp_get_error_string( st ) );
+ 
+       if ( stream_speed > 0 )
+         current_time += frame->vo_frame.duration * 1000000ull * XINE_FINE_SPEED_NORMAL / (180 * stream_speed);
+ 
+-      vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, current_time );
++      VDPAU_PROFILE(vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, current_time ));
+       vdpau_shift_queue( this_gen );
+     }
+   }
+   else {
+     if ( frame->vo_frame.flags & VO_STILL_IMAGE )
+       lprintf( "vo_vdpau: VO_STILL_IMAGE\n");
+-    st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, VDP_VIDEO_MIXER_PICTURE_STRUCTURE_FRAME,
+-                               0, 0, surface, 0, 0, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL );
++    VDPAU_PROFILE(st = vdp_video_mixer_render( this->video_mixer, VDP_INVALID_HANDLE, 0, VDP_VIDEO_MIXER_PICTURE_STRUCTURE_FRAME,
++                               0, 0, surface, 0, 0, &vid_source, this->output_surface[this->current_output_surface], &out_dest, &vid_dest, layer_count, layer_count?layer:NULL ));
+     if ( st != VDP_STATUS_OK )
+       fprintf(stderr, "vo_vdpau: vdp_video_mixer_render error : %s\n", vdp_get_error_string( st ) );
+ 
+-    vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, 0 );
++    vdpau_grab_current_output_surface( this, frame->vo_frame.vpts );
++    VDPAU_PROFILE(vdp_queue_display( vdp_queue, this->output_surface[this->current_output_surface], 0, 0, 0 ));
+     vdpau_shift_queue( this_gen );
+   }
+ 
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay( this->display );
+-#endif
++  DO_UNLOCKDISPLAY
+ 
+   if ( stream_speed ) 
+     vdpau_backup_frame( this_gen, frame_gen );
+@@ -1990,6 +2096,101 @@ static void vdpau_get_property_min_max (vo_driver_t *this_gen, int property, int
+ }
+ 
+ 
++/*
++ * functions for grabbing RGB images from displayed frames
++ */
++static void vdpau_dispose_grab_video_frame(xine_grab_video_frame_t *frame_gen)
++{
++  vdpau_grab_video_frame_t *frame = (vdpau_grab_video_frame_t *) frame_gen;
++  vdpau_driver_t *this = (vdpau_driver_t *) frame->vo_driver;
++
++  free(frame->grab_frame.img);
++  free(frame->rgba);
++  if (frame->render_surface != VDP_INVALID_HANDLE && frame->vdp_runtime_nr == this->vdp_runtime_nr) {
++    VdpStatus st;
++    VDPAU_PROFILE(st = vdp_output_surface_destroy(frame->render_surface));
++    if (st != VDP_STATUS_OK)
++      fprintf(stderr, "vo_vdpau: Can't destroy grab render output surface: %s\n", vdp_get_error_string (st) );
++  }
++  free(frame);
++}
++
++/*
++ * grab next displayed output surface.
++ * Note: This feature only supports grabbing of next displayed frame (implicit VO_GRAB_FRAME_FLAGS_WAIT_NEXT)
++ */
++static int vdpau_grab_grab_video_frame (xine_grab_video_frame_t *frame_gen) {
++  vdpau_grab_video_frame_t *frame = (vdpau_grab_video_frame_t *) frame_gen;
++  vdpau_driver_t *this = (vdpau_driver_t *) frame->vo_driver;
++  struct timeval tvnow, tvdiff, tvtimeout;
++  struct timespec ts;
++
++  /* calculate absolute timeout time */
++  tvdiff.tv_sec = frame->grab_frame.timeout / 1000;
++  tvdiff.tv_usec = frame->grab_frame.timeout % 1000;
++  tvdiff.tv_usec *= 1000;
++  gettimeofday(&tvnow, NULL);
++  timeradd(&tvnow, &tvdiff, &tvtimeout);
++  ts.tv_sec  = tvtimeout.tv_sec;
++  ts.tv_nsec = tvtimeout.tv_usec;
++  ts.tv_nsec *= 1000;
++
++  pthread_mutex_lock(&this->grab_lock);
++
++  /* wait until other pending grab request is finished */
++  while (this->pending_grab_request) {
++    if (pthread_cond_timedwait(&this->grab_cond, &this->grab_lock, &ts) == ETIMEDOUT) {
++      pthread_mutex_unlock(&this->grab_lock);
++      return 1;   /* no frame available */
++    }
++  }
++
++  this->pending_grab_request = frame;
++
++  /* wait until our request is finished */
++  while (this->pending_grab_request) {
++    if (pthread_cond_timedwait(&this->grab_cond, &this->grab_lock, &ts) == ETIMEDOUT) {
++      this->pending_grab_request = NULL;
++      pthread_mutex_unlock(&this->grab_lock);
++      return 1;   /* no frame available */
++    }
++  }
++
++  pthread_mutex_unlock(&this->grab_lock);
++
++  if (frame->grab_frame.vpts == -1)
++    return -1; /* error happened */
++
++  /* convert ARGB image to RGB image */
++  uint32_t *src = frame->rgba;
++  uint8_t *dst = frame->grab_frame.img;
++  int n = frame->width * frame->height;
++  while (n--) {
++    uint32_t rgba = *src++;
++    *dst++ = (uint8_t)(rgba >> 16);  /*R*/
++    *dst++ = (uint8_t)(rgba >> 8);   /*G*/
++    *dst++ = (uint8_t)(rgba);        /*B*/
++  }
++
++  return 0;
++}
++
++
++static xine_grab_video_frame_t * vdpau_new_grab_video_frame(vo_driver_t *this)
++{
++  vdpau_grab_video_frame_t *frame = calloc(1, sizeof(vdpau_grab_video_frame_t));
++  if (frame) {
++    frame->grab_frame.dispose = vdpau_dispose_grab_video_frame;
++    frame->grab_frame.grab = vdpau_grab_grab_video_frame;
++    frame->grab_frame.vpts = -1;
++    frame->grab_frame.timeout = XINE_GRAB_VIDEO_FRAME_DEFAULT_TIMEOUT;
++    frame->vo_driver = this;
++    frame->render_surface = VDP_INVALID_HANDLE;
++  }
++
++  return (xine_grab_video_frame_t *) frame;
++}
++
+ 
+ static int vdpau_gui_data_exchange (vo_driver_t *this_gen, int data_type, void *data)
+ {
+@@ -2004,18 +2205,14 @@ static int vdpau_gui_data_exchange (vo_driver_t *this_gen, int data_type, void *
+     case XINE_GUI_SEND_EXPOSE_EVENT: {
+       if ( this->init_queue ) {
+         pthread_mutex_lock(&this->drawable_lock); /* wait for other thread which is currently displaying */
+-#ifdef LOCKDISPLAY
+-        XLockDisplay( this->display );
+-#endif
++        DO_LOCKDISPLAY
+         int previous;
+         if ( this->current_output_surface )
+           previous = this->current_output_surface - 1;
+         else
+           previous = this->queue_length - 1;
+         vdp_queue_display( vdp_queue, this->output_surface[previous], 0, 0, 0 );
+-#ifdef LOCKDISPLAY
+-        XUnlockDisplay( this->display );
+-#endif
++        DO_UNLOCKDISPLAY
+         pthread_mutex_unlock(&this->drawable_lock);
+       }
+       break;
+@@ -2024,34 +2221,26 @@ static int vdpau_gui_data_exchange (vo_driver_t *this_gen, int data_type, void *
+     case XINE_GUI_SEND_DRAWABLE_CHANGED: {
+       VdpStatus st;
+       pthread_mutex_lock(&this->drawable_lock); /* wait for other thread which is currently displaying */
+-#ifdef LOCKDISPLAY
+-      XLockDisplay( this->display );
+-#endif
++      DO_LOCKDISPLAY
+       this->drawable = (Drawable) data;
+       vdp_queue_destroy( vdp_queue );
+       vdp_queue_target_destroy( vdp_queue_target );
+       st = vdp_queue_target_create_x11( vdp_device, this->drawable, &vdp_queue_target );
+       if ( st != VDP_STATUS_OK ) {
+         fprintf(stderr, "vo_vdpau: FATAL !! Can't recreate presentation queue target after drawable change !!\n" );
+-#ifdef LOCKDISPLAY
+-        XUnlockDisplay( this->display );
+-#endif
++        DO_UNLOCKDISPLAY
+         pthread_mutex_unlock(&this->drawable_lock);
+         break;
+       }
+       st = vdp_queue_create( vdp_device, vdp_queue_target, &vdp_queue );
+       if ( st != VDP_STATUS_OK ) {
+         fprintf(stderr, "vo_vdpau: FATAL !! Can't recreate presentation queue after drawable change !!\n" );
+-#ifdef LOCKDISPLAY
+-        XUnlockDisplay( this->display );
+-#endif
++        DO_UNLOCKDISPLAY
+         pthread_mutex_unlock(&this->drawable_lock);
+         break;
+       }
+       vdp_queue_set_background_color( vdp_queue, &this->back_color );
+-#ifdef LOCKDISPLAY
+-      XUnlockDisplay( this->display );
+-#endif
++      DO_UNLOCKDISPLAY
+       pthread_mutex_unlock(&this->drawable_lock);
+       this->sc.force_redraw = 1;
+       break;
+@@ -2131,6 +2320,8 @@ static void vdpau_dispose (vo_driver_t *this_gen)
+   if ( (vdp_device != VDP_INVALID_HANDLE) && vdp_device_destroy )
+     vdp_device_destroy( vdp_device );
+ 
++  pthread_mutex_destroy(&this->grab_lock);
++  pthread_cond_destroy(&this->grab_cond);
+   pthread_mutex_destroy(&this->drawable_lock);
+   free (this);
+ }
+@@ -2153,9 +2344,7 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+   fprintf(stderr,"vo_vdpau: VDPAU was pre-empted. Reinit.\n");
+   vdpau_driver_t *this = (vdpau_driver_t *)this_gen;
+ 
+-#ifdef LOCKDISPLAY
+-  XLockDisplay(guarded_display);
+-#endif
++  DO_LOCKDISPLAY
+   vdpau_release_back_frames(this_gen);
+ 
+   VdpStatus st = vdp_device_create_x11( this->display, this->screen, &vdp_device, &vdp_get_proc_address );
+@@ -2166,25 +2355,18 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+       fprintf(stderr, "No vdpau implementation.\n" );
+     else
+       fprintf(stderr, "unsupported GPU?\n" );
+-#ifdef LOCKDISPLAY
+-    XUnlockDisplay(guarded_display);
+-#endif	
++    DO_UNLOCKDISPLAY
+     return;
+   }
+ 
+   st = vdp_queue_target_create_x11( vdp_device, this->drawable, &vdp_queue_target );
+   if ( vdpau_reinit_error( st, "Can't create presentation queue target !!" ) ) {
+-#ifdef LOCKDISPLAY
+-    XUnlockDisplay(guarded_display);
+-#endif	  
+-
++    DO_UNLOCKDISPLAY
+     return;
+   }
+   st = vdp_queue_create( vdp_device, vdp_queue_target, &vdp_queue );
+   if ( vdpau_reinit_error( st, "Can't create presentation queue !!" ) ) {
+-#ifdef LOCKDISPLAY
+-    XUnlockDisplay(guarded_display);
+-#endif
++    DO_UNLOCKDISPLAY
+     return;
+   }
+   vdp_queue_set_background_color( vdp_queue, &this->back_color );
+@@ -2193,9 +2375,7 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+   VdpChromaType chroma = VDP_CHROMA_TYPE_420;
+   st = orig_vdp_video_surface_create( vdp_device, chroma, this->soft_surface_width, this->soft_surface_height, &this->soft_surface );
+   if ( vdpau_reinit_error( st, "Can't create video surface !!" ) ) {
+-#ifdef LOCKDISPLAY
+-    XUnlockDisplay(guarded_display);
+-#endif
++    DO_UNLOCKDISPLAY
+     return;
+   }
+ 
+@@ -2209,9 +2389,7 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+       for ( j=0; j<i; ++j )
+         vdp_output_surface_destroy( this->output_surface[j] );
+       vdp_video_surface_destroy( this->soft_surface );
+-#ifdef LOCKDISPLAY
+-      XUnlockDisplay(guarded_display);
+-#endif	  
++      DO_UNLOCKDISPLAY
+       return;
+     }
+   }
+@@ -2270,9 +2448,7 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+     orig_vdp_video_surface_destroy( this->soft_surface );
+     for ( i=0; i<this->queue_length; ++i )
+       vdp_output_surface_destroy( this->output_surface[i] );
+-#ifdef LOCKDISPLAY
+-    XUnlockDisplay(guarded_display);
+-#endif
++    DO_UNLOCKDISPLAY
+     return;
+   }
+   this->video_mixer_chroma = chroma;
+@@ -2289,9 +2465,7 @@ static void vdpau_reinit( vo_driver_t *this_gen )
+ 
+   this->vdp_runtime_nr++;
+   this->reinit_needed = 0;
+-#ifdef LOCKDISPLAY
+-  XUnlockDisplay(guarded_display);
+-#endif
++  DO_UNLOCKDISPLAY
+   fprintf(stderr,"vo_vdpau: Reinit done.\n");
+ }
+ 
+@@ -2334,7 +2508,15 @@ static vo_driver_t *vdpau_open_plugin (video_driver_class_t *class_gen, const vo
+   if (!this)
+     return NULL;
+ 
+-  guarded_display     = visual->display;
++#ifdef LOCKDISPLAY
++  int buggy_xcb_workaround = config->register_bool( config, "video.output.vdpau_enable_buggy_xcb_workaround", 1,
++    _("vdpau: Use lock display synchronization for some vdpau calls (workaround for buggy libX11/xcb)"),
++    _("Enable this if you have a buggy libX11/xcb."),
++      10, NULL, this );
++  guarded_display     = buggy_xcb_workaround ? visual->display: NULL;
++  fprintf( stderr, "vo_vdpau: %s lock display synchronization for some vdpau calls\n", buggy_xcb_workaround ? "Use": "Do not use" );
++#endif
++
+   this->display       = visual->display;
+   this->screen        = visual->screen;
+   this->drawable      = visual->d;
+@@ -2365,6 +2547,7 @@ static vo_driver_t *vdpau_open_plugin (video_driver_class_t *class_gen, const vo
+   this->vo_driver.gui_data_exchange    = vdpau_gui_data_exchange;
+   this->vo_driver.dispose              = vdpau_dispose;
+   this->vo_driver.redraw_needed        = vdpau_redraw_needed;
++  this->vo_driver.new_grab_video_frame = vdpau_new_grab_video_frame;
+ 
+   this->surface_cleared_nr = 0;
+ 
+@@ -2481,9 +2664,15 @@ static vo_driver_t *vdpau_open_plugin (video_driver_class_t *class_gen, const vo
+   st = vdp_get_proc_address( vdp_device, VDP_FUNC_ID_OUTPUT_SURFACE_RENDER_BITMAP_SURFACE , (void*)&vdp_output_surface_render_bitmap_surface );
+   if ( vdpau_init_error( st, "Can't get OUTPUT_SURFACE_RENDER_BITMAP_SURFACE proc address !!", &this->vo_driver, 1 ) )
+     return NULL;
++  st = vdp_get_proc_address( vdp_device, VDP_FUNC_ID_OUTPUT_SURFACE_RENDER_OUTPUT_SURFACE , (void*)&vdp_output_surface_render_output_surface );
++  if ( vdpau_init_error( st, "Can't get OUTPUT_SURFACE_RENDER_OUTPUT_SURFACE proc address !!", &this->vo_driver, 1 ) )
++    return NULL;
+   st = vdp_get_proc_address( vdp_device, VDP_FUNC_ID_OUTPUT_SURFACE_PUT_BITS_NATIVE , (void*)&vdp_output_surface_put_bits );
+   if ( vdpau_init_error( st, "Can't get VDP_FUNC_ID_OUTPUT_SURFACE_PUT_BITS_NATIVE proc address !!", &this->vo_driver, 1 ) )
+     return NULL;
++  st = vdp_get_proc_address( vdp_device, VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE , (void*)&vdp_output_surface_get_bits );
++  if ( vdpau_init_error( st, "Can't get VDP_FUNC_ID_OUTPUT_SURFACE_GET_BITS_NATIVE proc address !!", &this->vo_driver, 1 ) )
++    return NULL;
+   st = vdp_get_proc_address( vdp_device, VDP_FUNC_ID_VIDEO_MIXER_CREATE , (void*)&vdp_video_mixer_create );
+   if ( vdpau_init_error( st, "Can't get VIDEO_MIXER_CREATE proc address !!", &this->vo_driver, 1 ) )
+     return NULL;
+@@ -2866,6 +3055,10 @@ static vo_driver_t *vdpau_open_plugin (video_driver_class_t *class_gen, const vo
+ 
+   this->vdp_runtime_nr = 1;
+ 
++  this->pending_grab_request = NULL;
++  pthread_mutex_init(&this->grab_lock, NULL);
++  pthread_cond_init(&this->grab_cond, NULL);
++
+   return &this->vo_driver;
+ }
+ 
+diff --git a/src/xine-engine/Makefile.am b/src/xine-engine/Makefile.am
+index 1555338..b081a4f 100644
+--- a/src/xine-engine/Makefile.am
++++ b/src/xine-engine/Makefile.am
+@@ -1,12 +1,14 @@
+ include $(top_srcdir)/misc/Makefile.common
+ include $(top_srcdir)/lib/Makefile.common
+ 
+-AM_CFLAGS   = $(DEFAULT_OCFLAGS) $(X_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS) \
++AM_CFLAGS   = -I$(top_builddir)/src/video_out $(DEFAULT_OCFLAGS) $(X_CFLAGS) $(FT2_CFLAGS) $(FONTCONFIG_CFLAGS) \
+               $(AVUTIL_CFLAGS) $(VISIBILITY_FLAG)
+ AM_CPPFLAGS = $(XDG_BASEDIR_CPPFLAGS) $(ZLIB_CPPFLAGS) -DXINE_LIBRARY_COMPILE
+ 
+ XINEUTILS_LIB = $(top_builddir)/src/xine-utils/libxineutils.la
+ 
++YUV_LIB = $(top_builddir)/src/video_out/libyuv2rgb.la
++
+ # FIXME: these are currently unused:
+ EXTRA_DIST = lrb.c lrb.h accel_vdpau.h accel_xvmc.h
+ 
+@@ -33,11 +35,11 @@ libxine_la_SOURCES = xine.c metronom.c configfile.c buffer.c \
+ 	alphablend.c \
+ 	xine_private.h
+ 
+-libxine_la_DEPENDENCIES = $(XINEUTILS_LIB) $(XDG_BASEDIR_DEPS) \
++libxine_la_DEPENDENCIES = $(XINEUTILS_LIB) $(YUV_LIB) $(XDG_BASEDIR_DEPS) \
+                           $(pthread_dep) $(LIBXINEPOSIX) \
+                           libxine-interface.la
+ libxine_la_LIBADD = $(PTHREAD_LIBS) $(DYNAMIC_LD_LIBS) $(LTLIBINTL) $(ZLIB_LIBS) \
+-		    -lm $(XINEUTILS_LIB) $(LTLIBICONV) $(FT2_LIBS) $(FONTCONFIG_LIBS) \
++		    -lm $(XINEUTILS_LIB) $(YUV_LIB) $(LTLIBICONV) $(FT2_LIBS) $(FONTCONFIG_LIBS) \
+                     $(LIBXINEPOSIX) $(RT_LIBS) $(NET_LIBS) $(XDG_BASEDIR_LIBS) \
+                     $(AVUTIL_LIBS)
+ 
+@@ -60,6 +62,9 @@ clean-local:
+ $(XINEUTILS_LIB):
+ 	$(MAKE) -C $(top_builddir)/src/xine-utils libxineutils.la
+ 
++$(YUV_LIB):
++	$(MAKE) -C $(top_builddir)/src/video_out libyuv2rgb.la
++
+ if WIN32
+ install-exec-local:
+ 	cp -p $(DEF_FILE) $(DESTDIR)$(libdir)
+diff --git a/src/xine-engine/accel_vdpau.h b/src/xine-engine/accel_vdpau.h
+index 6f95901..2917287 100644
+--- a/src/xine-engine/accel_vdpau.h
++++ b/src/xine-engine/accel_vdpau.h
+@@ -61,5 +61,35 @@ typedef struct {
+ }
+ #endif
+ 
++
++/*#define VDPAU_PROFILING*/                                            /* uncomment this if you want profiling statistics of vdpau function calls */
++#define VDPAU_PROFILING_STATISTICS_RATE            0 /*(50*60*3)       /* number of calls to be executed after that statistics will be logged */
++#define VDPAU_PROFILING_UNUSUAL_DURATION_LIMIT     250000          /* [us] limit for unusual long execution time of a call */
++
++#ifdef VDPAU_PROFILING
++#define VDPAU_PROFILE(function) \
++  do { \
++    struct timeval start_tv, end_tv, diff_tv; \
++    static uint64_t sum_us, peak_us, call_cnt; \
++    xine_monotonic_clock(&start_tv, NULL); \
++    function; \
++    xine_monotonic_clock(&end_tv, NULL); \
++    timersub(&end_tv, &start_tv, &diff_tv); \
++    uint64_t diff_us = diff_tv.tv_sec * 1000000 + diff_tv.tv_usec; \
++    if (diff_us > peak_us) \
++      peak_us = diff_us; \
++    if ((VDPAU_PROFILING_STATISTICS_RATE > 0 && call_cnt >= VDPAU_PROFILING_STATISTICS_RATE) || (VDPAU_PROFILING_UNUSUAL_DURATION_LIMIT > 0 && peak_us >= VDPAU_PROFILING_UNUSUAL_DURATION_LIMIT)) {\
++      if (call_cnt) \
++        sum_us /= call_cnt; \
++      printf("%s: (%s:%d) peak: %.3lf ms  avg: %.3lf ms  calls: %d\n", LOG_MODULE, __XINE_FUNCTION__, __LINE__, ((double)peak_us)/1000.0, ((double)sum_us)/1000.0, (int)call_cnt); \
++      call_cnt = sum_us = peak_us = 0; \
++    } \
++    sum_us += diff_us; \
++    ++call_cnt; \
++} while(0)
++#else
++#define VDPAU_PROFILE(function) function
++#endif
++
+ #endif
+ 
+diff --git a/src/xine-engine/post.c b/src/xine-engine/post.c
+index d9b9fb2..30e61ac 100644
+--- a/src/xine-engine/post.c
++++ b/src/xine-engine/post.c
+@@ -90,6 +90,16 @@ static vo_frame_t *post_video_get_last_frame(xine_video_port_t *port_gen) {
+   return frame;
+ }
+ 
++static xine_grab_video_frame_t *post_video_new_grab_video_frame(xine_video_port_t *port_gen) {
++  post_video_port_t *port = (post_video_port_t *)port_gen;
++  xine_grab_video_frame_t *frame;
++
++  if (port->port_lock) pthread_mutex_lock(port->port_lock);
++  frame = port->original_port->new_grab_video_frame(port->original_port);
++  if (port->port_lock) pthread_mutex_unlock(port->port_lock);
++  return frame;
++}
++
+ static void post_video_enable_ovl(xine_video_port_t *port_gen, int ovl_enable) {
+   post_video_port_t *port = (post_video_port_t *)port_gen;
+ 
+@@ -223,6 +233,7 @@ post_video_port_t *_x_post_intercept_video_port(post_plugin_t *post, xine_video_
+   port->new_port.open                = post_video_open;
+   port->new_port.get_frame           = post_video_get_frame;
+   port->new_port.get_last_frame      = post_video_get_last_frame;
++  port->new_port.new_grab_video_frame = post_video_new_grab_video_frame;
+   port->new_port.enable_ovl          = post_video_enable_ovl;
+   port->new_port.close               = post_video_close;
+   port->new_port.exit                = post_video_exit;
+diff --git a/src/xine-engine/video_out.c b/src/xine-engine/video_out.c
+index bceb38a..f348da3 100644
+--- a/src/xine-engine/video_out.c
++++ b/src/xine-engine/video_out.c
+@@ -49,6 +49,7 @@
+ #include <xine/video_out.h>
+ #include <xine/metronom.h>
+ #include <xine/xineutils.h>
++#include <yuv2rgb.h>
+ 
+ #define NUM_FRAME_BUFFERS          15
+ #define MAX_USEC_TO_SLEEP       20000
+@@ -66,6 +67,24 @@
+ 
+ static vo_frame_t * crop_frame( xine_video_port_t *this_gen, vo_frame_t *img );
+ 
++typedef struct vos_grab_video_frame_s vos_grab_video_frame_t;
++struct vos_grab_video_frame_s {
++  xine_grab_video_frame_t grab_frame;
++
++  vos_grab_video_frame_t *next;
++  int finished;
++  xine_video_port_t *video_port;
++  vo_frame_t *vo_frame;
++  yuv2rgb_factory_t *yuv2rgb_factory;
++  yuv2rgb_t *yuv2rgb;
++  int vo_width, vo_height;
++  int grab_width, grab_height;
++  int y_stride, uv_stride;
++  int img_size;
++  uint8_t *img;
++};
++
++
+ typedef struct {
+   vo_frame_t        *first;
+   vo_frame_t        *last;
+@@ -91,10 +110,13 @@ typedef struct {
+   img_buf_fifo_t           *free_img_buf_queue;
+   img_buf_fifo_t           *display_img_buf_queue;
+ 
+-  pthread_mutex_t           last_frame_mutex;
+-  vo_frame_t               *last_frame;
+   vo_frame_t               *img_backup;
+ 
++  vo_frame_t               *last_frame;
++  vos_grab_video_frame_t   *pending_grab_request;
++  pthread_mutex_t           grab_lock;
++  pthread_cond_t            grab_cond;
++
+   uint32_t                  video_loop_running:1;
+   uint32_t                  video_opened:1;
+ 
+@@ -331,6 +353,288 @@ static void vo_frame_dec_lock (vo_frame_t *img) {
+   pthread_mutex_unlock (&img->mutex);
+ }
+ 
++
++/*
++ * functions for grabbing RGB images from displayed frames
++ */
++static void vo_dispose_grab_video_frame(xine_grab_video_frame_t *frame_gen)
++{
++  vos_grab_video_frame_t *frame = (vos_grab_video_frame_t *) frame_gen;
++
++  if (frame->vo_frame)
++    vo_frame_dec_lock(frame->vo_frame);
++
++  if (frame->yuv2rgb)
++    frame->yuv2rgb->dispose(frame->yuv2rgb);
++
++  if (frame->yuv2rgb_factory)
++    frame->yuv2rgb_factory->dispose(frame->yuv2rgb_factory);
++
++  free(frame->img);
++  free(frame->grab_frame.img);
++  free(frame);
++}
++
++
++static int vo_grab_grab_video_frame (xine_grab_video_frame_t *frame_gen) {
++  vos_grab_video_frame_t *frame = (vos_grab_video_frame_t *) frame_gen;
++  vos_t *this = (vos_t *) frame->video_port;
++  vo_frame_t *vo_frame;
++  int format, y_stride, uv_stride;
++  uint8_t *base[3];
++
++  if (frame->grab_frame.flags & XINE_GRAB_VIDEO_FRAME_FLAGS_WAIT_NEXT) {
++    struct timeval tvnow, tvdiff, tvtimeout;
++    struct timespec ts;
++
++    /* calculate absolute timeout time */
++    tvdiff.tv_sec = frame->grab_frame.timeout / 1000;
++    tvdiff.tv_usec = frame->grab_frame.timeout % 1000;
++    tvdiff.tv_usec *= 1000;
++    gettimeofday(&tvnow, NULL);
++    timeradd(&tvnow, &tvdiff, &tvtimeout);
++    ts.tv_sec  = tvtimeout.tv_sec;
++    ts.tv_nsec = tvtimeout.tv_usec;
++    ts.tv_nsec *= 1000;
++
++    pthread_mutex_lock(&this->grab_lock);
++
++    /* insert grab request into grab queue */
++    frame->next = this->pending_grab_request;
++    this->pending_grab_request = frame;
++
++    /* wait until our request is finished */
++    frame->finished = 0;
++    while (!frame->finished) {
++      if (pthread_cond_timedwait(&this->grab_cond, &this->grab_lock, &ts) == ETIMEDOUT) {
++        vos_grab_video_frame_t *prev = this->pending_grab_request;
++        while (prev) {
++          if (prev == frame) {
++            this->pending_grab_request = frame->next;
++            break;
++          } else if (prev->next == frame) {
++            prev->next = frame->next;
++            break;
++          }
++          prev = prev->next;
++        }
++        frame->next = NULL;
++        pthread_mutex_unlock(&this->grab_lock);
++        return 1;   /* no frame available */
++      }
++    }
++
++    pthread_mutex_unlock(&this->grab_lock);
++
++    vo_frame = frame->vo_frame;
++    frame->vo_frame = NULL;
++    if (!vo_frame)
++      return -1; /* error happened */
++  } else {
++    pthread_mutex_lock(&this->grab_lock);
++
++    /* use last displayed frame */
++    vo_frame = this->last_frame;
++    if (!vo_frame) {
++      pthread_mutex_unlock(&this->grab_lock);
++      return 1;   /* no frame available */
++    }
++    if (vo_frame->format != XINE_IMGFMT_YV12 && vo_frame->format != XINE_IMGFMT_YUY2 && !vo_frame->proc_provide_standard_frame_data) {
++      pthread_mutex_unlock(&this->grab_lock);
++      return -1; /* error happened */
++    }
++    vo_frame_inc_lock(vo_frame);
++    pthread_mutex_unlock(&this->grab_lock);
++    frame->grab_frame.vpts = vo_frame->vpts;
++  }
++
++  int width = vo_frame->width;
++  int height = vo_frame->height;
++
++  if (vo_frame->format == XINE_IMGFMT_YV12 || vo_frame->format == XINE_IMGFMT_YUY2) {
++    format = vo_frame->format;
++    y_stride = vo_frame->pitches[0];
++    uv_stride = vo_frame->pitches[1];
++    base[0] = vo_frame->base[0];
++    base[1] = vo_frame->base[1];
++    base[2] = vo_frame->base[2];
++  } else {
++    /* retrieve standard format image data from output driver */
++    xine_current_frame_data_t data;
++    memset(&data, 0, sizeof(data));
++    vo_frame->proc_provide_standard_frame_data(vo_frame, &data);
++    if (data.img_size > frame->img_size) {
++      free(frame->img);
++      frame->img_size = data.img_size;
++      frame->img = calloc(data.img_size, sizeof(uint8_t));
++      if (!frame->img) {
++        vo_frame_dec_lock(vo_frame);
++        return -1; /* error happened */
++      }
++    }
++    data.img = frame->img;
++    vo_frame->proc_provide_standard_frame_data(vo_frame, &data);
++    format = data.format;
++    if (format == XINE_IMGFMT_YV12) {
++      y_stride = width;
++      uv_stride = width / 2;
++      base[0] = data.img;
++      base[1] = data.img + width * height;
++      base[2] = data.img + width * height + width * height / 4;
++    } else { // XINE_IMGFMT_YUY2
++      y_stride = width * 2;
++      uv_stride = 0;
++      base[0] = data.img;
++      base[1] = NULL;
++      base[2] = NULL;
++    }
++  }
++
++  /* take cropping parameters into account */
++  int crop_left = (vo_frame->crop_left + frame->grab_frame.crop_left) & ~1;
++  int crop_right = (vo_frame->crop_right + frame->grab_frame.crop_right) & ~1;
++  int crop_top = vo_frame->crop_top + frame->grab_frame.crop_top;
++  int crop_bottom = vo_frame->crop_bottom + frame->grab_frame.crop_bottom;
++
++  if (crop_left || crop_right || crop_top || crop_bottom) {
++    if ((width - crop_left - crop_right) >= 8)
++      width = width - crop_left - crop_right;
++    else
++      crop_left = crop_right = 0;
++
++    if ((height - crop_top - crop_bottom) >= 8)
++      height = height - crop_top - crop_bottom;
++    else
++      crop_top = crop_bottom = 0;
++
++    if (format == XINE_IMGFMT_YV12) {
++      base[0] += crop_top * y_stride + crop_left;
++      base[1] += crop_top/2 * uv_stride + crop_left/2;
++      base[2] += crop_top/2 * uv_stride + crop_left/2;
++    } else { // XINE_IMGFMT_YUY2
++      base[0] += crop_top * y_stride + crop_left*2;
++    }
++  }
++
++  /* if caller does not specify frame size we return the actual size of grabbed frame */
++  if (frame->grab_frame.width <= 0)
++    frame->grab_frame.width = width;
++  if (frame->grab_frame.height <= 0)
++    frame->grab_frame.height = height;
++
++  /* allocate grab frame image buffer */
++  if (frame->grab_frame.width != frame->grab_width || frame->grab_frame.height != frame->grab_height) {
++    free(frame->grab_frame.img);
++    frame->grab_frame.img = NULL;
++  }
++  if (frame->grab_frame.img == NULL) {
++    frame->grab_frame.img = (uint8_t *) calloc(frame->grab_frame.width * frame->grab_frame.height, 3);
++    if (frame->grab_frame.img == NULL) {
++      vo_frame_dec_lock(vo_frame);
++      return -1; /* error happened */
++    }
++  }
++
++  /* initialize yuv2rgb factory */
++  if (!frame->yuv2rgb_factory) {
++    frame->yuv2rgb_factory = yuv2rgb_factory_init(MODE_24_RGB, 0, NULL);
++    if (!frame->yuv2rgb_factory) {
++      vo_frame_dec_lock(vo_frame);
++      return -1; /* error happened */
++    }
++    frame->yuv2rgb_factory->matrix_coefficients = 1; /* ITU-R Rec. 709 (1990) */
++    frame->yuv2rgb_factory->set_csc_levels (frame->yuv2rgb_factory, 0, 128, 128);
++  }
++
++  /* retrieve a yuv2rgb converter */
++  if (!frame->yuv2rgb) {
++    frame->yuv2rgb = frame->yuv2rgb_factory->create_converter(frame->yuv2rgb_factory);
++    if (!frame->yuv2rgb) {
++      vo_frame_dec_lock(vo_frame);
++      return -1; /* error happened */
++    }
++  }
++
++  /* configure yuv2rgb converter */
++  if (width != frame->vo_width ||
++        height != frame->vo_height ||
++        frame->grab_frame.width != frame->grab_width ||
++        frame->grab_frame.height != frame->grab_height ||
++        y_stride != frame->y_stride ||
++        uv_stride != frame->uv_stride) {
++    frame->vo_width = width;
++    frame->vo_height = height;
++    frame->grab_width = frame->grab_frame.width;
++    frame->grab_height = frame->grab_frame.height;
++    frame->y_stride = y_stride;
++    frame->uv_stride = uv_stride;
++    frame->yuv2rgb->configure(frame->yuv2rgb, width, height, y_stride, uv_stride, frame->grab_width, frame->grab_height, frame->grab_width * 3);
++  }
++
++  /* convert YUV to RGB image taking possible scaling into account */
++  /* FIXME: have to swap U and V planes to get correct colors for YV12 frames?? */
++  if(format == XINE_IMGFMT_YV12)
++    frame->yuv2rgb->yuv2rgb_fun(frame->yuv2rgb, frame->grab_frame.img, base[0], base[2], base[1]);
++  else
++    frame->yuv2rgb->yuy22rgb_fun(frame->yuv2rgb, frame->grab_frame.img, base[0]);
++
++  vo_frame_dec_lock(vo_frame);
++  return 0;
++}
++
++
++static xine_grab_video_frame_t *vo_new_grab_video_frame(xine_video_port_t *this_gen)
++{
++  vos_grab_video_frame_t *frame = calloc(1, sizeof(vos_grab_video_frame_t));
++  if (frame) {
++    frame->grab_frame.dispose = vo_dispose_grab_video_frame;
++    frame->grab_frame.grab = vo_grab_grab_video_frame;
++    frame->grab_frame.vpts = -1;
++    frame->grab_frame.timeout = XINE_GRAB_VIDEO_FRAME_DEFAULT_TIMEOUT;
++    frame->video_port = this_gen;
++  }
++  return (xine_grab_video_frame_t *)frame;
++}
++
++
++static void vo_grab_current_frame (vos_t *this, vo_frame_t *vo_frame, int64_t vpts)
++{
++  pthread_mutex_lock(&this->grab_lock);
++
++  /* hold current frame for snapshot feature */
++  if (this->last_frame)
++    vo_frame_dec_lock(this->last_frame);
++  vo_frame_inc_lock(vo_frame);
++  this->last_frame = vo_frame;
++
++  /* process grab queue */
++  vos_grab_video_frame_t *frame = this->pending_grab_request;
++  if (frame) {
++    while (frame) {
++      if (frame->vo_frame)
++        vo_frame_dec_lock(frame->vo_frame);
++      frame->vo_frame = NULL;
++
++      if (vo_frame->format == XINE_IMGFMT_YV12 || vo_frame->format == XINE_IMGFMT_YUY2 || vo_frame->proc_provide_standard_frame_data) {
++        vo_frame_inc_lock(vo_frame);
++        frame->vo_frame = vo_frame;
++        frame->grab_frame.vpts = vpts;
++      }
++
++      frame->finished = 1;
++      vos_grab_video_frame_t *next = frame->next;
++      frame->next = NULL;
++      frame = next;
++    }
++
++    this->pending_grab_request = NULL;
++    pthread_cond_broadcast(&this->grab_cond);
++  }
++
++  pthread_mutex_unlock(&this->grab_lock);
++}
++
++
+ /* call vo_driver->proc methods for the entire frame */
+ static void vo_frame_driver_proc(vo_frame_t *img)
+ {
+@@ -1038,16 +1342,7 @@ static void overlay_and_display_frame (vos_t *this,
+ 						  this->video_loop_running && this->overlay_enabled);
+   }
+ 
+-  /* hold current frame for snapshot feature */
+-  pthread_mutex_lock(&this->last_frame_mutex);
+-
+-  if( this->last_frame ) {
+-    vo_frame_dec_lock( this->last_frame );
+-  }
+-  vo_frame_inc_lock( img );
+-  this->last_frame = img;
+-
+-  pthread_mutex_unlock(&this->last_frame_mutex);
++  vo_grab_current_frame (this, img, vpts);
+ 
+   this->driver->display_frame (this->driver, img);
+ 
+@@ -1329,12 +1624,13 @@ static void *video_out_loop (void *this_gen) {
+     vo_frame_dec_lock( this->img_backup );
+     this->img_backup = NULL;
+   }
++
++  pthread_mutex_lock(&this->grab_lock);
+   if (this->last_frame) {
+-    pthread_mutex_lock(&this->last_frame_mutex);
+     vo_frame_dec_lock( this->last_frame );
+     this->last_frame = NULL;
+-    pthread_mutex_unlock(&this->last_frame_mutex);
+   }
++  pthread_mutex_unlock(&this->grab_lock);
+ 
+   return NULL;
+ }
+@@ -1705,11 +2001,12 @@ static void vo_exit (xine_video_port_t *this_gen) {
+   free (this->free_img_buf_queue);
+   free (this->display_img_buf_queue);
+ 
+-  pthread_mutex_destroy(&this->last_frame_mutex);
+-
+   pthread_cond_destroy(&this->trigger_drawing_cond);
+   pthread_mutex_destroy(&this->trigger_drawing_mutex);
+ 
++  pthread_mutex_destroy(&this->grab_lock);
++  pthread_cond_destroy(&this->grab_cond);
++
+   free (this);
+ }
+ 
+@@ -1717,13 +2014,13 @@ static vo_frame_t *vo_get_last_frame (xine_video_port_t *this_gen) {
+   vos_t      *this = (vos_t *) this_gen;
+   vo_frame_t *last_frame;
+   
+-  pthread_mutex_lock(&this->last_frame_mutex);
++  pthread_mutex_lock(&this->grab_lock);
+ 
+   last_frame = this->last_frame;
+   if (last_frame)
+     vo_frame_inc_lock(last_frame);
+ 
+-  pthread_mutex_unlock(&this->last_frame_mutex);
++  pthread_mutex_unlock(&this->grab_lock);
+ 
+   return last_frame;
+ }
+@@ -1887,6 +2184,7 @@ xine_video_port_t *_x_vo_new_port (xine_t *xine, vo_driver_t *driver, int grabon
+   this->vo.open                  = vo_open;
+   this->vo.get_frame             = vo_get_frame;
+   this->vo.get_last_frame        = vo_get_last_frame;
++  this->vo.new_grab_video_frame  = vo_new_grab_video_frame;
+   this->vo.close                 = vo_close;
+   this->vo.exit                  = vo_exit;
+   this->vo.get_capabilities      = vo_get_capabilities;
+@@ -1906,10 +2204,13 @@ xine_video_port_t *_x_vo_new_port (xine_t *xine, vo_driver_t *driver, int grabon
+   this->display_img_buf_queue = vo_new_img_buf_queue ();
+   this->video_loop_running    = 0;
+ 
+-  pthread_mutex_init(&this->last_frame_mutex, NULL);
+-  this->last_frame            = NULL;
+   this->img_backup            = NULL;
+ 
++  this->last_frame            = NULL;
++  this->pending_grab_request  = NULL;
++  pthread_mutex_init(&this->grab_lock, NULL);
++  pthread_cond_init(&this->grab_cond, NULL);
++
+   this->overlay_source        = _x_video_overlay_new_manager(xine);
+   this->overlay_source->init (this->overlay_source);
+   this->overlay_enabled       = 1;
+diff --git a/src/xine-engine/xine.c b/src/xine-engine/xine.c
+index 73cd9ae..6e5001f 100644
+--- a/src/xine-engine/xine.c
++++ b/src/xine-engine/xine.c
+@@ -2219,6 +2219,17 @@ int xine_get_current_frame (xine_stream_t *stream, int *width, int *height,
+   return result;
+ }
+ 
++xine_grab_video_frame_t* xine_new_grab_video_frame (xine_stream_t *stream) {
++  xine_grab_video_frame_t *frame;
++
++  if (stream->video_out->driver->new_grab_video_frame)
++    frame = stream->video_out->driver->new_grab_video_frame(stream->video_out->driver);
++  else
++    frame = stream->video_out->new_grab_video_frame(stream->video_out);
++
++  return frame;
++}
++
+ int xine_get_spu_lang (xine_stream_t *stream, int channel, char *lang) {
+ 
+   /* Ask the demuxer first (e.g. TS extracts this information from
