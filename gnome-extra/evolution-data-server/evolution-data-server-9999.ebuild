@@ -55,6 +55,14 @@ DEPEND="${RDEPEND}
 # FIXME
 RESTRIC="test"
 
+src_unpack() {
+	git_src_unpack
+	}
+
+src_prepare() {
+	./autogen.sh
+}
+
 pkg_setup() {
 	DOCS="ChangeLog MAINTAINERS NEWS TODO"
 	# Uh, what to do about dbus-call-timeout ?
@@ -71,13 +79,14 @@ pkg_setup() {
 		--with-libdb=/usr"
 }
 
+
 src_prepare() {
 	# WTF: libebook-1.2 links against system libcamel-1.2
 	#      libedata-book-1.2 links against system libebackend-1.2
 	gnome2_src_prepare
 
 	# Adjust to gentoo's /etc/service
-	epatch "${FILESDIR}/${PN}-2.31-gentoo_etc_services.patch"
+	#epatch "${FILESDIR}/${PN}-2.31-gentoo_etc_services.patch"
 
 	# GNOME bug 611353 (skips failing test atm)
 	# XXX: uncomment when there's a proper fix
