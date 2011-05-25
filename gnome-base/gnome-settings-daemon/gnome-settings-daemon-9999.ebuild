@@ -35,7 +35,7 @@ COMMON_DEPEND=">=dev-libs/dbus-glib-0.74
 	>=x11-libs/libxklavier-5.0
 	>=media-sound/pulseaudio-0.9.16
 	media-libs/libcanberra[gtk3]
-	>=11-misc/colord-0.1.8
+	=x11-misc/colord-9999
 
 	cups? ( >=net-print/cups-1.4[dbus] )
 	packagekit? (
