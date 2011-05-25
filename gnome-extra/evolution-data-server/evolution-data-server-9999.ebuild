@@ -83,7 +83,6 @@ pkg_setup() {
 src_prepare() {
 	# WTF: libebook-1.2 links against system libcamel-1.2
 	#      libedata-book-1.2 links against system libebackend-1.2
-	gnome2_src_prepare
 
 	# Adjust to gentoo's /etc/service
 	#epatch "${FILESDIR}/${PN}-2.31-gentoo_etc_services.patch"

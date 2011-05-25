@@ -112,6 +112,16 @@ pkg_setup() {
 		$(use_with ldap openldap)
 		$(use_with kerberos krb5 /usr)"
 
+
+
+src_unpack() {
+	git_src_unpack
+}
+
+src_prepare() {
+    ./autogen.sh
+}
+
 	# dang - I've changed this to do --enable-plugins=experimental.  This will
 	# autodetect new-mail-notify and exchange, but that cannot be helped for the
 	# moment.  They should be changed to depend on a --enable-<foo> like mono
@@ -154,7 +164,6 @@ src_prepare() {
 		eautoreconf
 	fi
 
-	gnome2_src_prepare
 }
 
 pkg_postinst() {
