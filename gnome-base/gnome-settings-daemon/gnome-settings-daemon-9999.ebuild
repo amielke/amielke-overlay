@@ -6,21 +6,15 @@ EAPI="3"
 GCONF_DEBUG="no"
 GNOME2_LA_PUNT="yes"
 
-inherit gnome2
-if [[ ${PV} = 9999 ]]; then
-	inherit gnome2-live
-fi
+inherit autotools git
 
 DESCRIPTION="Gnome Settings Daemon"
 HOMEPAGE="http://www.gnome.org"
+EGIT_REPO_URI="git://git.gnome.org/gnome-settings-daemon"
 
 LICENSE="GPL-2"
 SLOT="0"
-if [[ ${PV} = 9999 ]]; then
-	KEYWORDS=""
-else
-	KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~x86-solaris"
-fi
+KEYWORDS=""
 IUSE="+cups debug packagekit policykit smartcard +udev"
 
 # Latest gsettings-desktop-schemas is needed due to commit e8d1de92
