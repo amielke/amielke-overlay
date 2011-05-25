@@ -1,0 +1,91 @@
+From 3aa033ffcd1afbbf70030d8b874a2e4f1fc65f88 Mon Sep 17 00:00:00 2001
+From: Owen W. Taylor <otaylor@fishsoup.net>
+Date: Tue, 26 Apr 2011 13:44:44 -0400
+Subject: [PATCH] Fixes for ARGB window shadows patch (squash)
+
+- Fix punctuation in comment
+- Handle _NET_WM_WINDOW_OPACITY windows like ARGB ones.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=635268
+---
+ src/compositor/meta-window-actor.c |   42 ++++++++++++++++++++---------------
+ 1 files changed, 24 insertions(+), 18 deletions(-)
+
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 0a41ee7..100d638 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -706,6 +706,26 @@ meta_window_actor_get_shadow_bounds (MetaWindowActor       *self,
+ }
+ #endif
+ 
++/* If we have an ARGB32 window that we decorate with a frame, it's
++ * probably something like a translucent terminal - something where
++ * the alpha channel represents transparency rather than a shape.  We
++ * don't want to show the shadow through the translucent areas since
++ * the shadow is wrong for translucent windows (it should be
++ * translucent itself and colored), and not only that, will /look/
++ * horribly wrong - a misplaced big black blob. As a hack, what we
++ * want to do is just draw the shadow as normal outside the frame, and
++ * inside the frame draw no shadow.  This is also not even close to
++ * the right result, but looks OK. We also apply this approach to
++ * windows set to be partially translucent with _NET_WM_WINDOW_OPACITY.
++ */
++static gboolean
++clip_shadow_under_window (MetaWindowActor *self)
++{
++  MetaWindowActorPrivate *priv = self->priv;
++
++  return (priv->argb32 || priv->opacity != 0xff) && priv->window->frame;
++}
++
+ static void
+ meta_window_actor_paint (ClutterActor *actor)
+ {
+@@ -723,23 +743,10 @@ meta_window_actor_paint (ClutterActor *actor)
+       meta_window_actor_get_shape_bounds (self, &shape_bounds);
+       meta_window_actor_get_shadow_params (self, appears_focused, &params);
+ 
+-      /* If we have an ARGB32 window that we decorate with a
+-       * frame, it's probably something like a translucent
+-       * terminal - something where the alpha channel represents
+-       * transparency rather than a shape.  We don't want to show
+-       * the shadow through the translucent areas since the shadow
+-       * is wrong for translucent windows (it should be
+-       * translucent itself and colored), and not only that will
+-       * look horribly wrong - a misplaced big black blob. As a
+-       * hack, what we want to do is just draw the shadow as
+-       * normal outside the frame, and inside the frame draw no
+-       * shadow.  This is also not even close to the right result,
+-       * but looks OK.
+-       *
+-       * The frame bounds are already subtracted from priv->shadow_clip
++      /* The frame bounds are already subtracted from priv->shadow_clip
+        * if that exists.
+        */
+-      if (!clip && priv->argb32 && priv->window->frame)
++      if (!clip && clip_shadow_under_window (self))
+         {
+           cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
+           cairo_rectangle_int_t bounds;
+@@ -757,7 +764,7 @@ meta_window_actor_paint (ClutterActor *actor)
+                          shape_bounds.height,
+                          (clutter_actor_get_paint_opacity (actor) * params.opacity * priv->opacity) / (255 * 255),
+                          clip,
+-                         priv->argb32 && priv->window->frame);
++                         clip_shadow_under_window (self)); /* clip_strictly - not just as an optimization */
+ 
+       if (clip && clip != priv->shadow_clip)
+         cairo_region_destroy (clip);
+@@ -1824,8 +1831,7 @@ meta_window_actor_set_visible_region_beneath (MetaWindowActor *self,
+       meta_window_actor_clear_shadow_clip (self);
+       priv->shadow_clip = cairo_region_copy (beneath_region);
+ 
+-      /* See comment in meta_window_actor_paint() */
+-      if (priv->argb32 && priv->window->frame)
++      if (clip_shadow_under_window (self))
+         {
+           cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
+           cairo_region_subtract (priv->shadow_clip, frame_bounds);
+-- 
+1.7.4.4

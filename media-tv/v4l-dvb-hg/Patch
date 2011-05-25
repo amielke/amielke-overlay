@@ -1,0 +1,41 @@
+--- v4l-dvb-hg-0.1-r3.ebuild.orig	2010-11-24 13:51:32.255788014 -0500
++++ v4l-dvb-hg-0.1-r3.ebuild	2010-11-24 13:53:16.835777138 -0500
+@@ -45,7 +45,7 @@
+ src_prepare() {
+ 
+ 	einfo "Removing modules-install"
+-	sed -i "${S}"/Makefile \
++	sed -i "${S}"/v4l/Makefile \
+ 		-e "s/install:: media-install firmware_install/install:: media-install/"
+ 
+ 	# apply local patches
+@@ -75,9 +75,9 @@
+ 	echo
+ 
+ 	elog "Removing autoload-entry from stradis-driver."
+-	sed -i "${S}"/../linux/drivers/media/video/stradis.c -e '/MODULE_DEVICE_TABLE/d'
++	sed -i "${S}"/v4l/../linux/drivers/media/video/stradis.c -e '/MODULE_DEVICE_TABLE/d'
+ 
+-	cd "${S}"
++	cd "${S}"/v4l
+ 	sed	-e '/-install::/s:rminstall::' \
+ 		-i Makefile
+ 
+@@ -89,7 +89,7 @@
+ 
+ 	mkdir "${WORKDIR}"/header
+ 	cd "${WORKDIR}"/header
+-	cp "${S}"/../linux/include/linux/dvb/* .
++	cp "${S}"/v4l/../linux/include/linux/dvb/* .
+ 	sed -e '/compiler/d' \
+ 		-e 's/__user//' \
+ 		-i *.h
+@@ -107,7 +107,7 @@
+ 		KDIRA="${DEST}" \
+ 	|| die "make install failed"
+ 
+-	cd "${S}"/..
++	cd "${S}"/v4l/..
+ 	dodoc linux/Documentation/dvb/*.txt
+ 	dosbin linux/Documentation/dvb/get_dvb_firmware
+ 
