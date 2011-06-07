@@ -1,48 +1,40 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=3
+inherit rpm multilib eutils
 
-inherit rpm
-
-DESCRIPTION="Brother MFC-7440N CUPS wrapper"
-HOMEPAGE="http://welcome.solutions.brother.com/bsc/public_s/id/linux/en/download_prn.html#MFC-7440N"
-SRC_URI="mfcj265wcupswrapper-1.1.1-3.i386.rpm"
+DESCRIPTION="Brother DCP-7010 CUPS wrapper."
+HOMEPAGE="http://solutions.brother.com/linux/en_us/index.html"
+SRC_URI="http://pub.brother.com/pub/com/bsc/linux/dlf/mfcj265wcupswrapper-1.1.1-3.i386.rpm"
 
 LICENSE="GPL"
 SLOT="0"
-KEYWORDS="x86 amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="fetch strip"
-DOWNLOAD_URL="http://pub.brother.com/pub/com/bsc/linux/dlf/mfcj265wcupswrapper-1.1.1-3.i386.rpm"
 
-DEPEND="
-	app-text/a2ps
-	net-print/brother-mfc-j265w-lpr
-"
+DEPEND="net-print/cups
+        app-arch/rpm
+		net-print/brother-mfc-j265w-lpr"
 RDEPEND="${DEPEND}"
 
+DOWNLOAD_URL="http://www.brother.com/cgi-bin/agreement/agreement.cgi?dlfile=http://solutions.brother.com/Library/sol/printer/linux/rpmfiles/cups_wrapper/cupswrapperDCP7010-2.0.1-1.i386.rpm&lang=English_gpl"
+
 pkg_nofetch() {
-	einfo "Please download ${A} from ${DOWNLOAD_URL}."
-	einfo "Select 'I Accept' and move the file to ${DISTDIR}."
+    einfo "Please download ${A} from ${DOWNLOAD_URL}."
+    einfo "Select 'I Accept' and move the file to ${DISTDIR}."
 }
 
 src_unpack() {
-	rpm_unpack || die "Error unpacking ${A}."
+	rpm_unpack "${DISTDIR}/${A}" || die "Error unpacking ${A}."
 }
 
 src_install() {
-	cp -r $WORKDIR $D
-	mv $D/work/* $D
-	rm -r $D/work/
-}
+	has_multilib_profile && ABI=x86
+	INSTDIR="/opt/Brother"
 
-pkg_postinst() {
-	echo
-	einfo "If you can't print, create the following symlink:"
-	einfo "ln -s /usr/lib/cups/filter/brlpdwrapperMFCJ265W
-	/usr/libexec/cups/filter/brlpdwrapperMFCJ265W"
-	echo
+	dodir "${INSTDIR}/cupswrapper"
+	mv usr/local/Brother/cupswrapper/{brcupsconfig3,cupswrapperDCP7010-2.0.1} "${D}${INSTDIR}/cupswrapper"
 }
 
