@@ -25,7 +25,7 @@ CDEPEND="dev-libs/glib:2
 	media-libs/gstreamer
 	dev-cpp/gconfmm
 	dev-cpp/gtkmm
-	dev-libs/libsigc:2
+	dev-libs/libsigc++:2
 	dev-libs/dbus-glib"
 DEPEND="${CDEPEND}
 	dev-util/pkgconfig"
