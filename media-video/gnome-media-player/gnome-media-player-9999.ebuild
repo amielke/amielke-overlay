@@ -20,7 +20,13 @@ IUSE=""
 
 CDEPEND="dev-libs/glib:2
 	x11-libs/gtk+:2
-	media-video/vlc"
+	media-video/vlc
+	media-libs/xine-lib
+	media-libs/gstreamer
+	dev-cpp/gconfmm
+	dev-cpp/gtkmm
+	dev-libs/libsigc:2
+	dev-libs/dbus-glib"
 DEPEND="${CDEPEND}
 	dev-util/pkgconfig"
 
