@@ -256,6 +256,7 @@ src_unpack() {
 	# Apply patches needed for some special device-types
 	use lirc_devices_audio || epatch "${FILESDIR}"/lirc-0.8.4-portaudio_check.patch
 	use lirc_devices_remote_wonder_plus && epatch "${FILESDIR}"/lirc-0.8.3_pre1-remotewonderplus.patch
+	use ltiusb || epatch "${FILESDIR}"/irc-0.9.0-kernel-2.6.39-atiusb-fix.diff
 
 	# remove parallel driver on SMP systems
 	if linux_chkconfig_present SMP ; then
