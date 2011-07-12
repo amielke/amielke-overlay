@@ -32,7 +32,7 @@ src_install() {
 	cp -r ${WORKDIR}/usr/local/Brother/* ${D}/opt/Brother/ || die
 
 	mkdir -p ${D}/usr/libexec/cups/filter || die
-	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printer/dcpj315w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
+	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printer/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
 	mkdir -p ${D}/usr/local || die
 	( cd ${D}/usr/local && ln -s ../../opt/Brother Brother ) || die
 	mkdir -p ${D}/usr/share/cups/model || die
@@ -52,7 +52,7 @@ pkg_postinst () {
 	elog
 	elog "For more options just execute brprintconf_mfcj265w as root"
 	elog "You can check current settings in:"
-	elog "		/opt/Brother/Printer/dcpj315w/inf/brmfcj265wrc"
+	elog "		/opt/Brother/Printer/mfcj265w/inf/brmfcj265wrc"
 }
 
 # TODO: Write alternative to filtermfcj265w or patch it for the security manner.
