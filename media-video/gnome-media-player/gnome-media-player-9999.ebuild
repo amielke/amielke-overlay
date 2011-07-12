@@ -26,6 +26,7 @@ CDEPEND="dev-libs/glib:2
 	dev-cpp/gconfmm
 	dev-cpp/gtkmm
 	dev-libs/libsigc++:2
+	dev-perl/Gtk2-Unique
 	dev-libs/dbus-glib"
 DEPEND="${CDEPEND}
 	dev-util/pkgconfig"
