@@ -3,8 +3,8 @@
 # $Header: $
 
 EAPI="2"
-#EBZR_REPO_URI="lp:cairo-dock-plug-ins"
-EBZR_REPO_URI="lp:cairo-dock-plug-ins/2.3"
+EBZR_REPO_URI="lp:cairo-dock-plug-ins"
+#EBZR_REPO_URI="lp:cairo-dock-plug-ins/2.3"
 #EBZR_REVISION="1939"
 
 
