@@ -6,8 +6,8 @@ EAPI="2"
 
 inherit cmake-utils bzr
 
-#EBZR_REPO_URI="lp:cairo-dock-core"
-EBZR_REPO_URI="lp:cairo-dock-core/2.3"
+EBZR_REPO_URI="lp:cairo-dock-core"
+#EBZR_REPO_URI="lp:cairo-dock-core/2.3"
 
 DESCRIPTION="Cairo-dock is a fast, responsive, Mac OS X-like dock."
 HOMEPAGE="https://launchpad.net/cairo-dock-core/"
