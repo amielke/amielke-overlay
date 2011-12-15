@@ -19,7 +19,7 @@ IUSE="aalib libcaca arts esd win32codecs nls dvd X directfb vorbis alsa
 gnome sdl speex theora ipv6 altivec opengl aac fbcon xv xvmc
 samba dxr3 vidix mng flac oss v4l xinerama vcd a52 mad imagemagick dts
 debug modplug gtk pulseaudio mmap truetype wavpack musepack xcb jack
-real vdr vdpau vaapi"
+real vdr"
 
 RDEPEND="X? ( x11-libs/libXext
 	x11-libs/libX11 )
