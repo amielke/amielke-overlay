@@ -5,7 +5,7 @@
 inherit eutils flag-o-matic toolchain-funcs libtool git-2
 
 : ${EGIT_REPO_URI:=${XINE_LIB_GIT_REPO_URI:-git://projects.vdr-developer.org/xine-lib.git}}
-: ${EGIT_BRANCH:=${XINE_LIB_GIT_BRANCH:-df-xine-lib-extensions}}
+#: ${EGIT_BRANCH:=${XINE_LIB_GIT_BRANCH:-df-xine-lib-extensions}}
 EAPI="2"
 DESCRIPTION="Core libraries for Xine movie player || xine-lib-1.2 || HG Version"
 HOMEPAGE="http://hg.debian.org/hg/xine-lib/xine-lib-1.2/"
