@@ -1,8 +1,8 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-driver/alsa-driver-9999.ebuild,v 1.21 2011/09/21 08:15:45 mgorny Exp $
+# $Header: /var/cvsroot/gentoo-x86/media-sound/alsa-driver/alsa-driver-9999.ebuild,v 1.16 2010/06/06 01:01:52 beandog Exp $
 
-inherit linux-mod flag-o-matic eutils multilib autotools git-2
+inherit linux-mod flag-o-matic eutils multilib autotools git
 
 DESCRIPTION="Advanced Linux Sound Architecture kernel modules"
 HOMEPAGE="http://www.alsa-project.org/"
@@ -37,11 +37,14 @@ for iuse_card in ${IUSE_CARDS}; do
 	IUSE="${IUSE} alsa_cards_${iuse_card}"
 done
 
-RDEPEND="!media-sound/snd-aoa"
+RDEPEND="virtual/modutils
+	 !media-sound/snd-aoa"
 DEPEND="${RDEPEND}
 	~media-sound/alsa-headers-${PV}
 	virtual/linux-sources
 	sys-apps/debianutils"
+
+PROVIDE="virtual/alsa"
 
 S="${WORKDIR}/alsa-driver"
 
@@ -101,23 +104,17 @@ pkg_setup() {
 }
 
 src_unpack() {
-	EGIT_REPO_URI="git://git.alsa-project.org/alsa-driver.git
-		http://git.alsa-project.org/http/alsa-driver.git" \
-		git-2_src_unpack
+	EGIT_REPO_URI="git://git.alsa-project.org/alsa-driver.git" S="${WORKDIR}/alsa-driver" git_src_unpack
+	EGIT_REPO_URI="git://git.alsa-project.org/alsa-kmirror.git" EGIT_PROJECT="alsa-kmirror" S="${WORKDIR}/alsa-driver/alsa-kernel" git_src_unpack
+	S="${WORKDIR}/alsa-driver"
 
-	EGIT_REPO_URI="git://git.alsa-project.org/alsa-kmirror.git
-		http://git.alsa-project.org/http/alsa-kmirror.git" \
-		EGIT_SOURCEDIR="${WORKDIR}/alsa-driver/alsa-kernel" \
-		git-2_src_unpack
+	convert_to_m "${S}/Makefile"
+	sed -i -e 's:\(.*depmod\):#\1:' "${S}/Makefile"
 
-	cd "${S}"
-	convert_to_m Makefile
-	sed -i -e 's:\(.*depmod\):#\1:' Makefile
-
+	# cp -f "${FILESDIR}/patch-alsa" "${WORKDIR}/alsa-driver/utils/patch-alsa"
 	cp -f "${FILESDIR}/soc-core.patch" "${WORKDIR}/alsa-driver/alsa-kernel/soc/"
 
 	cd "${S}"
-
 	emake ALSAKERNELDIR="${S}/alsa-kernel" all-deps
 	eaclocal
 	eautoconf
@@ -153,7 +150,7 @@ src_install() {
 
 	dodoc CARDS-STATUS FAQ README WARNING TODO
 
-	if kernel_is -ge 2 6; then
+	if kernel_is 2 6; then
 		# mv the drivers somewhere they won't be killed by the kernel's make modules_install
 		mv "${D}/lib/modules/${KV_FULL}/kernel/sound" "${D}/lib/modules/${KV_FULL}/${PN}"
 		rmdir "${D}/lib/modules/${KV_FULL}/kernel" &> /dev/null
@@ -175,7 +172,7 @@ pkg_postinst() {
 	elog "Check out the ALSA installation guide availible at the following URL:"
 	elog "http://www.gentoo.org/doc/en/alsa-guide.xml"
 
-	if kernel_is -ge 2 6 && [ -e "${ROOT}/lib/modules/${KV_FULL}/kernel/sound" ]; then
+	if kernel_is 2 6 && [ -e "${ROOT}/lib/modules/${KV_FULL}/kernel/sound" ]; then
 		# Cleanup if they had older alsa installed
 		for file in $(find "${ROOT}/lib/modules/${KV_FULL}/${PN}" -type f); do
 			rm -f ${file//${KV_FULL}\/${PN}/${KV_FULL}\/kernel\/sound}
@@ -184,3 +181,4 @@ pkg_postinst() {
 		find "${ROOT}/lib/modules/${KV_FULL}/kernel/sound" -type d -print0 | xargs rmdir
 	fi
 }
+
