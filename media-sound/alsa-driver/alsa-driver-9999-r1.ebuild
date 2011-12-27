@@ -37,8 +37,7 @@ for iuse_card in ${IUSE_CARDS}; do
 	IUSE="${IUSE} alsa_cards_${iuse_card}"
 done
 
-RDEPEND="virtual/modutils
-	 !media-sound/snd-aoa"
+RDEPEND="!media-sound/snd-aoa"
 DEPEND="${RDEPEND}
 	~media-sound/alsa-headers-${PV}
 	virtual/linux-sources
