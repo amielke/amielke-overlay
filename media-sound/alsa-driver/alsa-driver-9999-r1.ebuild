@@ -103,7 +103,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	EGIT_REPO_URI="git://git.alsa-project.org/alsa-driver.git" S="${WORKDIR}/alsa-driver" git_src_unpack
+	EGIT_REPO_URI="git://git.alsa-project.org/alsa-driver.git" S="${WORKDIR}/alsa-driver" EGIT_TREE="4f8222964ac74ca55b034d7dbc4de4f6f8d52926" git_src_unpack
 	EGIT_REPO_URI="git://git.alsa-project.org/alsa-kmirror.git" EGIT_PROJECT="alsa-kmirror" S="${WORKDIR}/alsa-driver/alsa-kernel" git_src_unpack
 	S="${WORKDIR}/alsa-driver"
 
