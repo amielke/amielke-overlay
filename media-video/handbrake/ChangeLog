@@ -1,0 +1,24 @@
+# ChangeLog for media-video/handbrake
+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+*handbrake-0.9.5_p4210 (09 Sep 2011)
+
+  09 Sep 2011; Steve Dibb <beandog@gentoo.org> +handbrake-0.9.5_p4210.ebuild:
+  Version bump
+
+  15 Jun 2011; Steve Dibb <beandog@gentoo.org> handbrake-0.9.5_p4039.ebuild:
+  Remove hal dependency
+
+*handbrake-0.9.5_p4039 (11 Jun 2011)
+
+  11 Jun 2011; Steve Dibb <beandog@gentoo.org> -handbrake-0.9.4.ebuild,
+  +handbrake-0.9.5_p4039.ebuild:
+  Version bump, SVN snapshot; remove old
+
+*handbrake-0.9.4 (07 Sep 2010)
+
+  07 Sep 2010; Steve Dibb <beandog@gentoo.org> +handbrake-0.9.4.ebuild:
+  Initial commit; Original ebuild from Joshua Saddler
+  <nightmorph@gentoo.org>, overnight overlay
+
