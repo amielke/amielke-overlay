@@ -29,9 +29,10 @@ S="${WORKDIR}"/${MY_P}
 src_prepare() {
 	# Doh! Tarballs contains compiled target
 	emake clean
-	cd src || die
-	sed -i 's/glib\/gtypes.h/glib.h/g' keybinder.h || die
-	cd ../
+	epatch "${FILESDIR}"/${P}-glib.patch
+#	cd src || die
+#	sed -i 's/glib\/gtypes.h/glib.h/g' keybinder.h || die
+#	cd ../
 	eautoreconf
 }
 
