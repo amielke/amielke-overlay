@@ -56,7 +56,7 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	!x11-misc/expocity"
 
-"${WORKDIR}/linuxmint-muffin-0.1.3/"
+"${WORKDIR}/linuxmint-muffin-10abba0/"
 
 pkg_setup() {
 	DOCS="AUTHORS ChangeLog HACKING MAINTAINERS NEWS README* *.txt doc/*.txt"
