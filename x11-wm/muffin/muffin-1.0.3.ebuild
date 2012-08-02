@@ -76,7 +76,7 @@ pkg_setup() {
 
 src_prepare() {
 	# Patch from mutter-3.3.92, fixes window decorations with gtk+-3.4
-	epatch "${FILESDIR}/${P}-frame-initialize-style-contexts.patch"
+#	epatch "${FILESDIR}/${P}-frame-initialize-style-contexts.patch"
 
 	gnome2_src_prepare
 }
