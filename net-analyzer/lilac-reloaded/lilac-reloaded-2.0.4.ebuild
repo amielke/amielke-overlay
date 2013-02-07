@@ -2,20 +2,22 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header:$
 
-EAPI=3
+EAPI=2
 
 inherit git-2 eutils webapp depend.php
 
 DESCRIPTION="Web-based configuration tool written to configure Nagios. Update and replace your older version of Lilac or Lilac-Reloaded! This is the Master-Version from GIT."
 HOMEPAGE="https://sourceforge.net/projects/lilac--reloaded/"
 
-#EGIT_REPO_URI="git://lilac--reloaded.git.sourceforge.net/gitroot/lilac--reloaded/lilac--reloaded"
 EGIT_REPO_URI="git://git.code.sf.net/p/lilac--reloaded/code"
 EGIT_PROJECT="lilac-reloaded"
-EGIT_BRANCH="dev"
+#EGIT_MASTER="master"
+#EGIT_BRANCH="dev"
 
+SLOT="2.0"
+WEBAPP_MANUAL_SLOT="yes"
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="nmap"
 
 RDEPEND=">=virtual/mysql-5.1
@@ -43,10 +45,11 @@ src_install() {
 pkg_postinst () {
 		webapp_pkg_postinst
                 echo
-		ewarn "--------------------------------------------------------------------"
-                ewarn "CAUTION!!! This is the Developer Version and not for productive use!"
-		ewarn "--------------------------------------------------------------------"
-                elog "Have FUN :)"
+		ewarn "---------------------------------------------------------------------------"
+                ewarn "Is this an upgrade, you will come to upgradepage automaticly"
+		ewarn "on the first call of Lilac-Reloaded http://localhost/lilac-reloaded"
+                ewarn "If you have problems to upgrade from Lilac previous versions <=2.0"
+		ewarn " look at Sourcesforge: http://sourceforge.net/p/lilac--reloaded/discussion/"
+		ewarn "---------------------------------------------------------------------------"
                 echo
 }
-

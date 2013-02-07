@@ -12,7 +12,8 @@ SRC_URI="http://netcologne.dl.sourceforge.net/project/lilac--reloaded/2.0/lilac-
 
 LICENSE="GPL-2"
 KEYWORDS="amd64 x86"
-
+SLOT="2.0"
+WEBAPP_MANUAL_SLOT="yes"
 IUSE="nmap"
 
 RDEPEND=">=virtual/mysql-5.1
