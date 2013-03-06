@@ -44,7 +44,7 @@ RDEPEND="
 		gnome-extra/cinnamon
 	)
 	gnome? (
-		gnome-base/gnome
+		gnome-base/gnome-light
 	)
 	kde? (
 		kde-base/kdelibs
