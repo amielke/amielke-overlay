@@ -1,3 +1,4 @@
+EAPI="4"
 DESCRIPTION="Advanced cross-platform Google Drive client"
 HOMEPAGE="https://www.insynchq.com/"
 SRC_URI="
@@ -44,7 +45,7 @@ RDEPEND="
 		gnome-extra/cinnamon
 	)
 	gnome? (
-		gnome-base/gnome-light
+		>=gnome-base/gnome-desktop-3:3
 	)
 	kde? (
 		kde-base/kdelibs
