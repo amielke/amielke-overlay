@@ -60,20 +60,32 @@ RDEPEND="
 		xfce-base/xfce4-mete
 	)
 "
+S=${WORKDIR}
 
 #src_install() {
 #	for u in ${IUSE_DESKTOP} ; do
 #		if use ${u} ; then
-#			: # into: /opt/${PN}-${u}
+#		: # into: /opt/${PN}-${u}
 #		fi
 #	done
 #}
+#src_unpack() {
+#  unpack ${A}
+#  unpack ./data.tar.gz
+#  cd "${S}"
+#   rm control.tar.gz data.tar.gz debian-binary
+#}
 src_unpack() {
-   unpack ${A}
-   unpack ./data.tar.gz
-   cd "${S}"
-   rm control.tar.gz data.tar.gz debian-binary
+    if [[ -n ${EPREFIX} ]] ; then
+        # need to perform everything in the offset, #381937
+        mkdir -p "./${EPREFIX}"
+        cd "./${EPREFIX}" || die
+    fi
+    unpack ${A}
+    unpack ./data.tar.gz
+    rm -f control.tar.gz data.tar.gz debian-binary
 }
+
 
 src_install() {
    cp -pPR ${WORKDIR}/* "${D}"/ || die "Installation failed"
