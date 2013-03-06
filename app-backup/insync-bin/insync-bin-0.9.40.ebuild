@@ -60,10 +60,20 @@ RDEPEND="
 	)
 "
 
+#src_install() {
+#	for u in ${IUSE_DESKTOP} ; do
+#		if use ${u} ; then
+#			: # into: /opt/${PN}-${u}
+#		fi
+#	done
+#}
+src_unpack() {
+   unpack ${A}
+   unpack ./data.tar.gz
+   cd "${S}"
+   rm control.tar.gz data.tar.gz debian-binary
+}
+
 src_install() {
-	for u in ${IUSE_DESKTOP} ; do
-		if use ${u} ; then
-			: # into: /opt/${PN}-${u}
-		fi
-	done
+   cp -pPR ${WORKDIR}/* "${D}"/ || die "Installation failed"
 }
