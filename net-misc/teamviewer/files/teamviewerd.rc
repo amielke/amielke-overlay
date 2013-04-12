@@ -1,0 +1,16 @@
+#!/sbin/runscript
+# Copyright 1999-2013 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+start() {
+	ebegin "Starting teamviewer"
+	start-stop-daemon --start --exec /usr/sbin/teamviewerd --pidfile /var/run/teamviewerd.pid
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping teamviewer"
+	start-stop-daemon --stop --exec /usr/sbin/teamviewerd --pidfile /var/run/teamviewerd.pid
+	eend $?
+}
