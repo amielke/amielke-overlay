@@ -25,7 +25,8 @@ S="${WORKDIR}"
 src_install() {
 	dodir /opt/
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
-	domenu uex.desktop
+	dosym /opt/uex/bin/uex /bin/uex
+	dosym /opt/uex/share/uex.desktop /usr/share/spllications/uex.desktop
 }
 
 pkg_postinst() {
