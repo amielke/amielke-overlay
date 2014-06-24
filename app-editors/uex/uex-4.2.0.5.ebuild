@@ -23,10 +23,9 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}"
 
 src_install() {
-	dodir /opt/
-	mv "${WORKDIR}/${PN}/" "${D}"/opt/
+	insinto /opt/${PN}/
+	doins ${PN}
 
-	make_wrapper ${PN} ./uex "/opt/${PN}/bin"
 }
 
 pkg_postinst() {
