@@ -22,16 +22,11 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
 
-src_unpack() {
-
-        unpack ${A}
-        cd ${S}
-}
-
-
 src_install() {
-	insinto /usr/bin
-	dobin "${S}/uex"
+	dodir /opt/
+	mv "${WORKDIR}/${PN}/" "${D}"/opt/
+	ln -s bin/uex /bin/uex
+	make_wrapper ${PN} ./uex "/opt/${PN}/bin"
 }
 
 pkg_postinst() {
