@@ -25,8 +25,7 @@ S="${WORKDIR}"
 src_install() {
 	dodir /opt/
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
-	ln -s bin/uex /usr/local/bin/uex
-	make_wrapper ${PN} ./uex "/opt/${PN}/bin"
+	domenu uex.desktop
 }
 
 pkg_postinst() {
