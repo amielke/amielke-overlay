@@ -24,7 +24,7 @@ S="${WORKDIR}"
 
 src_install() {
 	dodir /opt/
-	dobin /bin/uex
+	dobin /uex/bin/uex
 	doicon /share/pixmap/ue.png
 	domenu /share/applications/uex.desktop
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
