@@ -27,7 +27,7 @@ src_install() {
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
 	dosym /opt/uex/bin/uex /bin/uex
 	insinto  /usr/share/apllications/
-	doins share/uex/uex.desktop
+	doins uex/share/uex/uex.desktop
 	#dosym /opt/uex/share/uex/ue.png /usr/share/pixmaps/ue.png
 	#domenu /usr/share/applications/uex.desktop
 	#newicon /usr/share/pixmaps/ue.png
