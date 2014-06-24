@@ -22,14 +22,25 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
 
-src_install() {
-	dodir /opt/
-	mv "${WORKDIR}/${PN}/" "${D}"/opt/
-	dosym /opt/uex/share/uex/ue.png /usr/share/pixmaps/ue.png
-	insinto /usr/share/applications
-	doins ${WORKDIR}/share/uex/uex.desktop
-
+src_unpack() {
+    unpack ${A}
+	    cd ${S}
 }
+
+src_install () {
+    insinto /opt/
+	doins -r uex/
+	insinto /usr/share/applications/
+	doins ${FILESDIR}/uex.desktop
+	insinto /usr/share/pixmaps
+	doins uex/share/uex/ue.png
+	dosym /opt/uex/bin/uex /usr/bin/uex
+	fperms 0755 /opt/uex/bin/uex
+	fperms 0755 /opt/uex/share/uex/ucxl/bin/ucxl
+	rm uex/share/uex/uex.desktop
+	rm uex/share/uex/ue.png
+}
+
 
 pkg_postinst() {
 	ewarn "This is free trial verion of Ultra Editor Linux"

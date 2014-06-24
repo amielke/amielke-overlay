@@ -15,6 +15,7 @@ RESTRICT="strip"
 
 DEPEND="net-print/cups
 		app-text/a2ps"
+
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}" # Portage will bitch about missing $S so lets pretend that we have vaild $S.
