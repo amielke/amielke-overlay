@@ -23,9 +23,13 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}"
 
 src_install() {
-	insinto /opt/${PN}/
-	doins ${PN}
+	dobin /usr/bin/uex
+	doicon /usr/share/pixmap/ue.png
+	domenu /usr/share/applications/uex.desktop
+	dodir /opt/
+	mv "${WORKDIR}/${PN}/" "${D}"/opt/
 
+	make_wrapper ${PN} ./uex "/opt/${PN}/bin"
 }
 
 pkg_postinst() {
