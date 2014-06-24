@@ -27,7 +27,7 @@ src_install() {
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
 	dosym /opt/uex/bin/uex /bin/uex
 	dosym /opt/uex/share/uex/uex.desktop /usr/share/applications/uex.desktop
-	newicon ${WORKDIR}/share/uex/ue.png
+	dosym /opt/uex/share/uex/ue.png /usr/share/pixmaps/ue.png
 }
 
 pkg_postinst() {
