@@ -30,12 +30,8 @@ src_unpack() {
 
 
 src_install() {
-	dobin /bin/uex
-	doicon /share/pixmap/ue.png
-	domenu /share/applications/uex.desktop
-	mv "${WORKDIR}/${PN}/" "${D}"/opt/
-
-	make_wrapper ${PN} ./uex "/opt/${PN}/bin"
+	insinto /usr/bin
+	dobin "${S}/uex"
 }
 
 pkg_postinst() {

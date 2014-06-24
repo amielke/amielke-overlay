@@ -54,8 +54,8 @@ src_unpack() {
 src_install() {
 	cp -pPR "${S}"/usr "${D}"/ || die "Installation failed"
 
-	echo "SEARCH_DIRS_MASK=\"/usr/lib*/insync\"" > "${T}/70${PN}" || die
-	insinto "/etc/revdep-rebuild" && doins "${T}/70${PN}" || die
+	echo "SEARCH_DIRS_MASK=\"/usr/lib{32,64}/insync\"" > "${T}/70-${PN}" || die
+	insinto "/etc/revdep-rebuild" && doins "${T}/70-${PN}" || die
 }
 
 pkg_postinst() {
