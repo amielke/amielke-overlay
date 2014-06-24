@@ -22,6 +22,13 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
 
+src_unpack() {
+
+        unpack ${A}
+        cd ${S}
+}
+
+
 src_install() {
 	dobin /bin/uex
 	doicon /share/pixmap/ue.png
