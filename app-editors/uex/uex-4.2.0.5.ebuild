@@ -20,6 +20,8 @@ RESTRICT="strip mirror"
 DEPEND=""
 RDEPEND="${DEPEND}"
 
+S="${WORKDIR}"
+
 src_install() {
 	dodir /opt/
 	mv "${WORKDIR}/${PN}/" "${D}"/opt/
