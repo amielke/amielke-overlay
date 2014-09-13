@@ -31,21 +31,21 @@ src_unpack() {
 	cd "${S}"
 
 	if use amd64 ; then
-		unpack insync_"${PV}.${MAGIC}"_amd64.deb
+		unpack insync_"${PV}.${MAGIC}"-trusty_amd64.deb
 	else
-		unpack insync_"${PV}.${MAGIC}"_i386.deb
+		unpack insync_"${PV}.${MAGIC}"-trusty_i386.deb
 	fi
 
 	unpack ./data.tar.gz
 
 	if use nautilus ; then
-		unpack insync-nautilus_"${PV}.${MAGIC}"_all.deb
+		unpack insync-nautilus_"${PV}.${MAGIC}"-precise_all.deb
 	elif use dolphin ; then
-		unpack insync-dolphin_"${PV}.${MAGIC}"_all.deb
+		unpack insync-dolphin_"${PV}.${MAGIC}"-precise_all.deb
 	elif use thunar ; then
-		unpack insync-thunar_"${PV}.${MAGIC}"_all.deb
+		unpack insync-thunar_"${PV}.${MAGIC}"-precise_all.deb
 	elif use caja ; then
-		unpack insync-caja_"${PV}.${MAGIC}"_all.deb
+		unpack insync-caja_"${PV}.${MAGIC}"-precise_all.deb
 	fi
 
 	unpack ./data.tar.gz
@@ -54,8 +54,8 @@ src_unpack() {
 src_install() {
 	cp -pPR "${S}"/usr "${D}"/ || die "Installation failed"
 
-	echo "SEARCH_DIRS_MASK=\"/usr/lib/insync\"" > "${T}/70-${PN}" || die
-	insinto "/etc/revdep-rebuild" && doins "${T}/70-${PN}" || die
+	echo "SEARCH_DIRS_MASK=\"/usr/lib*/insync\"" > "${T}/70${PN}" || die
+	insinto "/etc/revdep-rebuild" && doins "${T}/70${PN}" || die
 }
 
 pkg_postinst() {
