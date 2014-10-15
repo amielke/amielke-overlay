@@ -4,7 +4,7 @@
 EAPI=5
 inherit eutils fdo-mime gnome2-utils
 DESCRIPTION="Implements fax over TCP on your Fritz!Box"
-HOMEPAGE="http://www.tabos.org/ffgtk"
+HOMEPAGE="http://www.tabos.org/"
 SRC_URI="http://de.tabos.org/download/${PN}-${PV}.tar.xz"
 LICENSE="GPL2"
 SLOT="0"
@@ -87,3 +87,4 @@ fdo-mime_mime_database_update
 gnome2_icon_cache_update
 gnome2_schemas_update
 }
+
