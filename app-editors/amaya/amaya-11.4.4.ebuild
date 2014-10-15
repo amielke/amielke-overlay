@@ -4,6 +4,7 @@
 
 # bugs:
 # - can use variable for version number: for re-use after new version
+EAPI="2"
 
 inherit libtool eutils
 
@@ -17,7 +18,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="debug opengl svg +xml"
-EAPI="2"
 
 DEPEND="net-libs/libwww
 				media-libs/raptor
