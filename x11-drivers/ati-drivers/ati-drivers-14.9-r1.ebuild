@@ -298,7 +298,6 @@ src_prepare() {
 	# Adjust paths in the script from /usr/X11R6/bin/ to /opt/bin/ and
 	# add function to detect default state.
 	epatch "${FILESDIR}"/ati-powermode-opt-path-3.patch
-	epatch "${FILESDIR}"/ati.patch
 	epatch "${FILESDIR}"/ati1.patch
 
 	# see http://ati.cchtml.com/show_bug.cgi?id=495
