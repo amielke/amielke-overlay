@@ -17,7 +17,7 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 RESTRICT="strip mirror"
 
-DEPEND=""
+DEPEND="media-libs/libpng:1.2"
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
