@@ -36,7 +36,6 @@ src_install () {
 	doins uex/share/uex/ue.png
 	dosym /opt/uex/bin/uex /usr/bin/uex
 	fperms 0755 /opt/uex/bin/uex
-	fperms 0755 /opt/uex/share/uex/ucxl/bin/ucxl
 	rm uex/share/uex/uex.desktop
 	rm uex/share/uex/ue.png
 }
