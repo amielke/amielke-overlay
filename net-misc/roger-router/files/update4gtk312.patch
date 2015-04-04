@@ -64,19 +64,6 @@ diff --git a/roger/contacts.c b/roger/contacts.c
  		gtk_grid_attach(GTK_GRID(grid), detail_photo_image, 0, 0, 1, 1);
  
  		detail_name_label = gtk_label_new("");
-@@ -486,19 +494,23 @@ void contacts(void)
- 	gtk_container_add(GTK_CONTAINER(contacts_window), contacts_window_grid);
- 
- 	/* Set standard spacing to 5 */
- 	gtk_grid_set_row_spacing(GTK_GRID(contacts_window_grid), 5);
- 	gtk_grid_set_column_spacing(GTK_GRID(contacts_window_grid), 5);
- 
- 	entry = gtk_entry_new();
- 	g_signal_connect(G_OBJECT(entry), "icon-release", G_CALLBACK(entry_icon_released), NULL);
--	gtk_widget_set_margin_left(entry, 5);
-+	gtk_widget_set_margin_bottom(entry, 5);
- 	gtk_widget_set_margin_top(entry, 5);
--	gtk_widget_set_margin_right(entry, 5);
 +#if GTK_CHECK_VERSION(3,12,0)
 +		gtk_widget_set_margin_end(contacts_window_grid, 5);
 +#else
