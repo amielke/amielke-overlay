@@ -26,7 +26,8 @@ AUTOMAKE_OPTIONS="--force --install"
 S="${WORKDIR}/${PN}-${PV}"
 src_unpack() {
 unpack ${A}
-cd "${S}"
+cd "${S}"A
+epatch ${FILESDIR}/${PV}update4gtk312.patch
 #eautoreconf
 #intltoolize --automake --force --copy
 }
