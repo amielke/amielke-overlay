@@ -27,7 +27,6 @@ S="${WORKDIR}/${PN}-${PV}"
 src_unpack() {
 unpack ${A}
 cd "${S}"
-epatch ${FILESDIR}/update4gtk312.patch
 #eautoreconf
 #intltoolize --automake --force --copy
 }
