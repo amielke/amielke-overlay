@@ -34,6 +34,7 @@ epatch ${FILESDIR}/update4gtk312.patch
 src_configure() {
 econf --docdir=/usr/share/doc/${PF}/html \
 --with-spandsp=yes \
+--disable-werror \
 $(use_with appindicator appindicator3) \
 $(use_with ebook) \
 $(use_with libnotify) \
