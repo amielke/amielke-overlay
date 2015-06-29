@@ -1,0 +1,15 @@
+--- common/lib/modules/fglrx/build_mod/kcl_str.c	2014-11-28 21:02:10.000000000 +0100
++++ common/lib/modules/fglrx/build_mod/kcl_str.c	2015-05-05 21:49:39.903037577 +0200
+@@ -169,7 +169,11 @@
+                                   const char* s2,
+                                   KCL_TYPE_SizeSigned count)
+ {
+-    return strnicmp(s1, s2, count);
++    #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
++        return strnicmp(s1, s2, count);
++    #else
++        return strncasecmp(s1, s2, count);
++    #endif
+ }
+ 
+ /** \brief Locate character in string
