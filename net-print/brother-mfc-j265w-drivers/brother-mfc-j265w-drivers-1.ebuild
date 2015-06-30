@@ -33,7 +33,7 @@ src_install() {
 	cp -r ${WORKDIR}/opt/brother/* ${D}/opt/Brother/ || die
 
 	mkdir -p ${D}/usr/libexec/cups/filter || die
-	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printer/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
+	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printers/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
 	mkdir -p ${D}/usr/local || die
 	( cd ${D}/usr/local && ln -s ../../opt/Brother Brother ) || die
 	mkdir -p ${D}/usr/share/cups/model || die
