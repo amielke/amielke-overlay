@@ -29,8 +29,8 @@ src_install() {
 
 	dosbin "${WORKDIR}/usr/bin/brprintconf_mfcj265w"
 
-	mkdir -p ${D}/opt/bother || die
-	cp -r ${WORKDIR}/opt/Brother/* ${D}/opt/Brother/ || die
+	mkdir -p ${D}/opt/Brother || die
+	cp -r ${WORKDIR}/opt/brother/* ${D}/opt/Brother/ || die
 
 	mkdir -p ${D}/usr/libexec/cups/filter || die
 	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printer/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
