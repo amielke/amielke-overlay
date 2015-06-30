@@ -34,6 +34,7 @@ src_configure() {
 econf --docdir=/usr/share/doc/${PF}/html \
 --with-spandsp=yes \
 --disable-werror \
+--libdir=/usr/lib64 
 $(use_with appindicator appindicator3) \
 $(use_with ebook) \
 $(use_with libnotify) \
