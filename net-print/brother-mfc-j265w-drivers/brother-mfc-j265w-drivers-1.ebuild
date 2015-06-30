@@ -29,15 +29,15 @@ src_install() {
 
 	dosbin "${WORKDIR}/usr/bin/brprintconf_mfcj265w"
 
-	mkdir -p ${D}/opt/Brother || die
-	cp -r ${WORKDIR}/opt/brother/* ${D}/opt/Brother/ || die
+	mkdir -p ${D}/opt/brother || die
+	cp -r ${WORKDIR}/opt/brother/* ${D}/opt/brother/ || die
 
 	mkdir -p ${D}/usr/libexec/cups/filter || die
-	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/Brother/Printers/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
+	( cd ${D}/usr/libexec/cups/filter/ && ln -s ../../../../opt/brother/Printers/mfcj265w/lpd/filtermfcj265w brlpdwrappermfcj265w ) || die
 	mkdir -p ${D}/usr/local || die
 	( cd ${D}/usr/local && ln -s ../../opt/Brother Brother ) || die
 	mkdir -p ${D}/usr/share/cups/model || die
-	( cd ${D}/usr/share/cups/model && ln -s ../../../../opt/Brother/Printers/mfcj265w/cupswrapper/brother_mfcj265w_printer_en.ppd ) || die
+	( cd ${D}/usr/share/cups/model && ln -s ../../../../opt/brother/Printers/mfcj265w/cupswrapper/brother_mfcj265w_printer_en.ppd ) || die
 }
 
 pkg_postinst () {
