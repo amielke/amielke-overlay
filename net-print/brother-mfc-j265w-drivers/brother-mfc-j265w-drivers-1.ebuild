@@ -4,8 +4,8 @@ inherit rpm multilib
 
 DESCRIPTION="Brother DCP-J315W LPR+cupswrapper drivers"
 HOMEPAGE="http://welcome.solutions.brother.com/bsc/public_s/id/linux/en/download_prn.html#DCP-J315W"
-SRC_URI="http://pub.brother.com/pub/com/bsc/linux/dlf/mfcj265wlpr-1.1.1-1.i386.rpm
-		http://pub.brother.com/pub/com/bsc/linux/dlf/mfcj265wcupswrapper-1.1.1-3.i386.rpm"
+SRC_URI="http://download.brother.com/welcome/dlf006541/mfcj265wlpr-1.1.3-1.i386.rpm
+		http://download.brother.com/welcome/dlf006543/mfcj265wcupswrapper-1.1.3-1.i386.rpm"
 
 LICENSE="GPL"
 SLOT="0"
