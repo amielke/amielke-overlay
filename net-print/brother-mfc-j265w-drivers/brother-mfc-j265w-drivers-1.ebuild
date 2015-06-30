@@ -37,7 +37,7 @@ src_install() {
 	mkdir -p ${D}/usr/local || die
 	( cd ${D}/usr/local && ln -s ../../opt/Brother Brother ) || die
 	mkdir -p ${D}/usr/share/cups/model || die
-	( cd ${D}/usr/share/cups/model && ln -s ../../../../opt/Brother/Printer/mfcj265w/cupswrapper/brmfcj265w.ppd ) || die
+	( cd ${D}/usr/share/cups/model && ln -s ../../../../opt/Brother/Printers/mfcj265w/cupswrapper/brother_mfcj265w_printer_en.ppd ) || die
 }
 
 pkg_postinst () {
