@@ -1,7 +1,0 @@
-# /etc/vdr/vdrconvert/vdrcovert.mpeg
-# $Header: /var/cvsroot/gentoo-x86/media-video/vdrconvert/files/0.2.1/vdrconvert.mpeg,v 1.1 2006/03/01 19:55:06 hd_brummy Exp $
-
-#VDR2MPG
-MPG_DESTDIR="${DESTDIR}/mpg"
-MPG_TITLEDATE="${CONV_TITLEDATE}"
-
