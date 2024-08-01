@@ -1,18 +1,2 @@
 ## Only for development. The ebuild does not work!!
 
-media-video/vdr-yacoto
-media-video/yacoto-scripts
-media-libs/xine-lib
-=net-libs/libtorrent-9999
-=net-p2p/rtorrent-9999
-=x11-misc/cairo-dock-9999
-=x11-plugins/cairo-dock-plugins-9999
-=x11-misc/cairo-dock-9999
-=games-rpg/planeshift-bin-0.5.6
-gnome-extra/evolution-tray
-x11-misc/xplanet
-media-libs/libmpcdec
-gnome-extra/gnome-activity-journal
-mail-filter/MailScanner
-gnome-extra/zeitgeist-datahub
-gnome-extra/zeitgeist
