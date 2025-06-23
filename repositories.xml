@@ -1,7 +1,7 @@
 <repositories encoding="unicode" version="1.0">
   <repo priority="50" quality="experimental" status="unofficial">
     <name>amielke-overlay</name>
-    <description>Overlay with focus on VDR and software that is not in Portage</description>
+    <description>Overlay with focus on Gaming and software that is not in Portage</description>
     <homepage>http://amielke.de/</homepage>;
     <owner>
       <email>gentoo-os@amielke.de</email>
