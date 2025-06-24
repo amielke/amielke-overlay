@@ -28,7 +28,6 @@ RDEPEND="net-firewall/ufw
 	sys-auth/polkit
 	x11-themes/gnome-icon-theme-symbolic
 	dev-python/pygobject:3
-	sys-auth/elogind
 "
 S=${WORKDIR}/${PN}-${PV}
 
