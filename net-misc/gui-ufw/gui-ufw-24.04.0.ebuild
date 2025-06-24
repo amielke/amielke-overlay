@@ -2,14 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=8
+EAPI=7
 PYTHON_COMPAT=( python3_{6,7,8,9,11,12,13} )
 #DISTUTILS_IN_SOURCE_BUILD=1
 
-#DISTUTILS_SINGLE_IMPL=1
-#DISTUTILS_USE_PEP517=setuptools
-#PYTHON_COMPAT=( python3_{9..13} )
-
+#inherit distutils-r1
+DISTUTILS_USE_PEP517=setuptools
 
 DESCRIPTION="GUI frontend for managing ufw."
 HOMEPAGE="https://gufw.org/ https://costales.github.io/projects/gufw/"
@@ -28,6 +26,7 @@ RDEPEND="net-firewall/ufw
 	sys-auth/polkit
 	x11-themes/gnome-icon-theme-symbolic
 	dev-python/pygobject:3
+	sys-auth/elogind
 "
 S=${WORKDIR}/${PN}-${PV}
 
