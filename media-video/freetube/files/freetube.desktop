@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=FreeTube
+Comment=An open source desktop YouTube player built with privacy in mind.
+Exec=/usr/bin/freetube-bin %U
+Terminal=false
+Type=Application
+Icon=freetube-bin
+Categories=Network;
+StartupWMClass=FreeTube
+MimeType=x-scheme-handler/freetube;
