@@ -15,6 +15,11 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
+src_configure() {
+    meson_src_configure
+}
+
+
 src_prepare() {
     eapply_user
 }
