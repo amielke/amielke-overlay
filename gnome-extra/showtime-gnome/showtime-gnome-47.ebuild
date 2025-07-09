@@ -4,6 +4,8 @@
 
 EAPI=8
 
+inherit gnome2-utils meson xdg
+
 DESCRIPTION="Showtime - Media Player"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/showtime"
 SRC_URI="https://gitlab.gnome.org/GNOME/showtime/-/archive/gnome-47/showtime-gnome-47.tar.gz"
@@ -11,6 +13,10 @@ SRC_URI="https://gitlab.gnome.org/GNOME/showtime/-/archive/gnome-47/showtime-gno
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
+
+src_prepare() {
+    eapply_user
+}
 
 
 pkg_postinst() {
