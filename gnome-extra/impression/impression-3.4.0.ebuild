@@ -14,9 +14,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="dev-libs/glib:2
-        dev-util/meson
-        sys-devel/gcc"
+DEPEND="dev-libs/glib:2"
 
 RDEPEND="${DEPEND}
         app-arch/xz-utils
