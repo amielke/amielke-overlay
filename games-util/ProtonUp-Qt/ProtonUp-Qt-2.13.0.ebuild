@@ -41,9 +41,10 @@ src_prepare() {
 
 src_install() {
 	distutils-r1_src_install
-	domenu share/applications/net.davidotek.pupgui2.desktop
-	for size in 64 128 256; do
-		doicon -s ${size} share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png
+	domenu share/applications/${APPNAME}.desktop
+
+	for size in {64,128,256}; do
+		doicon -s ${size} share/icons/hicolor/${size}x${size}/apps/${APPNAME}.png
 	done
 }
 
