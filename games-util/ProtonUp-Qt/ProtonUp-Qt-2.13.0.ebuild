@@ -30,9 +30,6 @@ RDEPEND="
 	>=dev-python/zstandard-0.19.0[${PYTHON_USEDEP}]
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-2.11.1-add-entrypoint.patch"
-)
 
 distutils_enable_tests pytest
 
