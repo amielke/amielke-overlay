@@ -1,0 +1,9 @@
+diff '--color=auto' -ur a/setup.cfg b/setup.cfg
+--- a/setup.cfg	2025-07-16 19:43:44.000000000 +0200
++++ b/setup.cfg	2025-07-29 15:50:20.322715587 +0200
+@@ -33,4 +33,4 @@
+ 
+ [options.entry_points]
+ gui_scripts =
+-    protonup-qt = pupgui2.pupgui2:main
++    ProtonUp-Qt = pupgui2.pupgui2:main
