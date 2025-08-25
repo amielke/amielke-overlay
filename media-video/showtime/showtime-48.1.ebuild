@@ -36,6 +36,7 @@ BDEPEND="
 src_prepare() {
 	default
 	xdg_environment_reset
+	meson_src_configure
 }
 
 src_configure() {
