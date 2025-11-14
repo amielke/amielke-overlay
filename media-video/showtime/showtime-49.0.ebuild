@@ -9,7 +9,7 @@ DESCRIPTION="A modern video player for GNOME"
 HOMEPAGE="https://apps.gnome.org/Showtime/"
 SRC_URI="https://download.gnome.org/sources/showtime/${PV%.*}/showtime-${PV}.tar.xz"
 
-LICENSE="GPL-3.0"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
