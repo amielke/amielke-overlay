@@ -1,195 +1,150 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 2023-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# shellcheck shell=bash
-# shellcheck disable=SC2034
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{12..14} )
+inherit meson-multilib python-single-r1 xdg
 
-inherit toolchain-funcs flag-o-matic python-r1 desktop meson-multilib
-
-DESCRIPTION="Vulkan and OpenGL overlay for monitoring FPS, sensors, system load and more"
+DESCRIPTION="Overlay for monitoring FPS, temperatures, CPU/GPU load and more"
 HOMEPAGE="https://github.com/flightlessmango/MangoHud"
 
-MY_PV=$(ver_cut 1-3)
-[[ -n "$(ver_cut 4-)" ]] && MY_PV_REV="-$(ver_cut 4-)"
+if [[ "${PV}" == "9999" ]]; then
+	inherit git-r3
 
-# required subprojects
-declare -A subprojectv=(
-	[vkheaders]="1.2.158"
-	[vkheaders_meson]="1.2.158-2"
-	[imgui]="1.89.9"
-	[imgui_meson]="1.89.9-1"
-	[implot]="0.16"
-	[implot_meson]="0.16-1"
-)
+	VULKAN_HEADER_VER="1.2.158"
+	VULKAN_HEADER_WRAP_VER="${VULKAN_HEADER_VER}-2"
+	IMGUI_VER="1.89.9"
+	IMGUI_WRAP="${IMGUI_VER}-2"
+	IMPLOT_VER="0.16"
+	IMPLOT_WRAP="${IMPLOT_VER}-1"
 
-SRC_URI="
-	https://github.com/flightlessmango/MangoHud/archive/v${MY_PV}${MY_PV_REV}.tar.gz -> ${P}.tar.gz
-	https://github.com/KhronosGroup/Vulkan-Headers/archive/v${subprojectv[vkheaders]}.tar.gz -> vulkan-headers-${subprojectv[vkheaders]}.tar.gz
-	https://wrapdb.mesonbuild.com/v2/vulkan-headers_${subprojectv[vkheaders_meson]}/get_patch/vulkan-headers-${subprojectv[vkheaders_meson]}-wrap.zip
-	https://github.com/ocornut/imgui/archive/v${subprojectv[imgui]}.tar.gz -> imgui-${subprojectv[imgui]}.tar.gz
-	https://wrapdb.mesonbuild.com/v2/imgui_${subprojectv[imgui_meson]}/get_patch/imgui-${subprojectv[imgui_meson]}-wrap.zip
-	https://github.com/epezent/implot/archive/v${subprojectv[implot]}.tar.gz -> imgui-${subprojectv[implot]}.tar.gz
-	https://wrapdb.mesonbuild.com/v2/implot_${subprojectv[implot_meson]}/get_patch/implot-${subprojectv[implot_meson]}-wrap.zip
-"
+	EGIT_REPO_URI="https://github.com/flightlessmango/MangoHud"
+	SRC_URI="
+		https://github.com/KhronosGroup/Vulkan-Headers/archive/v${VULKAN_HEADER_VER}.tar.gz
+			-> vulkan-headers-${VULKAN_HEADER_VER}.tar.gz
+		https://wrapdb.mesonbuild.com/v2/vulkan-headers_${VULKAN_HEADER_WRAP_VER}/get_patch
+			-> vulkan-headers-${VULKAN_HEADER_WRAP_VER}-wrap.zip
+		https://github.com/ocornut/imgui/archive/refs/tags/v${IMGUI_VER}.tar.gz
+			-> imgui-${IMGUI_VER}.tar.gz
+		https://wrapdb.mesonbuild.com/v2/imgui_${IMGUI_WRAP}/get_patch
+			-> imgui_${IMGUI_WRAP}_patch.zip
+		https://github.com/epezent/implot/archive/refs/tags/v${IMPLOT_VER}.tar.gz
+			-> implot-${IMPLOT_VER}.tar.gz
+		https://wrapdb.mesonbuild.com/v2/implot_${IMPLOT_WRAP}/get_patch
+			-> implot_${IMPLOT_WRAP}_patch.zip
+	"
+else
+	SUFFIX="$(ver_cut 5)"
+	MY_PV1="$(ver_cut 1-3)${SUFFIX:+-}${SUFFIX}"
+	MY_PV2="$(ver_cut 1-3)"
+	SRC_URI="https://github.com/flightlessmango/MangoHud/releases/download/v${MY_PV2}/MangoHud-v${MY_PV1}-Source.tar.xz"
+	S="${WORKDIR}/MangoHud-v${MY_PV2}"
+	KEYWORDS="~amd64"
+fi
 
-KEYWORDS="~amd64"
 LICENSE="MIT"
 SLOT="0"
-IUSE="+dbus debug mangoapp mangoplot test wayland video_cards_nvidia +X xnvctrl"
+
+IUSE="dbus mangoapp plots wayland +X"
 
 REQUIRED_USE="
-	|| ( X wayland )
+	|| ( wayland X )
 	mangoapp? ( X )
-	xnvctrl? ( video_cards_nvidia X )
 	${PYTHON_REQUIRED_USE}
 "
 
-RESTRICT="!test? ( test )"
-
-# shellcheck disable=SC2016
-BDEPEND="
-	app-arch/unzip
-	test? ( dev-util/cmocka[${MULTILIB_USEDEP}] )
-	$(python_gen_cond_dep 'dev-python/mako[${PYTHON_USEDEP}]')
-	${PYTHON_DEPS}
+COMMON_DEPEND="
+	dev-libs/libfmt:=
+	dev-libs/spdlog:=
+	media-libs/glfw
+	media-libs/libglvnd
+	x11-libs/libxkbcommon
+	X? ( x11-libs/libX11 )
+	wayland? ( dev-libs/wayland )
 "
-
 DEPEND="
-	dev-cpp/nlohmann_json
-	dev-libs/spdlog[${MULTILIB_USEDEP}]
-	dev-util/glslang[${MULTILIB_USEDEP}]
-	media-libs/libglvnd[${MULTILIB_USEDEP}]
-	media-libs/vulkan-loader[${MULTILIB_USEDEP}]
-	x11-libs/libdrm[${MULTILIB_USEDEP}]
-	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
-	mangoapp? (
-		media-libs/glew[${MULTILIB_USEDEP}]
-		media-libs/glfw[-wayland-only(-),X(+),${MULTILIB_USEDEP}]
-	)
-	video_cards_nvidia? (
-		x11-drivers/nvidia-drivers[${MULTILIB_USEDEP}]
-		xnvctrl? ( x11-drivers/nvidia-drivers[static-libs] )
-	)
-	wayland? (
-		>=dev-libs/wayland-1.11[${MULTILIB_USEDEP}]
-		x11-libs/libxkbcommon[${MULTILIB_USEDEP}]
-	)
-	X? (
-		x11-libs/libX11[${MULTILIB_USEDEP}]
-		x11-libs/libxkbcommon[${MULTILIB_USEDEP}]
-	)
-	${PYTHON_DEPS}
+	${COMMON_DEPEND}
+	dbus? ( sys-apps/dbus )
 "
-
-# shellcheck disable=SC2016
 RDEPEND="
-	mangoplot? (
+	${COMMON_DEPEND}
+	${PYTHON_DEPS}
+	plots? (
 		$(python_gen_cond_dep '
-			dev-python/numpy[${PYTHON_USEDEP}]
 			dev-python/matplotlib[${PYTHON_USEDEP}]
+			dev-python/numpy[${PYTHON_USEDEP}]
 		')
 	)
-	${DEPEND}
 "
-
-S="${WORKDIR}/MangoHud-${PV}"
+BDEPEND="
+	${PYTHON_DEPS}
+	dev-util/glslang
+	$(python_gen_cond_dep '
+		dev-python/mako[${PYTHON_USEDEP}]
+	')
+"
+if [[ ${PV} == "9999" ]]; then
+	BDEPEND+=" app-arch/unzip"
+fi
 
 PATCHES=(
-	"${FILESDIR}/0.8.1-use-bundled-imgui-and-implot.patch"
+	"${FILESDIR}"/mangohud-0.8.2-fix-llvm.patch
+	"${FILESDIR}"/mangohud-0.8.2-gcc16-header.patch
+	"${FILESDIR}"/mangohud-0.8.2-fix-no-wayland.patch
 )
 
 python_check_deps() {
-	python_has_version -b "dev-python/mako[${PYTHON_USEDEP}]"
-}
-
-pkg_setup() {
-	python_setup
+	python_has_version "dev-python/mako[${PYTHON_USEDEP}]"
 }
 
 src_unpack() {
+	if [[ "${PV}" == "9999" ]]; then
+		git-r3_src_unpack
+	fi
 	default
-	[[ -n "${MY_PV_REV}" ]] && ( mv "${WORKDIR}/MangoHud-${MY_PV}${MY_PV_REV}" "${WORKDIR}/MangoHud-${PV}" || die )
-
-	# symlink subprojects
-	local projects=(
-		"Vulkan-Headers-${subprojectv[vkheaders]}"
-		"imgui-${subprojectv[imgui]}"
-		"implot-${subprojectv[implot]}"
-	)
-
-	for subproject in "${projects[@]}"; do
-		einfo "Installing subproject ${subproject}"
-		mv -vt "${S}/subprojects/" "${WORKDIR}/${subproject}" || die "Couldn't install ${subproject}"
-	done
 }
 
 src_prepare() {
-	# set version since we don't have git tags
-	sed -i -e "/^project('MangoHud',$/,/^)$/s/version : '.*'/version : '${MY_PV}${MY_PV_REV}'/" \
-		meson.build || die
-
-	# mangohud by default statically links libstdc++
-	# dynamically linked libc++ works just fine though
-	if [[ "$(tc-get-cxx-stdlib)" == "libc++" ]]; then
-		eapply "${FILESDIR}/0.8.0_rc1-libcxx.patch"
-	fi
-
-	# https://github.com/flightlessmango/MangoHud/issues/1240
-	# lld throws an error, mold just a warning, bfd doesn't care
-	if [[ "$(tc-getLD)" == "ld.lld" ]]; then
-		append-ldflags "-Wl,--undefined-version"
-	fi
-
 	default
+
+	if [[ "${PV}" == "9999" ]]; then
+		mv "${WORKDIR}/Vulkan-Headers-${VULKAN_HEADER_VER}" "${S}/subprojects/Vulkan-Headers-${VULKAN_HEADER_VER}" || die
+		mv "${WORKDIR}/imgui-${IMGUI_VER}" "${S}/subprojects/imgui-${IMGUI_VER}" || die
+		mv "${WORKDIR}/implot-${IMPLOT_VER}" "${S}/subprojects/implot-${IMPLOT_VER}" || die
+	fi
+
+	# Install documents into versioned dir
+	sed -i "s/'doc', 'mangohud'/'doc', '${PF}'/" data/meson.build || die
 }
 
-# shellcheck disable=SC2207
-multilib_src_configure() {
+src_configure() {
 	local emesonargs=(
-		-Duse_system_spdlog=enabled
-		-Dappend_libdir_mangohud=false
-		# QA: install docs in src_install to ensure FHS/Gentoo policy
-		# also avoids dev-libs/appstream test dep
-		-Dinclude_doc=false
-		$(meson_feature video_cards_nvidia with_nvml)
-		$(meson_feature xnvctrl with_xnvctrl)
 		$(meson_feature X with_x11)
-		$(meson_feature wayland with_wayland)
 		$(meson_feature dbus with_dbus)
-		$(meson_use mangoapp mangoapp)
-		# mangohudctl only makes sense with mangoapp
-		$(meson_use mangoapp mangohudctl)
-		$(meson_feature test tests)
-		$(meson_feature mangoplot mangoplot)
+		$(meson_native_use_bool mangoapp)
+		$(meson_native_use_feature plots mangoplot)
+		# tests not hooked up anymore
+		-Dtests=disabled
+		$(meson_feature wayland with_wayland)
+		-Dappend_libdir_mangohud=true
 		-Ddynamic_string_tokens=true
-		# no extra deps and just a single object so whatever
-		-Dwith_fex=true
+		-Dglibcxx_asserts=false
+		-Dinclude_doc=true
+		$(meson_native_true mangohudctl)
+		-Duse_system_spdlog=enabled
+		-Dwith_xnvctrl=disabled
+		--force-fallback-for=imgui,implot
 	)
-	meson_src_configure
+
+	meson-multilib_src_configure
 }
 
-multilib_src_install_all() {
-	# extra stuff under data/ (usually controlled by -Dinclude_doc)
-	insinto /usr/share/metainfo
-	doins data/io.github.flightlessmango.mangohud.metainfo.xml
-	doicon -s scalable data/io.github.flightlessmango.mangohud.svg
-	doman data/mangohud.1
-	use mangoapp && doman data/mangoapp.1
-	newdoc data/MangoHud.conf MangoHud.conf.example
-	newdoc data/presets.conf presets.conf.example
-}
+src_install() {
+	meson-multilib_src_install
 
-pkg_postinst() {
-	if ! use xnvctrl; then
-		elog ""
-		elog "If mangohud can't get GPU load, or other GPU information,"
-		elog "and you may have an older Nvidia device."
-		elog ""
-		elog "Try enabling the 'xnvctrl' useflag."
-		elog ""
+	if use plots; then
+		python_optimize "${D}"
+		python_fix_shebang "${D}"
 	fi
 }
