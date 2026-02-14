@@ -26,44 +26,49 @@ RDEPEND="
 "
 
 S="${WORKDIR}"
-
 PAYLOAD="${WORKDIR}/officenx"
+
+# Prebuilt binaries – QA-Warnungen vermeiden
+QA_PREBUILT="/opt/softmaker-office-nx/*"
 
 src_unpack() {
     unpack ${A}
 
     mkdir "${PAYLOAD}" || die
-    tar --lzma -xf "${WORKDIR}/officenx.tar.lzma" -C "${PAYLOAD}" || die
+    cd "${PAYLOAD}" || die
+
+    # officenx.tar.lzma ist xz-kompatibel → via xz streamen
+    xz -dc "${WORKDIR}/officenx.tar.lzma" | tar xf - || die
 }
 
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
-    # payload nach /opt
+    # Payload nach /opt kopieren
     insinto ${install_dir}
     doins -r ${PAYLOAD}/*
 
-    # binaries executable
+    # Hauptbinaries ausführbar setzen
     exeinto ${install_dir}
     doexe ${PAYLOAD}/textmaker
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-    # wrapper
+    # Wrapper in /usr/bin
     make_wrapper textmakernx ${install_dir}/textmaker
     make_wrapper planmakernx ${install_dir}/planmaker
     make_wrapper presentationsnx ${install_dir}/presentations
 
-    # desktop files
+    # Desktop-Dateien
     domenu ${PAYLOAD}/mime/textmaker-nx.desktop
     domenu ${PAYLOAD}/mime/planmaker-nx.desktop
     domenu ${PAYLOAD}/mime/presentations-nx.desktop
 
-    # mime
+    # MIME-Definition
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
 
-    # icons
+    # Icons
     for size in 16 24 32 48 64 128 256 512 1024; do
         doicon -s ${size} ${PAYLOAD}/icons/tml_${size}.png
         doicon -s ${size} ${PAYLOAD}/icons/pml_${size}.png
