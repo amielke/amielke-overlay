@@ -36,13 +36,14 @@ src_unpack() {
     mkdir "${PAYLOAD}" || die
     cd "${PAYLOAD}" || die
 
+    # officenx.tar.lzma → via xz streamen
     xz -dc "${WORKDIR}/officenx.tar.lzma" | tar xf - || die
 }
 
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
-    # Payload nach /opt
+    # Payload nach /opt installieren
     insinto ${install_dir}
     doins -r ${PAYLOAD}/*
 
@@ -52,25 +53,28 @@ src_install() {
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-    # Wrapper-Skripte selbst erstellen
+    # Wrapper in /usr/bin (manuell, ohne make_wrapper)
     exeinto /usr/bin
 
-    newexe - textmakernx <<EOF
+    cat > "${T}/textmakernx" <<EOF
 #!/bin/sh
 exec ${install_dir}/textmaker "\$@"
 EOF
+    doexe "${T}/textmakernx"
 
-    newexe - planmakernx <<EOF
+    cat > "${T}/planmakernx" <<EOF
 #!/bin/sh
 exec ${install_dir}/planmaker "\$@"
 EOF
+    doexe "${T}/planmakernx"
 
-    newexe - presentationsnx <<EOF
+    cat > "${T}/presentationsnx" <<EOF
 #!/bin/sh
 exec ${install_dir}/presentations "\$@"
 EOF
+    doexe "${T}/presentationsnx"
 
-    # Desktopfiles selbst definieren (robust)
+    # Desktop-Entries selbst erstellen
     make_desktop_entry textmakernx "TextMaker NX" textmaker Office
     make_desktop_entry planmakernx "PlanMaker NX" planmaker Office
     make_desktop_entry presentationsnx "Presentations NX" presentations Office
@@ -79,11 +83,11 @@ EOF
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
 
-    # Icons
+    # Icons korrekt installieren (Name = Desktop Icon Referenz)
     for size in 16 24 32 48 64 128 256 512 1024; do
-        doicon -s ${size} ${PAYLOAD}/icons/tml_${size}.png
-        doicon -s ${size} ${PAYLOAD}/icons/pml_${size}.png
-        doicon -s ${size} ${PAYLOAD}/icons/prl_${size}.png
+        newicon -s ${size} ${PAYLOAD}/icons/tml_${size}.png textmaker.png
+        newicon -s ${size} ${PAYLOAD}/icons/pml_${size}.png planmaker.png
+        newicon -s ${size} ${PAYLOAD}/icons/prl_${size}.png presentations.png
     done
 }
 
@@ -98,4 +102,3 @@ pkg_postrm() {
     xdg_desktop_database_update
     xdg_mimeinfo_database_update
 }
-
