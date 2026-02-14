@@ -97,7 +97,7 @@ src_unpack() {
 src_prepare() {
 	## extract all lines defining functions from original install script so we can import it
 	# first make sure we actually have the expected revision
-	expected_hash="c8311d35ff044ec05386050eb053af30"
+	expected_hash="c2cf3bd62552f9647ff3766623f18897"
 	actual_hash=$(md5sum "${WORKDIR}/installofficenx" | cut -c'-32')
 	[[ "${actual_hash}" == "${expected_hash}" ]] || die "Unexpected file hash on install script, unable to extract functions. Expected MD5 ${expected_hash}, got: ${actual_hash}"
 	
