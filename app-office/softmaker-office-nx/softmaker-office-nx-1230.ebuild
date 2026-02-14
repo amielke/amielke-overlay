@@ -28,7 +28,6 @@ RDEPEND="
 S="${WORKDIR}"
 PAYLOAD="${WORKDIR}/officenx"
 
-# Prebuilt binaries – QA-Warnungen vermeiden
 QA_PREBUILT="/opt/softmaker-office-nx/*"
 
 src_unpack() {
@@ -37,14 +36,13 @@ src_unpack() {
     mkdir "${PAYLOAD}" || die
     cd "${PAYLOAD}" || die
 
-    # officenx.tar.lzma ist xz-kompatibel → via xz streamen
     xz -dc "${WORKDIR}/officenx.tar.lzma" | tar xf - || die
 }
 
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
-    # Payload nach /opt kopieren
+    # Payload nach /opt
     insinto ${install_dir}
     doins -r ${PAYLOAD}/*
 
@@ -54,15 +52,28 @@ src_install() {
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-    # Wrapper in /usr/bin
-    make_wrapper textmakernx ${install_dir}/textmaker
-    make_wrapper planmakernx ${install_dir}/planmaker
-    make_wrapper presentationsnx ${install_dir}/presentations
+    # Wrapper-Skripte selbst erstellen
+    exeinto /usr/bin
 
-    # Desktop-Dateien
-    domenu ${PAYLOAD}/mime/textmaker-nx.desktop
-    domenu ${PAYLOAD}/mime/planmaker-nx.desktop
-    domenu ${PAYLOAD}/mime/presentations-nx.desktop
+    newexe - textmakernx <<EOF
+#!/bin/sh
+exec ${install_dir}/textmaker "\$@"
+EOF
+
+    newexe - planmakernx <<EOF
+#!/bin/sh
+exec ${install_dir}/planmaker "\$@"
+EOF
+
+    newexe - presentationsnx <<EOF
+#!/bin/sh
+exec ${install_dir}/presentations "\$@"
+EOF
+
+    # Desktopfiles selbst definieren (robust)
+    make_desktop_entry textmakernx "TextMaker NX" textmaker Office
+    make_desktop_entry planmakernx "PlanMaker NX" planmaker Office
+    make_desktop_entry presentationsnx "Presentations NX" presentations Office
 
     # MIME-Definition
     insinto /usr/share/mime/packages
@@ -87,3 +98,4 @@ pkg_postrm() {
     xdg_desktop_database_update
     xdg_mimeinfo_database_update
 }
+
