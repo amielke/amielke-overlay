@@ -54,6 +54,16 @@ src_install() {
     doexe ${PAYLOAD}/presentations
 
 
+    # Desktop-Dateien neu erstellen (mit MimeType!)
+    make_desktop_entry textmaker "TextMaker NX" textmaker "Office" \
+        "MimeType=application/x-tmd;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/msword;"
+
+    make_desktop_entry planmaker "PlanMaker NX" planmaker "Office" \
+        "MimeType=application/x-pmd;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel;"
+
+    make_desktop_entry presentations "Presentations NX" presentations "Office" \
+        "MimeType=application/x-prd;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.ms-powerpoint;"
+
     # MIME
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
