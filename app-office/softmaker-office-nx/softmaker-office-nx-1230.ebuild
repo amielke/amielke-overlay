@@ -53,6 +53,15 @@ src_install() {
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
+
+    # MIME
+    insinto /usr/share/mime/packages
+    doins ${PAYLOAD}/mime/softmaker-office-nx.xml
+
+    insinto /usr/share/mime
+    doins ${PAYLOAD}/mime/softmaker-office-nx.mime
+    doins ${PAYLOAD}/mime/softmaker-office-nx.overrides
+
     # Wrapper in /usr/bin (manuell, ohne make_wrapper)
     exeinto /usr/bin
 
