@@ -1,4 +1,3 @@
-# Copyright 2024
 EAPI=8
 
 inherit xdg-utils desktop
@@ -43,17 +42,15 @@ src_unpack() {
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
-    # Install payload
     insinto "${install_dir}"
     doins -r ${PAYLOAD}/*
 
-    # Install main binaries
     exeinto "${install_dir}"
     doexe ${PAYLOAD}/textmaker
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-    # Wrapper scripts
+    # Wrapper
     exeinto /usr/bin
 
     cat > "${T}/textmakernx" <<EOF
@@ -74,17 +71,17 @@ exec ${install_dir}/presentations "\$@"
 EOF
     doexe "${T}/presentationsnx"
 
-    # Desktop entries (only once, with MimeType!)
-    make_desktop_entry textmakernx "TextMaker NX" textmaker "Office;WordProcessor;" \
+    # Desktop-Dateien – nur einmal, mit MimeType und %U
+    make_desktop_entry "textmakernx %U" "TextMaker NX" textmaker "Office;WordProcessor;" \
         "MimeType=application/x-tmd;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/msword;"
 
-    make_desktop_entry planmakernx "PlanMaker NX" planmaker "Office;Spreadsheet;" \
+    make_desktop_entry "planmakernx %U" "PlanMaker NX" planmaker "Office;Spreadsheet;" \
         "MimeType=application/x-pmd;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel;"
 
-    make_desktop_entry presentationsnx "Presentations NX" presentations "Office;Presentation;" \
+    make_desktop_entry "presentationsnx %U" "Presentations NX" presentations "Office;Presentation;" \
         "MimeType=application/x-prd;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.ms-powerpoint;"
 
-    # MIME definitions
+    # MIME-Definitionen für SoftMaker-eigene Typen
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
 
