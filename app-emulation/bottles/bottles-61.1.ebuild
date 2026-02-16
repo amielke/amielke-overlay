@@ -111,7 +111,7 @@ src_prepare() {
 	default
 
 	# Flatpak-Zwang entfernen (Bottles upstream blockiert sonst Start)
-	eapply "${FILESDIR}/remove-flatpak-check.patch"
+	# eapply "${FILESDIR}/remove-flatpak-check.patch"
 }
 
 src_configure() {
