@@ -1,3 +1,4 @@
+# Copyright 2024
 EAPI=8
 
 inherit xdg-utils desktop
@@ -36,22 +37,23 @@ src_unpack() {
     mkdir "${PAYLOAD}" || die
     cd "${PAYLOAD}" || die
 
-    # officenx.tar.lzma → via xz streamen
     xz -dc "${WORKDIR}/officenx.tar.lzma" | tar xf - || die
 }
 
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
+    # Install payload
     insinto "${install_dir}"
     doins -r ${PAYLOAD}/*
 
+    # Install main binaries
     exeinto "${install_dir}"
     doexe ${PAYLOAD}/textmaker
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-    # Wrapper in /usr/bin
+    # Wrapper scripts
     exeinto /usr/bin
 
     cat > "${T}/textmakernx" <<EOF
@@ -72,7 +74,7 @@ exec ${install_dir}/presentations "\$@"
 EOF
     doexe "${T}/presentationsnx"
 
-    # Desktop-Entries (nur EINMAL, mit MimeType und Wrapper-Exec)
+    # Desktop entries (only once, with MimeType!)
     make_desktop_entry textmakernx "TextMaker NX" textmaker "Office;WordProcessor;" \
         "MimeType=application/x-tmd;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/msword;"
 
@@ -82,14 +84,9 @@ EOF
     make_desktop_entry presentationsnx "Presentations NX" presentations "Office;Presentation;" \
         "MimeType=application/x-prd;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.ms-powerpoint;"
 
-    # MIME-Definitionen
+    # MIME definitions
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
-
-    # Falls du die .mime/.overrides wirklich brauchst, kannst du sie so lassen:
-    insinto /usr/share/mime
-    doins ${PAYLOAD}/mime/softmaker-office-nx.mime
-    doins ${PAYLOAD}/mime/softmaker-office-nx.overrides
 
     # Icons
     for size in 16 24 32 48 64 128 256 512 1024; do
