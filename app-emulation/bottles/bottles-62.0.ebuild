@@ -37,7 +37,7 @@ src_prepare() {
     default
 
     # Flatpak/Zwangssandbox entfernen
-    eapply "${FILESDIR}/bottles-no-flatpak.patch"
+    eapply "${FILESDIR}/remove-flatpak-checks.patch"
 }
 
 src_install() {
