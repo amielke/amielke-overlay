@@ -110,11 +110,13 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	# Flatpak-Zwang entfernen (Bottles upstream blockiert sonst Start)
-#	eapply "${FILESDIR}/remove-flatpak-build-check.patch"
-	# Flatpak-Build-Blocker in frontend/meson.build entfernen
+	# Build-Flatpak-Check im Meson entfernen
 	sed -i "/if not fs.is_file('\/' + '.flatpak-info')/,/endif/d" \
-        bottles/frontend/meson.build || die
+		bottles/frontend/meson.build || die
+
+	# Runtime-Sandbox-Blocker im Fenster entfernen
+	sed -i "/Be VERY explicit that non-sandboxed environments are unsupported/,/return/d" \
+		bottles/frontend/windows/window.py || die
 }
 
 src_configure() {
