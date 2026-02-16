@@ -43,36 +43,15 @@ src_unpack() {
 src_install() {
     local install_dir="/opt/softmaker-office-nx"
 
-    # Payload nach /opt installieren
-    insinto ${install_dir}
+    insinto "${install_dir}"
     doins -r ${PAYLOAD}/*
 
-    # Hauptbinaries ausführbar setzen
-    exeinto ${install_dir}
+    exeinto "${install_dir}"
     doexe ${PAYLOAD}/textmaker
     doexe ${PAYLOAD}/planmaker
     doexe ${PAYLOAD}/presentations
 
-
-    # Desktop-Dateien neu erstellen (mit MimeType!)
-    make_desktop_entry textmaker "TextMaker NX" textmaker "Office" \
-        "MimeType=application/x-tmd;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/msword;"
-
-    make_desktop_entry planmaker "PlanMaker NX" planmaker "Office" \
-        "MimeType=application/x-pmd;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel;"
-
-    make_desktop_entry presentations "Presentations NX" presentations "Office" \
-        "MimeType=application/x-prd;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.ms-powerpoint;"
-
-    # MIME
-    insinto /usr/share/mime/packages
-    doins ${PAYLOAD}/mime/softmaker-office-nx.xml
-
-    insinto /usr/share/mime
-    doins ${PAYLOAD}/mime/softmaker-office-nx.mime
-    doins ${PAYLOAD}/mime/softmaker-office-nx.overrides
-
-    # Wrapper in /usr/bin (manuell, ohne make_wrapper)
+    # Wrapper in /usr/bin
     exeinto /usr/bin
 
     cat > "${T}/textmakernx" <<EOF
@@ -93,16 +72,26 @@ exec ${install_dir}/presentations "\$@"
 EOF
     doexe "${T}/presentationsnx"
 
-    # Desktop-Entries selbst erstellen
-    make_desktop_entry textmakernx "TextMaker NX" textmaker Office
-    make_desktop_entry planmakernx "PlanMaker NX" planmaker Office
-    make_desktop_entry presentationsnx "Presentations NX" presentations Office
+    # Desktop-Entries (nur EINMAL, mit MimeType und Wrapper-Exec)
+    make_desktop_entry textmakernx "TextMaker NX" textmaker "Office;WordProcessor;" \
+        "MimeType=application/x-tmd;application/vnd.openxmlformats-officedocument.wordprocessingml.document;application/msword;"
 
-    # MIME-Definition
+    make_desktop_entry planmakernx "PlanMaker NX" planmaker "Office;Spreadsheet;" \
+        "MimeType=application/x-pmd;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;application/vnd.ms-excel;"
+
+    make_desktop_entry presentationsnx "Presentations NX" presentations "Office;Presentation;" \
+        "MimeType=application/x-prd;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.ms-powerpoint;"
+
+    # MIME-Definitionen
     insinto /usr/share/mime/packages
     doins ${PAYLOAD}/mime/softmaker-office-nx.xml
 
-    # Icons korrekt installieren (Name = Desktop Icon Referenz)
+    # Falls du die .mime/.overrides wirklich brauchst, kannst du sie so lassen:
+    insinto /usr/share/mime
+    doins ${PAYLOAD}/mime/softmaker-office-nx.mime
+    doins ${PAYLOAD}/mime/softmaker-office-nx.overrides
+
+    # Icons
     for size in 16 24 32 48 64 128 256 512 1024; do
         newicon -s ${size} ${PAYLOAD}/icons/tml_${size}.png textmaker.png
         newicon -s ${size} ${PAYLOAD}/icons/pml_${size}.png planmaker.png
