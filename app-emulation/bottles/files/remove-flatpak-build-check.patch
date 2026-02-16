@@ -1,0 +1,15 @@
+--- a/bottles/frontend/meson.build
++++ b/bottles/frontend/meson.build
+@@ -20,11 +20,6 @@
+ 
+ fs = import('fs')
+ 
+-if not fs.is_file('/' + '.flatpak-info')
+-  error('file does not exist')
+-endif
+-
+-
+ bottles_sources = [
+   '__init__.py',
+   'main.py',
+

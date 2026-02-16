@@ -111,7 +111,10 @@ src_prepare() {
 	default
 
 	# Flatpak-Zwang entfernen (Bottles upstream blockiert sonst Start)
-	# eapply "${FILESDIR}/remove-flatpak-check.patch"
+#	eapply "${FILESDIR}/remove-flatpak-build-check.patch"
+	# Flatpak-Build-Blocker in frontend/meson.build entfernen
+	sed -i "/if not fs.is_file('\/' + '.flatpak-info')/,/endif/d" \
+        bottles/frontend/meson.build || die
 }
 
 src_configure() {
