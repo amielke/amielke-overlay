@@ -27,7 +27,6 @@ RDEPEND="
     dev-python/pycairo
     gnome-base/librsvg
     x11-libs/gtk+:3
-    app-emulation/wine
 "
 
 DEPEND="${RDEPEND}"
