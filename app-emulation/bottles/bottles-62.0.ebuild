@@ -39,12 +39,9 @@ RDEPEND="
     media-gfx/imagemagick
     >=sys-libs/glibc-2.32
     x11-apps/xdpyinfo
-    || (
-        app-emulation/wine-vanilla[X]
-        app-emulation/wine-staging[X]
-        app-emulation/wine-proton[X(+)]
-    )
+    app-forensics/yara
     $(python_gen_cond_dep '
+        dev-python/yara-python[${PYTHON_USEDEP}]
         app-arch/patool[${PYTHON_USEDEP}]
         dev-python/certifi[${PYTHON_USEDEP}]
         dev-python/chardet[${PYTHON_USEDEP}]
@@ -65,6 +62,11 @@ RDEPEND="
         dev-python/vkbasalt-cli[${PYTHON_USEDEP}]
         dev-python/wheel[${PYTHON_USEDEP}]
     ')
+    || (
+        app-emulation/wine-vanilla[X]
+        app-emulation/wine-staging[X]
+        app-emulation/wine-proton[X(+)]
+    )
 "
 
 BDEPEND="
@@ -140,4 +142,3 @@ pkg_postinst() {
         ewarn "https://gitlab.com/src_prepare/src_prepare-overlay/-/merge_requests/394"
     fi
 }
-
