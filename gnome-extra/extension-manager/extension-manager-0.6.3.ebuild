@@ -18,6 +18,8 @@ HOMEPAGE="https://mattjakeman.com/apps/extension-manager"
 
 LICENSE="GPL-3+"
 SLOT="0"
+KEYWORDS="~amd64"
+
 
 BDEPEND="
 	dev-libs/glib:2

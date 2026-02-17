@@ -20,6 +20,8 @@ fi
 LICENSE="GPL-3"
 RESTRICT="mirror"
 SLOT="0"
+KEYWORDS="~amd64"
+
 
 DEPEND="dev-python/dbus-python
 	dev-python/gTTS
