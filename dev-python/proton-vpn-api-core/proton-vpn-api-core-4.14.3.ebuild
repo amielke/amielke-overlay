@@ -31,7 +31,6 @@ RDEPEND="
 	dev-python/pynacl[${PYTHON_USEDEP}]
 "
 
-PATCHES=( "${DISTDIR}/${P}-remove-anonymous-bug-report.patch" )
 
 distutils_enable_sphinx docs
 distutils_enable_tests pytest
