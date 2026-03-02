@@ -8,6 +8,7 @@ DISTUTILS_USE_PEP517=setuptools
 
 PYTHON_COMPAT=( python3_{11..14} )
 
+
 inherit desktop distutils-r1
 
 DESCRIPTION="Proton VPN GTK app"
