@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..14} )
 
-inherit gnome2-utils python-single-r1 meson xdg optfeature
+inherit gnome2-utils python-r1 meson xdg optfeature
 
 DESCRIPTION="Run Windows software and games on Linux"
 HOMEPAGE="https://usebottles.com/"
