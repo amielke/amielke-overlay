@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -20,17 +20,16 @@ fi
 LICENSE="GPL-3"
 RESTRICT="mirror"
 SLOT="0"
-KEYWORDS="~amd64"
 
-
-DEPEND="dev-python/dbus-python
+DEPEND="app-crypt/libsecret
+	app-text/libspelling
+	dev-python/beautifulsoup4
 	dev-python/gTTS
-	dev-python/httpx
-	dev-python/pygobject
-	dev-util/blueprint-compiler
-	gui-libs/libhandy
+	>=dev-python/pygobject-3.51.0
+	gui-libs/gtk
+	gui-libs/libadwaita
 	media-libs/gstreamer
-	x11-libs/gtk+:3"
+	net-libs/libsoup"
 
 src_prepare() {
 	eapply_user
