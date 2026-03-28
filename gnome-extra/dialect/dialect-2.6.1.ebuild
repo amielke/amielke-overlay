@@ -25,7 +25,7 @@ DEPEND="app-crypt/libsecret
 	app-text/libspelling
 	dev-python/beautifulsoup4
 	dev-python/gTTS
-	>=dev-python/pygobject-3.51.0
+	>=dev-python/pygobject-3.50.0
 	gui-libs/gtk
 	gui-libs/libadwaita
 	media-libs/gstreamer
