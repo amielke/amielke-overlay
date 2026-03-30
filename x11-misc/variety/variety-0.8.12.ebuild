@@ -28,7 +28,6 @@ RDEPEND="
     x11-libs/gtk+:3
     x11-misc/xdg-utils
     media-gfx/imagemagick
-    x11-apps/feh
     x11-libs/libnotify
 "
 
