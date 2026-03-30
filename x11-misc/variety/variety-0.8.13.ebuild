@@ -43,11 +43,11 @@ RDEPEND+="
 
 #S=${WORKDIR}/${PN}
 
-PATCHES=(
-	"${FILESDIR}"/01_all_variety-0.4.20_436-437.patch
-	"${FILESDIR}"/02_all_variety-0.4.20_tests-fixes.patch
-	"${FILESDIR}"/03_all_variety-0.4.20_desktop_QA_issues.patch
-)
+#PATCHES=(
+#	"${FILESDIR}"/01_all_variety-0.4.20_436-437.patch
+#	"${FILESDIR}"/02_all_variety-0.4.20_tests-fixes.patch
+#	"${FILESDIR}"/03_all_variety-0.4.20_desktop_QA_issues.patch
+#)
 
 python_prepare_all() {
 	# fix incorrect behavior when LINGUAS is set to an empty string
