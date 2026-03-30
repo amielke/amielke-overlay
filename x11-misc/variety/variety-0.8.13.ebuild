@@ -51,6 +51,11 @@ python_prepare_all() {
     echo "__variety_data_directory__ = '/usr/share/variety'" \
         > variety_lib/variety_build_settings.py || die
 
+    # Upstream installiert Dokumentation an falschen Ort – entfernen
+	rm -f README.md CONTRIBUTING.md AUTHORS || die
+	rm -f data/ui/changes.txt || die
+
+
     distutils-r1_python_prepare_all
 }
 
