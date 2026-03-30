@@ -43,11 +43,11 @@ RDEPEND+="
 
 #S=${WORKDIR}/${PN}
 
-#PATCHES=(
-#	"${FILESDIR}"/01_all_variety-0.4.20_436-437.patch
+PATCHES=(
+	"${FILESDIR}"/01_all_variety-0.4.20_436-437.patch
 #	"${FILESDIR}"/02_all_variety-0.4.20_tests-fixes.patch
 #	"${FILESDIR}"/03_all_variety-0.4.20_desktop_QA_issues.patch
-#)
+)
 
 src_install() {
     distutils-r1_src_install
