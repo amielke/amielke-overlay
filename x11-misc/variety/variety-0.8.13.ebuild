@@ -36,7 +36,7 @@ RDEPEND+="
 	x11-libs/gdk-pixbuf:2[introspection]
 	dev-python/lxml[${PYTHON_USEDEP}]
 	dev-python/beautifulsoup4[${PYTHON_USEDEP}]
-	net-libs/webkit-gtk:3[introspection]
+	net-libs/webkit-gtk:4[introspection]
 	media-gfx/imagemagick
 	dev-python/httplib2[${PYTHON_USEDEP}]
 "
