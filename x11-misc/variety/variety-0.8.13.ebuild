@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{11..13} )
 DISTUTILS_USE_PEP517=setuptools
-inherit distutils-r1
+inherit distutils-r1 xdg
 
 DESCRIPTION="Wallpaper changer for Linux"
 HOMEPAGE="https://github.com/varietywalls/variety"
@@ -18,12 +18,12 @@ KEYWORDS="~amd64 ~x86"
 IUSE_LINGUAS="bg de es fr ja pl ru uk zh_CN"
 IUSE="test $(printf 'linguas_%s ' ${IUSE_LINGUAS})"
 
-DEPEND+="
+DEPEND="
     >=dev-python/python-distutils-extra-2.18[${PYTHON_USEDEP}]
     test? ( dev-python/pylint[${PYTHON_USEDEP}] )
 "
 
-RDEPEND+="
+RDEPEND="
     x11-libs/libnotify[introspection]
     dev-python/configobj[${PYTHON_USEDEP}]
     media-gfx/exiv2[xmp]
@@ -42,12 +42,12 @@ RDEPEND+="
 "
 
 python_prepare_all() {
-    # Wenn LINGUAS leer ist, mag python-distutils-extra das nicht
+    # Fix für python-distutils-extra: LINGUAS darf nicht leer sein
     if [[ -z ${LINGUAS} ]]; then
         LINGUAS='none'
     fi
 
-    # Variety erwartet diese Datei, PEP517/distutils-r1 erzeugt sie nicht
+    # Variety erwartet diese Datei – distutils-r1 erzeugt sie nicht
     echo "__variety_data_directory__ = '/usr/share/variety'" \
         > variety_lib/variety_build_settings.py || die
 
@@ -55,7 +55,6 @@ python_prepare_all() {
 }
 
 python_test() {
-    # Tests müssen im Source-Tree laufen
     cd tests || die
     PYTHONPATH="${S}:${PYTHONPATH}" \
         "${PYTHON}" -m unittest discover -p '[tT]est*.py' \
@@ -65,13 +64,13 @@ python_test() {
 src_install() {
     distutils-r1_src_install
 
-    # Datenstruktur so installieren, wie Variety sie erwartet
+    # Installiere die Variety-Datenstruktur
     insinto /usr/share/variety
     doins -r data/config data/ui data/media data/scripts || die
 
     # Desktop-Templates
     doins data/variety-autostart.desktop.template \
-        data/variety-profile.desktop.template || die
+          data/variety-profile.desktop.template || die
 }
 
 pkg_postinst() {
@@ -79,4 +78,12 @@ pkg_postinst() {
         elog "Variety hat eine optionale Abhängigkeit zu dev-libs/libappindicator:3[introspection]."
         elog "Ohne diese wird ein klassisches Status-Icon verwendet."
     fi
+
+    xdg_desktop_database_update
+    xdg_icon_cache_update
+}
+
+pkg_postrm() {
+    xdg_desktop_database_update
+    xdg_icon_cache_update
 }
