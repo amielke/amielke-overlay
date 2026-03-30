@@ -26,7 +26,6 @@ DEPEND+="
 RDEPEND+="
 	x11-libs/libnotify[introspection]
 	dev-python/configobj[${PYTHON_USEDEP}]
-	dev-python/pyexiv2[${PYTHON_USEDEP}]
 	media-gfx/exiv2[xmp]
 	dev-python/pycurl[${PYTHON_USEDEP}]
 	x11-libs/gtk+:3[introspection]
