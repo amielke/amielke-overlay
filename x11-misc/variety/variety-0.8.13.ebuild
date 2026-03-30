@@ -68,6 +68,10 @@ python_prepare_all() {
 		LINGUAS='none'
 	fi
 
+	# Variety erwartet diese Datei, distutils-r1 erzeugt sie aber nicht
+	echo "__variety_data_directory__ = '/usr/share/variety'" \
+        > variety_lib/variety_build_settings.py
+
 	distutils-r1_python_prepare_all
 }
 
