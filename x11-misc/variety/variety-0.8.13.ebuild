@@ -49,6 +49,26 @@ RDEPEND+="
 #	"${FILESDIR}"/03_all_variety-0.4.20_desktop_QA_issues.patch
 #)
 
+src_install() {
+	distutils-r1_src_install
+
+# Install data files (wichtig!)
+	insinto /usr/share/variety
+	doins -r data/*
+
+# Icons / UI assets
+	if [[ -d "${S}/icons" ]]; then
+		insinto /usr/share/variety/icons
+		doins -r icons/*
+	fi
+
+# Desktop + autostart
+	if [[ -d "${S}/data" ]]; then
+		doins -r data/*
+	fi
+}
+
+
 python_prepare_all() {
 	# fix incorrect behavior when LINGUAS is set to an empty string
 	# https://bugs.launchpad.net/python-distutils-extra/+bug/1133594
