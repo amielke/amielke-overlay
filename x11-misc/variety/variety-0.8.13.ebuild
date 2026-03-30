@@ -57,8 +57,6 @@ src_install() {
     insinto /usr/share/variety
     doins -r data/config data/ui data/media data/scripts
 
-    insinto /usr/share/variety/icons
-    doins -r icons/*
 }
 
 
