@@ -50,22 +50,14 @@ RDEPEND+="
 #)
 
 src_install() {
-	distutils-r1_src_install
+    distutils-r1_src_install
 
-# Install data files (wichtig!)
-	insinto /usr/share/variety
-	doins -r data/*
+    # Installiere die Daten exakt wie Variety sie erwartet
+    insinto /usr/share/variety
+    doins -r data/config data/ui data/media data/scripts
 
-# Icons / UI assets
-	if [[ -d "${S}/icons" ]]; then
-		insinto /usr/share/variety/icons
-		doins -r icons/*
-	fi
-
-# Desktop + autostart
-	if [[ -d "${S}/data" ]]; then
-		doins -r data/*
-	fi
+    insinto /usr/share/variety/icons
+    doins -r icons/*
 }
 
 
