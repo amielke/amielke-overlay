@@ -41,7 +41,7 @@ RDEPEND+="
 	dev-python/httplib2[${PYTHON_USEDEP}]
 "
 
-S=${WORKDIR}/${PN}
+#S=${WORKDIR}/${PN}
 
 PATCHES=(
 	"${FILESDIR}"/01_all_variety-0.4.20_436-437.patch
