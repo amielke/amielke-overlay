@@ -41,11 +41,11 @@ RDEPEND="
 "
 
 python_prepare_all() {
-	# Entferne Upstream-Dokumente, die sonst falsch unter /usr/share/doc landen
+	# Remove upstream documentation to avoid incorrect installation paths
 	rm -f README.md CONTRIBUTING.md AUTHORS || die
 	rm -f data/ui/changes.txt || die
 
-	# Variety benötigt diese Datei, distutils-r1 erzeugt sie nicht
+	# Variety requires this file; distutils-r1 does not generate it
 	echo "__variety_data_directory__ = '/usr/share/variety'" \
         > variety_lib/variety_build_settings.py || die
 
@@ -62,20 +62,20 @@ python_test() {
 src_install() {
 	distutils-r1_src_install
 
-	#Installiere die Variety-Datenstruktur
+	# Install Variety data directory
 	insinto /usr/share/variety
 	doins -r data/config data/ui data/media data/scripts || die
 
-	# Desktop-Templates
+	# Install desktop templates
 	doins data/variety-autostart.desktop.template \
 		data/variety-profile.desktop.template || die
 }
 
 pkg_postinst() {
 	if [[ -z ${REPLACING_VERSIONS} ]] && ! has_version dev-libs/libappindicator:3[introspection]; then
-		elog "Variety has an optional dependency on dev-libs/libappindicator:3[introspection]."
-		elog "Without it, a classic tray icon will be used."
-	fi
+        elog "Variety has an optional dependency on dev-libs/libappindicator:3[introspection]."
+        elog "Without it, a classic tray icon will be used."
+    fi
 
 	xdg_desktop_database_update
 	xdg_icon_cache_update
@@ -85,4 +85,3 @@ pkg_postrm() {
 	xdg_desktop_database_update
 	xdg_icon_cache_update
 }
-
