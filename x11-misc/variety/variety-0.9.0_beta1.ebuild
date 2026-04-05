@@ -1,4 +1,4 @@
-		# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -62,6 +62,16 @@ python_prepare_all() {
 	cat > variety_lib/variety_build_settings.py <<-EOF || die
 __variety_data_directory__ = '/usr/share/variety'
 EOF
+
+	# Avoid setuptools QA/package discovery warnings for packaged data dirs
+	sed -i \
+		-e 's/include_package_data=True,//' \
+		setup.py || die
+
+	# Silence deprecated PEP621 license table warning
+	sed -i \
+		-e 's/license = { text = "GPL-3.0-only" }/license = "GPL-3.0-only"/' \
+		pyproject.toml || die
 
 	distutils-r1_python_prepare_all
 }
