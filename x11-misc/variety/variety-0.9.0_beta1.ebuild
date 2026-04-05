@@ -45,6 +45,8 @@ RDEPEND="
 	net-libs/webkit-gtk[introspection]
 	media-gfx/imagemagick
 	dev-python/httplib2[${PYTHON_USEDEP}]
+	dev-python/requests[${PYTHON_USEDEP}]
+	dev-python/packaging[${PYTHON_USEDEP}]
 "
 
 BDEPEND="
@@ -64,9 +66,9 @@ __variety_data_directory__ = '/usr/share/variety'
 EOF
 
 	# Replace package auto-discovery with an explicit package list to silence
-	# setuptools package-discovery QA warnings for variety.data*
+	# setuptools package-discovery QA warnings while still installing jumble.
 	sed -i \
-		-e "s/packages=find_packages(exclude=\['tests'\]),/packages=['variety','variety_lib','variety.data','variety.data.config','variety.data.icons','variety.data.icons.scalable','variety.data.icons.scalable.apps','variety.data.media','variety.data.scripts','variety.data.ui'],/" \
+		-e "s/packages=find_packages(exclude=\['tests'\]),/packages=['jumble','variety','variety_lib','variety.data','variety.data.config','variety.data.icons','variety.data.icons.scalable','variety.data.icons.scalable.apps','variety.data.media','variety.data.scripts','variety.data.ui'],/" \
 		setup.py || die
 
 	# Silence deprecated PEP621 license table warning
