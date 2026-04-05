@@ -63,9 +63,10 @@ python_prepare_all() {
 __variety_data_directory__ = '/usr/share/variety'
 EOF
 
-	# Avoid setuptools QA/package discovery warnings for packaged data dirs
+	# Replace package auto-discovery with an explicit package list to silence
+	# setuptools package-discovery QA warnings for variety.data*
 	sed -i \
-		-e 's/include_package_data=True,//' \
+		-e "s/packages=find_packages(exclude=\['tests'\]),/packages=['variety','variety_lib','variety.data','variety.data.config','variety.data.icons','variety.data.icons.scalable','variety.data.icons.scalable.apps','variety.data.media','variety.data.scripts','variety.data.ui'],/" \
 		setup.py || die
 
 	# Silence deprecated PEP621 license table warning
