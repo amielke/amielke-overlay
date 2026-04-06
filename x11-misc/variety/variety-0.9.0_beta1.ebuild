@@ -66,13 +66,6 @@ python_prepare_all() {
 __variety_data_directory__ = '/usr/share/variety'
 EOF
 
-	# Do not install data/locale into site-packages via setuptools.
-	# We install data into /usr/share/variety and locales into /usr/share/locale ourselves.
-	sed -i \
-		-e "s/package_data={[[:space:]]*'variety': \['data\\/\\*\\*', 'locale\\/\\*\\*'\],[[:space:]]*}/package_data={}/" \
-		-e 's/include_package_data=True,//' \
-		setup.py || die
-
 	# Silence deprecated PEP621 license table warning
 	sed -i \
 		-e 's/license = { text = "GPL-3.0-only" }/license = "GPL-3.0-only"/' \
@@ -138,6 +131,20 @@ src_install() {
 		msgfmt "${po}" -o "${ED}/usr/share/locale/${lang}/LC_MESSAGES/variety.mo" \
 			|| die "msgfmt failed for ${po}"
 	done
+
+	# Install application icon
+	insinto /usr/share/icons/hicolor/scalable/apps
+	newins data/icons/scalable/apps/variety.svg variety.svg || die
+
+	# Install real desktop entry from upstream template
+	sed \
+		-e 's/^_Name=/Name=/' \
+		-e 's/^_Comment=/Comment=/' \
+		-e 's/^_Name=/Name=/' \
+		variety.desktop.in > "${T}/variety.desktop" || die
+
+	insinto /usr/share/applications
+	doins "${T}/variety.desktop" || die
 }
 
 pkg_postinst() {
