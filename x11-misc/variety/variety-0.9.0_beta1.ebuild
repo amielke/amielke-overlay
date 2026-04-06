@@ -79,7 +79,7 @@ EOF
 		pyproject.toml || die
 
 	# Make runtime data lookup use /usr/share/variety instead of package resources
-	cat > variety_lib/varietyconfig.py <<-'EOF' || die
+	cat > variety_lib/varietyconfig.py <<'EOF' || die
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
 # Copyright (c) 2012, Peter Levi
@@ -95,12 +95,14 @@ __version__ = "0.9.0b1"
 
 import os
 
+
 def get_data_file(*path_segments):
-	"""Get the full path to a data file."""
-	return os.path.join('/usr/share/variety', *path_segments)
+    """Get the full path to a data file."""
+    return os.path.join('/usr/share/variety', *path_segments)
+
 
 def get_version():
-	return __version__
+    return __version__
 EOF
 
 	distutils-r1_python_prepare_all
@@ -132,10 +134,9 @@ src_install() {
 		lang=${po##*/}
 		lang=${lang%.po}
 
-		insinto /usr/share/locale/${lang}/LC_MESSAGES
-		newins /dev/null variety.mo || die
-		rm -f "${ED}/usr/share/locale/${lang}/LC_MESSAGES/variety.mo" || die
-		msgfmt "${po}" -o "${ED}/usr/share/locale/${lang}/LC_MESSAGES/variety.mo" || die "msgfmt failed for ${po}"
+		dodir /usr/share/locale/${lang}/LC_MESSAGES || die
+		msgfmt "${po}" -o "${ED}/usr/share/locale/${lang}/LC_MESSAGES/variety.mo" \
+			|| die "msgfmt failed for ${po}"
 	done
 }
 
