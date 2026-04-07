@@ -66,7 +66,8 @@ python_prepare_all() {
 __variety_data_directory__ = '/usr/share/variety'
 EOF
 
-	# Patch setup.py so setuptools does not package variety/data
+	# Patch setup.py robustly so setuptools does not try to package
+	# variety/data and trigger namespace/package QA warnings.
 	python3 - <<'PY' || die
 from pathlib import Path
 p = Path("setup.py")
@@ -99,7 +100,7 @@ text = text.replace(
 p.write_text(text)
 PY
 
-	# Make runtime data lookup use /usr/share/variety
+	# Make runtime data lookup use /usr/share/variety instead of package resources
 	cat > variety_lib/varietyconfig.py <<'EOF' || die
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
@@ -160,20 +161,9 @@ src_install() {
 			|| die "msgfmt failed for ${po}"
 	done
 
-	# Install application icons
+	# Install application icon
 	insinto /usr/share/icons/hicolor/scalable/apps
 	newins data/icons/scalable/apps/variety.svg variety.svg || die
-
-	# Install tray/status icons into icon theme so AppIndicator/Gtk can find them
-	insinto /usr/share/icons/hicolor/22x22/apps
-	newins data/icons/22x22/apps/variety-indicator.png variety-indicator.png || die
-	newins data/icons/22x22/apps/variety-indicator-dark.png variety-indicator-dark.png || die
-
-	insinto /usr/share/icons/hicolor/48x48/apps
-	newins data/media/variety-indicator-num1.png variety-indicator-num1.png || die
-	newins data/media/variety-indicator-num2.png variety-indicator-num2.png || die
-	newins data/media/variety-indicator-num3.png variety-indicator-num3.png || die
-	newins data/media/variety-indicator-num4.png variety-indicator-num4.png || die
 
 	# Install real desktop entry from upstream template
 	sed \
