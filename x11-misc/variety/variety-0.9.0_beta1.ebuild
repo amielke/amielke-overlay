@@ -66,39 +66,10 @@ python_prepare_all() {
 __variety_data_directory__ = '/usr/share/variety'
 EOF
 
-	# Patch setup.py robustly so setuptools does not try to package
-	# variety/data and trigger namespace/package QA warnings.
-	python3 - <<'PY' || die
-from pathlib import Path
-p = Path("setup.py")
-text = p.read_text()
-
-replacements = {
-    "package_data={'variety': ['data/**', 'locale/**']},":
-        "package_data={},",
-    'package_data={"variety": ["data/**", "locale/**"]},':
-        'package_data={},',
-    "include_package_data=True,":
-        "include_package_data=False,",
-}
-
-for old, new in replacements.items():
-    text = text.replace(old, new)
-
-p.write_text(text)
-PY
-
 	# Silence deprecated PEP621 license table warning
-	python3 - <<'PY' || die
-from pathlib import Path
-p = Path("pyproject.toml")
-text = p.read_text()
-text = text.replace(
-    'license = { text = "GPL-3.0-only" }',
-    'license = "GPL-3.0-only"'
-)
-p.write_text(text)
-PY
+	sed -i \
+		-e 's/license = { text = "GPL-3.0-only" }/license = "GPL-3.0-only"/' \
+		pyproject.toml || die
 
 	# Make runtime data lookup use /usr/share/variety instead of package resources
 	cat > variety_lib/varietyconfig.py <<'EOF' || die
@@ -169,6 +140,7 @@ src_install() {
 	sed \
 		-e 's/^_Name=/Name=/' \
 		-e 's/^_Comment=/Comment=/' \
+		-e 's/^_Name=/Name=/' \
 		variety.desktop.in > "${T}/variety.desktop" || die
 
 	insinto /usr/share/applications
