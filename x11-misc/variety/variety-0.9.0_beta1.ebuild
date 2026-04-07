@@ -50,7 +50,6 @@ RDEPEND="
 "
 
 BDEPEND="
-	sys-devel/gettext
 	test? (
 		dev-python/pylint[${PYTHON_USEDEP}]
 	)
@@ -66,37 +65,17 @@ python_prepare_all() {
 __variety_data_directory__ = '/usr/share/variety'
 EOF
 
+	# Keep automatic package discovery for real Python packages like
+	# jumble and variety.plugins, but exclude variety.data* to avoid
+	# setuptools QA warnings about absent package configuration.
+	sed -i \
+		-e "s/find_packages(exclude=\['tests'\])/find_packages(exclude=['tests', 'variety.data', 'variety.data.*'])/" \
+		setup.py || die
+
 	# Silence deprecated PEP621 license table warning
 	sed -i \
 		-e 's/license = { text = "GPL-3.0-only" }/license = "GPL-3.0-only"/' \
 		pyproject.toml || die
-
-	# Make runtime data lookup use /usr/share/variety instead of package resources
-	cat > variety_lib/varietyconfig.py <<'EOF' || die
-# -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
-### BEGIN LICENSE
-# Copyright (c) 2012, Peter Levi
-# Copyright (c) 2025, James Lu
-# This program is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License version 3, as published
-# by the Free Software Foundation.
-### END LICENSE
-
-__all__ = ["get_data_file"]
-__license__ = "GPL-3"
-__version__ = "0.9.0b1"
-
-import os
-
-
-def get_data_file(*path_segments):
-    """Get the full path to a data file."""
-    return os.path.join('/usr/share/variety', *path_segments)
-
-
-def get_version():
-    return __version__
-EOF
 
 	distutils-r1_python_prepare_all
 }
@@ -111,7 +90,7 @@ python_test() {
 src_install() {
 	distutils-r1_src_install
 
-	# Install Variety shared data directory
+	# Install Variety data directory
 	insinto /usr/share/variety
 	doins -r data/config data/ui data/media data/scripts || die
 
@@ -119,32 +98,6 @@ src_install() {
 	doins \
 		data/variety-autostart.desktop.template \
 		data/variety-profile.desktop.template || die
-
-	# Compile and install translations from po/*.po
-	local po lang
-	for po in po/*.po; do
-		[[ -f ${po} ]] || continue
-		lang=${po##*/}
-		lang=${lang%.po}
-
-		dodir /usr/share/locale/${lang}/LC_MESSAGES || die
-		msgfmt "${po}" -o "${ED}/usr/share/locale/${lang}/LC_MESSAGES/variety.mo" \
-			|| die "msgfmt failed for ${po}"
-	done
-
-	# Install application icon
-	insinto /usr/share/icons/hicolor/scalable/apps
-	newins data/icons/scalable/apps/variety.svg variety.svg || die
-
-	# Install real desktop entry from upstream template
-	sed \
-		-e 's/^_Name=/Name=/' \
-		-e 's/^_Comment=/Comment=/' \
-		-e 's/^_Name=/Name=/' \
-		variety.desktop.in > "${T}/variety.desktop" || die
-
-	insinto /usr/share/applications
-	doins "${T}/variety.desktop" || die
 }
 
 pkg_postinst() {
