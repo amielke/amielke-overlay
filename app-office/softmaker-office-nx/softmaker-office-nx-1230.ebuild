@@ -9,7 +9,7 @@ SRC_URI="https://www.softmaker.net/down/softmaker-office-nx-${PV//\./-}-amd64.tg
 LICENSE="SoftMakerOffice"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="strip mirror"
+RESTRICT="strip mirror bindist"
 
 RDEPEND="
     net-misc/curl
@@ -104,12 +104,14 @@ pkg_postinst() {
     xdg_desktop_database_update
     xdg_mimeinfo_database_update
 
-    elog "SoftMaker Office NX has been installed."
-    elog "To set SoftMaker applications as your default handlers, you may run:"
-    elog "  xdg-mime default softmaker-office-nx-textmakernx.desktop application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    elog "  xdg-mime default softmaker-office-nx-planmakernx.desktop application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    elog "  xdg-mime default softmaker-office-nx-presentationsnx.desktop application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    elog "You may also set defaults for ODT/ODS/ODP and other formats if desired."
+	elog "To make SoftMaker Office NX the default application for DOCX files, run:"
+	elog "  xdg-mime default textmakernx-softmaker-office-nx.desktop application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+	elog "To make SoftMaker Office NX the default application for XLSX files, run:"
+	elog "  xdg-mime default planmakernx-softmaker-office-nx.desktop application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+	elog "To make SoftMaker Office NX the default application for PPTX files, run:"
+	elog "  xdg-mime default presentationsnx-softmaker-office-nx.desktop application/vnd.openxmlformats-officedocument.presentationml.presentation"
 }
 
 pkg_postrm() {
