@@ -32,21 +32,23 @@ RDEPEND="
 	>=dev-python/zstandard-0.19.0[${PYTHON_USEDEP}]
 "
 
+PATCHES=(
+	"${FILESDIR}/ProtonUp-Qt-2.13.0-add-entrypoint.patch"
+)
+
 distutils_enable_tests pytest
+
+src_prepare() {
+	sed -i '/^Exec=/c\Exec=ProtonUp-Qt' share/applications/net.davidotek.pupgui2.desktop || die
+	distutils-r1_src_prepare
+}
 
 src_install() {
 	distutils-r1_src_install
-
-	make_desktop_entry \
-		protonup-qt \
-		"ProtonUp-Qt" \
-		net.davidotek.pupgui2 \
-		"Game;Utility;"
+	domenu share/applications/net.davidotek.pupgui2.desktop
 
 	for size in 64 128 256; do
-		newicon -s ${size} \
-			share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png \
-			net.davidotek.pupgui2.png
+		doicon -s ${size} share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png
 	done
 }
 
