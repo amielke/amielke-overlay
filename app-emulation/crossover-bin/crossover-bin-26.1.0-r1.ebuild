@@ -92,15 +92,15 @@ RDEPEND="${DEPEND}
 "
 
 src_unpack() {
-	# self-unpacking zip archive; unzip warns about the exe payload
+	# Self-unpacking zip archive; unzip warns about the embedded executable payload.
 	unpack_zip ${A}
 }
 
 src_prepare() {
 	default
 
-	# Remove unnecessary files; license.txt is kept because it is used by
-	# multiple files, including the menu entry showing the license.
+	# Remove unnecessary files; license.txt is kept because it is referenced
+	# by multiple installed files, including menu integration.
 	if [[ -d guis ]]; then
 		rm -r guis || die "Could not remove guis/"
 	fi
@@ -120,7 +120,7 @@ src_install() {
 	dodoc README changelog.txt
 	rm -f README changelog.txt || die "Could not remove bundled docs"
 
-	# Install files
+	# Install payload
 	dodir /opt/cxoffice
 	cp -a "${S}"/. "${ED}/opt/cxoffice/" || die "Could not install into ${ED}/opt/cxoffice"
 
@@ -134,16 +134,15 @@ src_install() {
 	dodir /etc/env.d
 	echo "CONFIG_PROTECT=/opt/cxoffice/etc/cxoffice.conf" >> "${ED}"/etc/env.d/30crossover-bin || die
 
-	# Konqueror in its infinite wisdom decides to try opening things for
-	# writing, which are sandbox violations. This breaks the install process if
-	# it is installed, so force the check to false temporarily.
+	# Konqueror may try to open files for writing, which causes sandbox
+	# violations. Force the check to false temporarily.
 	sed -i -e 's/cxwhich konqueror/false &/' \
 		"${ED}/opt/cxoffice/bin/locate_gui.sh" || die "Could not apply workaround for konqueror"
 
 	# Install menus
 	# XXX: locate_gui.sh automatically detects *-application-merged directories.
-	# This means what we install will vary depending on the contents of
-	# /etc/xdg, which is a QA violation. It is not clear how to resolve this.
+	# This means the installed result can vary with /etc/xdg contents, which is
+	# a QA violation. It is not clear how to resolve this cleanly.
 	XDG_DATA_HOME="/usr/share" XDG_CONFIG_HOME="/etc/xdg" \
 		"${ED}/opt/cxoffice/bin/cxmenu" --destdir="${ED}" --crossover --install \
 		|| die "Could not install menus"
@@ -152,8 +151,11 @@ src_install() {
 	sed -i -e 's/false \(cxwhich konqueror\)/\1/' \
 		"${ED}/opt/cxoffice/bin/locate_gui.sh" || die "Could not revert workaround for konqueror"
 
-	# Drop uninstall menus
-	rm "${ED}/usr/share/applications/"*"Uninstall"* || die "Could not remove uninstall menus"
+	# Drop uninstall menus if they were generated
+	local uninstall_desktop=( "${ED}"/usr/share/applications/*Uninstall* )
+	if [[ -e ${uninstall_desktop[0]} ]]; then
+		rm -f "${uninstall_desktop[@]}" || die "Could not remove uninstall menus"
+	fi
 
 	# Fix paths
 	sed -i \
@@ -162,9 +164,11 @@ src_install() {
 		"${ED}/opt/cxoffice/lib/perl/CXMenuXDG.pm" \
 		|| die "Could not fix paths in ${ED}/opt/cxoffice/lib/perl/CXMenuXDG.pm"
 
-	sed -i -e "s:${ED}::" \
-		"${ED}/usr/share/applications/"*"CrossOver.desktop" \
-		|| die "Could not fix paths of desktop files"
+	local crossover_desktop=( "${ED}"/usr/share/applications/*CrossOver.desktop )
+	if [[ -e ${crossover_desktop[0]} ]]; then
+		sed -i -e "s:${ED}::" "${crossover_desktop[@]}" \
+			|| die "Could not fix paths of desktop files"
+	fi
 
 	# Remove libs that link to opencl
 	if ! use opencl; then
