@@ -16,6 +16,8 @@ SRC_URI="
 		-> ${P}.tar.gz
 "
 
+S="${WORKDIR}/ProtonUp-Qt-${PV}"
+
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
@@ -31,9 +33,8 @@ RDEPEND="
 "
 
 PATCHES=(
-    "${FILESDIR}/${PN}-2.13.0-add-entrypoint.patch"
+	"${FILESDIR}/${PN}-2.13.0-add-entrypoint.patch"
 )
-
 
 distutils_enable_tests pytest
 
