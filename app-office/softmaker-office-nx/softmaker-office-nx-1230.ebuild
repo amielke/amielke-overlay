@@ -45,10 +45,10 @@ src_install() {
     insinto "${install_dir}"
     doins -r ${PAYLOAD}/*
 
-    exeinto "${install_dir}"
-    doexe ${PAYLOAD}/textmaker
-    doexe ${PAYLOAD}/planmaker
-    doexe ${PAYLOAD}/presentations
+#    exeinto "${install_dir}"
+#    doexe ${PAYLOAD}/textmaker
+#    doexe ${PAYLOAD}/planmaker
+#    doexe ${PAYLOAD}/presentations
 
     # Wrapper scripts
     exeinto /usr/bin
