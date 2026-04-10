@@ -38,12 +38,19 @@ src_install() {
 	distutils-r1_src_install
 
 	make_desktop_entry \
+		protonup-qt \
 		"ProtonUp-Qt" \
-		"ProtonUp-Qt" \
-		"net.davidotek.pupgui2" \
+		net.davidotek.pupgui2 \
 		"Game;Utility;"
 
 	for size in 64 128 256; do
-		doicon -s ${size} share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png
+		newicon -s ${size} \
+			share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png \
+			net.davidotek.pupgui2.png
 	done
+}
+
+src_test() {
+	local -x QT_QPA_PLATFORM=offscreen
+	distutils-r1_src_test
 }
