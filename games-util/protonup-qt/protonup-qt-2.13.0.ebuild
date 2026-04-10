@@ -34,20 +34,16 @@ RDEPEND="
 
 distutils_enable_tests pytest
 
-src_prepare() {
-	sed -i '/^Exec=/c\Exec=ProtonUp-Qt' share/applications/net.davidotek.pupgui2.desktop || die
-	distutils-r1_src_prepare
-}
-
 src_install() {
 	distutils-r1_src_install
-	domenu share/applications/net.davidotek.pupgui2.desktop
+
+	make_desktop_entry \
+		"ProtonUp-Qt" \
+		"ProtonUp-Qt" \
+		"net.davidotek.pupgui2" \
+		"Game;Utility;"
+
 	for size in 64 128 256; do
 		doicon -s ${size} share/icons/hicolor/${size}x${size}/apps/net.davidotek.pupgui2.png
 	done
-}
-
-src_test() {
-	local -x QT_QPA_PLATFORM=offscreen
-	distutils-r1_src_test
 }
