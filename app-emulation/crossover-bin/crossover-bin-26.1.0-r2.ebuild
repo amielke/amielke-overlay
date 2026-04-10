@@ -168,11 +168,13 @@ src_install() {
 		"${ED}/opt/cxoffice/lib/perl/CXMenuXDG.pm" \
 		|| die "Could not fix paths in ${ED}/opt/cxoffice/lib/perl/CXMenuXDG.pm"
 
-	local crossover_desktop=( "${ED}"/usr/share/applications/*CrossOver.desktop )
-	if [[ -e ${crossover_desktop[0]} ]]; then
-		sed -i -e "s:${ED}::" "${crossover_desktop[@]}" \
-			|| die "Could not fix paths of desktop files"
+	local desktop_files=( "${ED}"/usr/share/applications/*.desktop )
+	if [[ ! -e ${desktop_files[0]} ]]; then
+		die "No desktop files were generated"
 	fi
+
+	sed -i -e "s:${ED}::" "${desktop_files[@]}" \
+		|| die "Could not fix paths of desktop files"
 
 	# Remove libs that link to opencl
 	if ! use opencl; then
