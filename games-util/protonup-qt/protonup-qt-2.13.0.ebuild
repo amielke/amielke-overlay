@@ -32,15 +32,10 @@ RDEPEND="
 	>=dev-python/zstandard-0.19.0[${PYTHON_USEDEP}]
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-2.13.0-add-entrypoint.patch"
-)
-
 distutils_enable_tests pytest
 
 src_prepare() {
-	# execute entry point instead
-	sed -i "/^Exec=/s/net.davidotek.pupgui2/${PN}/" share/applications/net.davidotek.pupgui2.desktop || die
+	sed -i '/^Exec=/c\Exec=ProtonUp-Qt' share/applications/net.davidotek.pupgui2.desktop || die
 	distutils-r1_src_prepare
 }
 
