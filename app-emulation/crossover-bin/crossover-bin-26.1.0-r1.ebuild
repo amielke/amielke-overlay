@@ -24,7 +24,6 @@ QA_PREBUILT="opt/cxoffice/*"
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	dev-lang/perl
-	dev-util/bbe
 "
 
 RDEPEND="${DEPEND}
