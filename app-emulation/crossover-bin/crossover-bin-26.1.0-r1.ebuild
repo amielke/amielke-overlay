@@ -19,7 +19,7 @@ IUSE="+capi +cups +gphoto2 +gstreamer +jpeg +lcms +mp3 +nls +openal +opencl +ope
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RESTRICT="bindist test"
-QA_PREBUILT="*"
+QA_PREBUILT="opt/cxoffice/*"
 
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
