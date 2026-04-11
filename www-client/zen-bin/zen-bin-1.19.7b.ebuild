@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit xdg
+inherit desktop xdg
 
 DESCRIPTION="Zen Browser - Experience tranquillity while browsing the web"
 HOMEPAGE="https://zen-browser.app/"
