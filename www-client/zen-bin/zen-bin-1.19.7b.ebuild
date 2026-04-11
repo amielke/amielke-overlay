@@ -52,6 +52,7 @@ RDEPEND="${DEPEND}"
 
 src_install() {
     local destdir="/opt/zen"
+
     insinto "${destdir}"
     doins -r *
 
@@ -62,7 +63,8 @@ src_install() {
         newicon -s ${size} "browser/chrome/icons/default/default${size}.png" zen.png
     done
 
-    make_desktop_entry "/usr/bin/zen" "Zen" zen "Network;WebBrowser" "$(cat "${FILESDIR}"/desktop_options)"
+    # Replaces make_desktop_entry (tree-konformer, stabiler)
+    domenu "${FILESDIR}/zen.desktop"
 
     fperms 0755 "${destdir}"/{zen-bin,updater,glxtest,vaapitest}
     fperms 0750 "${destdir}"/pingsender
