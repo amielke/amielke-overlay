@@ -19,7 +19,6 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip"
 QA_PREBUILT="*"
 
-# Minimal, tree-konformer RDEPEND-Satz (wie firefox-bin)
 RDEPEND="
     dev-libs/glib:2
     dev-libs/nspr
@@ -30,28 +29,32 @@ RDEPEND="
     x11-libs/gtk+:3
 "
 
-# Binärpakete haben kein BDEPEND/DEPEND nötig
 DEPEND=""
 
 src_install() {
-    local destdir="/opt/zen"
+    local destdir="/usr/lib64/zen"
 
     insinto "${destdir}"
     doins -r *
 
-    dosym -r "${destdir}/zen-bin" "/usr/bin/zen" || die
+    # Symlink in /usr/bin
+    dosym -r "../lib64/zen/zen-bin" "/usr/bin/zen" || die
 
+    # Icons
     local size
     for size in 16 32 48 64 128; do
         newicon -s ${size} "browser/chrome/icons/default/default${size}.png" zen.png
     done
 
+    # Desktop file
     domenu "${FILESDIR}/zen.desktop"
 
+    # Permissions
     fperms 0755 "${destdir}"/{zen-bin,updater,glxtest,vaapitest}
     fperms 0750 "${destdir}"/pingsender
 
-    insinto ${destdir}/distribution
+    # Policies (tree-konformer Pfad)
+    insinto "${destdir}/distribution"
     doins "${FILESDIR}/policies.json"
 }
 
