@@ -37,23 +37,19 @@ src_install() {
     insinto "${destdir}"
     doins -r *
 
-    # Symlink in /usr/bin
-    dosym -r "../lib64/zen/zen-bin" "/usr/bin/zen" || die
+    # FIX: absolute target path for dosym -r
+    dosym -r /usr/lib64/zen/zen-bin /usr/bin/zen || die
 
-    # Icons
     local size
     for size in 16 32 48 64 128; do
         newicon -s ${size} "browser/chrome/icons/default/default${size}.png" zen.png
     done
 
-    # Desktop file
     domenu "${FILESDIR}/zen.desktop"
 
-    # Permissions
     fperms 0755 "${destdir}"/{zen-bin,updater,glxtest,vaapitest}
     fperms 0750 "${destdir}"/pingsender
 
-    # Policies (tree-konformer Pfad)
     insinto "${destdir}/distribution"
     doins "${FILESDIR}/policies.json"
 }
