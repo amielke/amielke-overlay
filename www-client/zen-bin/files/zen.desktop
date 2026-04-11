@@ -1,11 +1,13 @@
 [Desktop Entry]
+Version=1.0
+Type=Application
 Name=Zen Browser
 GenericName=Web Browser
-Comment=Browse the Web
+Comment=Browse the web
 Exec=/usr/bin/zen %U
-Terminal=false
-Type=Application
 Icon=zen
+Terminal=false
 Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;
 StartupNotify=true
-
+StartupWMClass=zen
