@@ -52,29 +52,24 @@ RDEPEND="
 
 src_install() {
 	local destdir="/opt/zen-bin"
-	local icon size
-	local exe
+	local icon size exe
 	local -a executables=(
 		zen
 		zen-bin
 		glxtest
-		upalter
-		updater
 		vaapitest
-		crashhelper
-		crashreporter
 		pingsender
-		plugin-container
 	)
 
 	insinto "${destdir}"
 	doins -r . || die
 
 	for exe in "${executables[@]}"; do
-		if [[ -f "${ED}${destdir}/${exe}" ]]; then
-			fperms +x "${destdir}/${exe}" || die
-		fi
+		fperms +x "${destdir}/${exe}" || die
 	done
+
+	[[ -f "${ED}${destdir}/plugin-container" ]] && fperms +x "${destdir}/plugin-container"
+	[[ -f "${ED}${destdir}/crashreporter" ]] && fperms +x "${destdir}/crashreporter"
 
 	dosym -r "${destdir}/zen-bin" /usr/bin/zen || die
 
