@@ -2,6 +2,8 @@
 
 Gentoo overlay with additional ebuilds for software not available in the main Gentoo repository.
 
+Maintainer: Andreas Mielke
+
 ## Installation
 
 ### Recommended method
@@ -66,13 +68,17 @@ This overlay provides additional ebuilds for software not available in the main 
 
 It is distributed directly through Git and does not need to be listed in the official Gentoo repository list in order to work.
 
-Some ebuilds may be experimental, under active testing, or based on upstream binary releases.
+Most ebuilds in this overlay are primarily tested on amd64.
+
+Some packages are source-based, while others repackage upstream binary releases.
+
+Some ebuilds may be experimental or under active testing.
 
 Please review ebuilds before using them on important systems.
 
 ## Issues
 
-If you find a problem with an ebuild, please open an issue in this repository.
+If you find a problem with an ebuild, please open an issue in the GitHub issue tracker for this repository.
 
 ## Disclaimer
 
