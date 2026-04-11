@@ -54,11 +54,21 @@ src_install() {
 	local destdir="/opt/zen-bin"
 	local icon size
 
-	cp -a "${S}" "${ED}${destdir}" || die
+	insinto "${destdir}"
+	doins -r . || die
+
+	fperms +x \
+		"${destdir}/zen" \
+		"${destdir}/zen-bin" \
+		"${destdir}/crashhelper" \
+		"${destdir}/glxtest" \
+		"${destdir}/plugin-container" \
+		"${destdir}/updater" \
+		"${destdir}/vaapitest" || die
 
 	dosym -r "${destdir}/zen-bin" /usr/bin/zen || die
 
-	for icon in "${ED}${destdir}"/browser/chrome/icons/default/default*.png; do
+	for icon in "${S}"/browser/chrome/icons/default/default*.png; do
 		[[ -f ${icon} ]] || continue
 		size=${icon##*/default}
 		size=${size%.png}
