@@ -1,6 +1,3 @@
-# Copyright 2025 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
 EAPI=8
 
 inherit desktop xdg
@@ -19,7 +16,6 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip"
 
-# Prebuilt bundle
 QA_PREBUILT="opt/zen-bin/*"
 
 RDEPEND="
@@ -50,8 +46,9 @@ RDEPEND="
 src_prepare() {
     default
 
-    # Remove auto-updater (Gentoo policy)
+    # Remove auto-updater completely
     rm -f updater updater.ini precomplete removed-files || die
+    rm -f icons/updater.png || die
 }
 
 src_install() {
@@ -60,6 +57,13 @@ src_install() {
     # Install entire bundle
     insinto "${destdir}"
     doins -r .
+
+    # Fix permissions for all binaries
+    fperms 0755 /opt/zen-bin/zen-bin
+    fperms 0755 /opt/zen-bin/zen
+    fperms 0755 /opt/zen-bin/pingsender
+    fperms 0755 /opt/zen-bin/glxtest
+    fperms 0755 /opt/zen-bin/vaapitest
 
     # Symlink
     dosym -r /opt/zen-bin/zen-bin /usr/bin/zen || die
