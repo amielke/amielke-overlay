@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit desktop xdg-utils
+inherit desktop xdg
 
 DESCRIPTION="Zen Browser - A fast, privacy-focused Firefox fork"
 HOMEPAGE="https://zen-browser.app/"
@@ -11,13 +11,23 @@ SRC_URI="
     amd64? ( https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-x86_64.tar.xz -> ${P}-amd64.tar.xz )
     arm64? ( https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-aarch64.tar.xz -> ${P}-arm64.tar.xz )
 "
+
 S="${WORKDIR}/zen"
 
 LICENSE="MPL-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip"
-QA_PREBUILT="*"
+
+QA_PREBUILT="
+    /usr/lib64/zen/*.so
+    /usr/lib64/zen/zen-bin
+    /usr/lib64/zen/zen
+    /usr/lib64/zen/updater
+    /usr/lib64/zen/pingsender
+    /usr/lib64/zen/glxtest
+    /usr/lib64/zen/vaapitest
+"
 
 RDEPEND="
     dev-libs/glib:2
@@ -26,43 +36,36 @@ RDEPEND="
     media-libs/alsa-lib
     media-libs/fontconfig
     media-libs/freetype
+    media-libs/libpng
+    x11-libs/cairo
+    x11-libs/pango
+    x11-libs/libX11
+    x11-libs/libXcomposite
+    x11-libs/libXdamage
+    x11-libs/libXext
+    x11-libs/libXfixes
+    x11-libs/libXrender
+    x11-libs/libXtst
+    x11-libs/libXrandr
+    x11-libs/libxcb
+    sys-apps/dbus
+    net-print/cups
+    media-libs/mesa
     x11-libs/gtk+:3
 "
 
-DEPEND=""
+src_prepare() {
+    default
+
+    # Remove auto-updater (Gentoo policy)
+    rm -f updater updater.ini precomplete removed-files || die
+}
 
 src_install() {
     local destdir="/usr/lib64/zen"
 
-    # Install directories
     insinto "${destdir}"
-    doins -r browser
-    doins -r defaults
-    doins -r fonts
-    doins -r gmp-clearkey
-    doins -r icons
-
-    # Install top-level files
-    doins application.ini
-    doins dependentlibs.list
-    doins platform.ini
-    doins precomplete
-    doins removed-files
-    doins update-settings.ini
-    doins updater.ini
-    doins omni.ja
-
-    # Install binaries
-    exeinto "${destdir}"
-    doexe glxtest
-    doexe pingsender
-    doexe updater
-    doexe vaapitest
-    doexe zen
-    doexe zen-bin
-
-    # Install shared libs
-    doexe lib*.so
+    doins -r .
 
     # Symlink
     dosym -r /usr/lib64/zen/zen-bin /usr/bin/zen || die
@@ -82,11 +85,9 @@ src_install() {
 }
 
 pkg_postinst() {
-    xdg_desktop_database_update
-    xdg_icon_cache_update
+    xdg_pkg_postinst
 }
 
 pkg_postrm() {
-    xdg_desktop_database_update
-    xdg_icon_cache_update
+    xdg_pkg_postrm
 }
