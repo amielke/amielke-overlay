@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Zen Browser
+GenericName=Web Browser
+Comment=Browse the Web
+Exec=/usr/bin/zen %U
+Terminal=false
+Type=Application
+Icon=zen
+Categories=Network;WebBrowser;
+StartupNotify=true
+
