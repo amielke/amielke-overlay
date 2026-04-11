@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pkgmetadata>
+  <maintainer type="person">
+    <email>gentoo@amielke.de</email>
+    <name>Andreas Mielke</name>
+    <description>Maintainer of the zen-bin ebuild</description>
+  </maintainer>
+
+  <upstream>
+    <remote-id type="github">zen-browser/desktop</remote-id>
+    <bugs-to>https://github.com/zen-browser/desktop/issues</bugs-to>
+    <doc>https://zen-browser.app/</doc>
+  </upstream>
+
+  <longdescription>
+    Zen Browser is a privacy-focused, performance-optimized Firefox fork.
+    This package installs the official prebuilt binary release provided by upstream.
+  </longdescription>
+</pkgmetadata>
