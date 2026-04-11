@@ -19,15 +19,8 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip"
 
-QA_PREBUILT="
-    /usr/lib64/zen/*.so
-    /usr/lib64/zen/zen-bin
-    /usr/lib64/zen/zen
-    /usr/lib64/zen/updater
-    /usr/lib64/zen/pingsender
-    /usr/lib64/zen/glxtest
-    /usr/lib64/zen/vaapitest
-"
+# Prebuilt bundle
+QA_PREBUILT="opt/zen-bin/*"
 
 RDEPEND="
     dev-libs/glib:2
@@ -62,13 +55,14 @@ src_prepare() {
 }
 
 src_install() {
-    local destdir="/usr/lib64/zen"
+    local destdir="/opt/zen-bin"
 
+    # Install entire bundle
     insinto "${destdir}"
     doins -r .
 
     # Symlink
-    dosym -r /usr/lib64/zen/zen-bin /usr/bin/zen || die
+    dosym -r /opt/zen-bin/zen-bin /usr/bin/zen || die
 
     # Icons
     local size
