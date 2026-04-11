@@ -8,10 +8,15 @@ inherit desktop xdg
 DESCRIPTION="Zen Browser - Experience tranquillity while browsing the web"
 HOMEPAGE="https://zen-browser.app/"
 SRC_URI="
-	amd64? ( https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-x86_64.tar.xz -> ${P}-amd64.tar.xz )
-	arm64? ( https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-aarch64.tar.xz -> ${P}-arm64.tar.xz )
+	amd64? (
+		https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-x86_64.tar.xz
+			-> ${P}-amd64.tar.xz
+	)
+	arm64? (
+		https://github.com/zen-browser/desktop/releases/download/${PV}/zen.linux-aarch64.tar.xz
+			-> ${P}-arm64.tar.xz
+	)
 "
-
 S="${WORKDIR}/zen"
 
 LICENSE="MPL-2.0"

@@ -1,0 +1,14 @@
+DEFINED_PHASES=install postinst postrm preinst
+DESCRIPTION=Zen Browser - Experience tranquillity while browsing the web
+EAPI=8
+HOMEPAGE=https://zen-browser.app/
+IDEPEND=dev-util/desktop-file-utils x11-misc/shared-mime-info
+INHERIT=desktop xdg
+KEYWORDS=~amd64 ~arm64
+LICENSE=MPL-2.0
+RDEPEND=>=app-accessibility/at-spi2-core-2.46.0:2 dev-libs/expat >=dev-libs/glib-2.26:2 dev-libs/nspr dev-libs/nss media-libs/alsa-lib media-libs/fontconfig >=media-libs/freetype-2.4.10 media-video/ffmpeg net-print/cups sys-apps/dbus virtual/freedesktop-icon-theme >=x11-libs/cairo-1.10[X] x11-libs/gdk-pixbuf:2 >=x11-libs/gtk+-3.24:3[X] x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXcursor x11-libs/libXdamage x11-libs/libXext x11-libs/libXfixes x11-libs/libXi x11-libs/libXrandr x11-libs/libXrender x11-libs/libxcb >=x11-libs/pango-1.22.0
+RESTRICT=strip
+SLOT=0
+SRC_URI=amd64? ( https://github.com/zen-browser/desktop/releases/download/1.19.7b/zen.linux-x86_64.tar.xz -> zen-bin-1.19.7b-amd64.tar.xz ) arm64? ( https://github.com/zen-browser/desktop/releases/download/1.19.7b/zen.linux-aarch64.tar.xz -> zen-bin-1.19.7b-arm64.tar.xz )
+_eclasses_=desktop	26d57169ca094c04be416993844ec8bc	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	xdg	3ef49a87c52c8b77c476351195dfe575
+_md5_=7d265190bf46129262cd17f748522c51
