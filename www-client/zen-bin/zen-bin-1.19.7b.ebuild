@@ -54,7 +54,6 @@ src_install() {
 	local destdir="/opt/zen-bin"
 	local icon size
 
-	dodir /opt || die
 	cp -a "${S}" "${ED}${destdir}" || die
 
 	dosym -r "${destdir}/zen-bin" /usr/bin/zen || die
