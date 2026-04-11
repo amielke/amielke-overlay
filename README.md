@@ -4,6 +4,18 @@ Gentoo overlay with additional ebuilds for software not available in the main Ge
 
 Maintainer: Andreas Mielke
 
+This overlay has a particular focus on gaming-related software, but also includes selected desktop applications outside the main Gentoo tree.
+
+## Package examples
+
+This overlay currently includes ebuilds such as:
+
+- www-client/zen-bin
+- app-emulation/crossover
+- app-office/softmaker-office-nx
+- games-util/protonplus
+- x11-misc/variety
+
 ## Installation
 
 ### Recommended method
