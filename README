@@ -1,1 +1,104 @@
+# amielke-overlay
+
+Gentoo overlay with additional ebuilds for software not available in the main Gentoo repository.
+
+## Installation
+
+### Recommended method
+
+Install `eselect-repository` if it is not already installed:
+
+```bash
+emerge --ask app-eselect/eselect-repository
+
+Add the overlay:
+
+eselect repository add amielke-overlay git https://github.com/amielke/amielke-overlay.git
+
+Sync the repository:
+
+emaint sync -r amielke-overlay
+
+Manual method
+
+If you prefer manual repository configuration, create:
+
+/etc/portage/repos.conf/amielke-overlay.conf
+
+with the following content:
+
+[amielke-overlay]
+location = /var/db/repos/amielke-overlay
+sync-type = git
+sync-uri = https://github.com/amielke/amielke-overlay.git
+auto-sync = yes
+masters = gentoo
+priority = 50
+
+Then sync the repository:
+
+emaint sync -r amielke-overlay
+
+Usage
+
+After syncing, packages from the overlay can be installed with Portage as usual:
+
+emerge --ask category/package
+
+Scope
+
+This overlay contains selected ebuilds and related packaging work for software outside the main Gentoo tree.
+
+Depending on the package, this may include:
+
+    desktop applications
+
+    gaming-related tools
+
+    binary packages
+
+    proprietary software
+
+    testing or work-in-progress ebuilds
+
+Notes
+
+    This overlay is distributed directly through its Git repository.
+
+    It does not need to be listed in the official Gentoo repository list in order to work.
+
+    Packages in this overlay may change over time.
+
+    Some ebuilds may still be experimental or under active testing.
+
+    Some packages may rely on upstream binary releases or proprietary sources.
+
+    Always review ebuilds before using them on important or production systems.
+
+Bug reports and contributions
+
+If you find a problem with an ebuild, please open an issue in this repository.
+
+Useful bug reports should ideally include:
+
+    package name and version
+
+    complete emerge error output
+
+    relevant system information
+
+    any local changes made to the ebuild
+
+Pull requests and improvements are welcome.
+Disclaimer
+
+This overlay is provided as-is.
+
+Use it at your own risk, especially when installing binary or proprietary software.
+License
+
+Unless otherwise noted, ebuilds in this repository follow normal Gentoo overlay conventions.
+
+Individual packages may have their own upstream licenses. See the corresponding ebuilds and installed license files for details.
+
 
