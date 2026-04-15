@@ -5,15 +5,15 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{12..13} )
 
-inherit cmake python-single-r1 virtualx
+inherit cmake git-r3 python-single-r1 virtualx
 
 DESCRIPTION="Video editing, animation, and playback library for C++, Python, and Ruby"
-HOMEPAGE="https://github.com/openshot/libopenshot"
-SRC_URI="https://github.com/openshot/libopenshot/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://github.com/OpenShot/libopenshot"
+EGIT_REPO_URI="https://github.com/OpenShot/libopenshot.git"
 
 LICENSE="LGPL-3+"
-SLOT="0"
-KEYWORDS="~amd64"
+SLOT="0/30"
+KEYWORDS=""
 IUSE="doc test"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -22,12 +22,14 @@ RESTRICT="!test? ( test )"
 
 DEPEND="
 	${PYTHON_DEPS}
+	dev-lang/swig
 	dev-libs/jsoncpp
 	dev-libs/protobuf
-	dev-lang/swig
 	media-gfx/imagemagick[cxx]
+	media-libs/babl
 	media-libs/libopenshot-audio:=
 	media-video/ffmpeg:=
+	net-libs/cppzmq
 	net-libs/zeromq
 	dev-qt/qtbase
 	dev-qt/qtmultimedia
@@ -38,8 +40,10 @@ RDEPEND="
 	dev-libs/jsoncpp
 	dev-libs/protobuf
 	media-gfx/imagemagick[cxx]
+	media-libs/babl
 	media-libs/libopenshot-audio:=
 	media-video/ffmpeg:=
+	net-libs/cppzmq
 	net-libs/zeromq
 	dev-qt/qtbase
 	dev-qt/qtmultimedia
@@ -54,16 +58,13 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-0.7.0-qt6-pr1027.patch"
-)
-
 pkg_setup() {
 	python-single-r1_pkg_setup
 }
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_INSTALL_PREFIX=/usr
 		-DENABLE_RUBY=OFF
 		-DUSE_SYSTEM_JSONCPP=ON
 		-DUSE_QT6=ON
