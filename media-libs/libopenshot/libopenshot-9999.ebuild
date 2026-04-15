@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{12..13} )
 
-inherit cmake git-r3 python-single-r1 virtualx
+inherit cmake git-r3 python-single-r1 python-utils-r1 virtualx
 
 DESCRIPTION="Video editing, animation, and playback library for C++, Python, and Ruby"
 HOMEPAGE="https://github.com/OpenShot/libopenshot"
@@ -44,7 +44,6 @@ RDEPEND="
 	media-libs/babl
 	media-libs/libopenshot-audio:=
 	media-video/ffmpeg:=
-	net-libs/cppzmq
 	net-libs/zeromq
 	dev-qt/qtbase
 	dev-qt/qtmultimedia
@@ -73,6 +72,11 @@ src_configure() {
 	)
 
 	cmake_src_configure
+}
+
+src_install() {
+	cmake_src_install
+	python_optimize "${ED}/usr/$(get_libdir)/python${EPYTHON#python}/site-packages"
 }
 
 src_test() {
