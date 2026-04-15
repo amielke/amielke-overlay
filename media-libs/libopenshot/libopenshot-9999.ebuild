@@ -13,6 +13,8 @@ EGIT_REPO_URI="https://github.com/OpenShot/libopenshot.git"
 EGIT_BRANCH="qt6-support"
 
 LICENSE="LGPL-3+"
+
+
 SLOT="0/30"
 KEYWORDS=""
 IUSE="doc test"
