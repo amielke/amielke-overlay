@@ -3,9 +3,9 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{12..13} )
+PYTHON_COMPAT=( python3_{12..14} )
 
-inherit cmake git-r3 python-single-r1 python-utils-r1 virtualx
+inherit cmake git-r3 python-single-r1 virtualx
 
 DESCRIPTION="Video editing, animation, and playback library for C++, Python, and Ruby"
 HOMEPAGE="https://github.com/OpenShot/libopenshot"
@@ -53,7 +53,7 @@ BDEPEND="
 	doc? ( app-text/doxygen )
 	test? (
 		dev-cpp/catch:0
-		dev-cpp/unittest++
+		dev-libs/unittest++
 		x11-base/xorg-server[xvfb]
 	)
 "

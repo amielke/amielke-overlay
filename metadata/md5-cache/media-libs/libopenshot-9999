@@ -1,0 +1,16 @@
+BDEPEND=doc? ( app-text/doxygen ) test? ( dev-cpp/catch:0 dev-libs/unittest++ x11-base/xorg-server[xvfb] ) app-alternatives/ninja >=dev-build/cmake-3.28.5 >=dev-vcs/git-1.8.2.1[curl] test? ( x11-base/xorg-server[xvfb] x11-apps/xhost )
+DEFINED_PHASES=compile configure install prepare setup test unpack
+DEPEND=python_single_target_python3_12? ( dev-lang/python:3.12 ) python_single_target_python3_13? ( dev-lang/python:3.13 ) python_single_target_python3_14? ( dev-lang/python:3.14 ) dev-lang/swig dev-libs/jsoncpp dev-libs/protobuf media-gfx/imagemagick[cxx] media-libs/babl media-libs/libopenshot-audio:= media-video/ffmpeg:= net-libs/cppzmq net-libs/zeromq dev-qt/qtbase dev-qt/qtmultimedia dev-qt/qtsvg
+DESCRIPTION=Video editing, animation, and playback library for C++, Python, and Ruby
+EAPI=8
+HOMEPAGE=https://github.com/OpenShot/libopenshot
+INHERIT=cmake git-r3 python-single-r1 virtualx
+IUSE=doc test python_single_target_python3_12 python_single_target_python3_13 python_single_target_python3_14 test
+LICENSE=LGPL-3+
+PROPERTIES=live
+RDEPEND=python_single_target_python3_12? ( dev-lang/python:3.12 ) python_single_target_python3_13? ( dev-lang/python:3.13 ) python_single_target_python3_14? ( dev-lang/python:3.14 ) dev-libs/jsoncpp dev-libs/protobuf media-gfx/imagemagick[cxx] media-libs/babl media-libs/libopenshot-audio:= media-video/ffmpeg:= net-libs/zeromq dev-qt/qtbase dev-qt/qtmultimedia dev-qt/qtsvg
+REQUIRED_USE=^^ ( python_single_target_python3_12 python_single_target_python3_13 python_single_target_python3_14 )
+RESTRICT=!test? ( test ) !test? ( test )
+SLOT=0/30
+_eclasses_=toolchain-funcs	5195689ff6a73b0e789acfa09d4fbcb9	flag-o-matic	fd3558f73f6503093adee69adf41020d	multiprocessing	45d0620f25c2f063ad6276ecd9ed9399	ninja-utils	d063ea1900a793f93eb095010d6d9156	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	cmake	3395ce6618fc5c7af03335471b896644	git-r3	7b584b5dc33e3bc66ff5b9271bf41764	eapi9-pipestatus	d2c134036ac31c3085aebc9147f572bd	python-utils-r1	9c4180f103a0e8340bc993fc85dbdadd	python-single-r1	47d8ac9be330c9366112b78fd4f8ce57	virtualx	9741d451eb64ea8bb9faee90d68a9b68
+_md5_=ebd5247685971ac3d6feda0bb6087f61
