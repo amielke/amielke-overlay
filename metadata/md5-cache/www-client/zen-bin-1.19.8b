@@ -11,4 +11,4 @@ RESTRICT=strip
 SLOT=0
 SRC_URI=amd64? ( https://github.com/zen-browser/desktop/releases/download/1.19.8b/zen.linux-x86_64.tar.xz -> zen-bin-1.19.8b-amd64.tar.xz ) arm64? ( https://github.com/zen-browser/desktop/releases/download/1.19.8b/zen.linux-aarch64.tar.xz -> zen-bin-1.19.8b-arm64.tar.xz )
 _eclasses_=desktop	26d57169ca094c04be416993844ec8bc	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	xdg	3ef49a87c52c8b77c476351195dfe575
-_md5_=45166c161f940a79fb811cb08fcdc235
+_md5_=45376e8708c6eb165294843aa3e991db

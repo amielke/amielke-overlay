@@ -9,11 +9,11 @@ DESCRIPTION="A modern compatibility tools manager"
 HOMEPAGE="https://github.com/Vysp3r/ProtonPlus"
 SRC_URI="https://github.com/Vysp3r/ProtonPlus/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz"
 
+S="${WORKDIR}/ProtonPlus-${PV}"
+
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64"
-
-S="${WORKDIR}/ProtonPlus-${PV}"
 
 BDEPEND="
 	$(vala_depend)
