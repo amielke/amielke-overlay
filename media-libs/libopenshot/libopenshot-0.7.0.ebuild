@@ -41,9 +41,9 @@ RDEPEND="
 	media-libs/libopenshot-audio:=
 	media-video/ffmpeg:=
 	net-libs/zeromq
-	dev-qt/qtbase:5
-	dev-qt/qtmultimedia:5
-	dev-qt/qtsvg:5
+	dev-qt/qtbase
+	dev-qt/qtmultimedia
+	dev-qt/qtsvg
 "
 BDEPEND="
 	doc? ( app-text/doxygen )
