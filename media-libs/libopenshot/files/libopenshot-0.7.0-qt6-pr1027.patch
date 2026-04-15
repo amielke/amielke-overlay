@@ -1,0 +1,1416 @@
+From bfca7ee8ad73c237a16433091b44580107e9bba3 Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Wed, 17 Dec 2025 22:59:25 -0600
+Subject: [PATCH 1/8] =?UTF-8?q?Adding=20Qt6=20detection=20and=20compatibil?=
+ =?UTF-8?q?ity,=20without=20breaking=20Qt5.=20`-DUSE=5FQT6=3DAUTO|ON|OFF`?=
+ =?UTF-8?q?=20(default:=20`AUTO`;=20prefers=20Qt6=20when=20available=20and?=
+ =?UTF-8?q?=20CMake=20=E2=89=A53.16,=20`ON`=20forces=20Qt6,=20`OFF`=20forc?=
+ =?UTF-8?q?es=20Qt5).=20Also,=20a=20few=20version=20specific=20changes=20f?=
+ =?UTF-8?q?or=20API=20changes=20on=20Qt6,=20but=20it=20appears=20to=20work?=
+ =?UTF-8?q?=20well.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ INSTALL.md                |  3 ++-
+ doc/INSTALL-LINUX.md      | 10 +++++++-
+ doc/INSTALL-MAC.md        |  3 ++-
+ doc/INSTALL-WINDOWS.md    |  3 ++-
+ examples/CMakeLists.txt   | 43 +++++++++++++++++++++++++++++---
+ src/CMakeLists.txt        | 52 ++++++++++++++++++++++++++++++++++++---
+ src/Qt/PlayerDemo.cpp     |  2 +-
+ src/effects/LensFlare.cpp | 13 +++++++---
+ tests/Caption.cpp         |  4 ++-
+ 9 files changed, 116 insertions(+), 17 deletions(-)
+
+diff --git a/INSTALL.md b/INSTALL.md
+index 561a011a9..d99f59c09 100644
+--- a/INSTALL.md
++++ b/INSTALL.md
+@@ -50,7 +50,7 @@ Libraries and executables have been labeled in the list below to help distinguis
+ #### Qt 5 (libqt5)
+ *   <http://www.qt.io/qt5/> **(Library)**
+ 
+-*   Qt5 is used to display video, store image data, composite images,
++*   Qt5/Qt6 is used to display video, store image data, composite images,
+     apply image effects, and many other utility functions,
+     such as file system manipulation, high resolution timers, etc.
+ 
+@@ -201,6 +201,7 @@ Following are some of the flags you might need to set when generating your build
+ *   `-DCMAKE_PREFIX_PATH=/extra/path/to/search/for/libraries/`
+ *   `-DUSE_SYSTEM_JSONCPP=0` (default: auto if discovered)
+ *   `-DENABLE_MAGICK=0` (default: auto if discovered)
++*   `-DUSE_QT6=AUTO|ON|OFF` (default: `AUTO`; prefers Qt6 when available and CMake ≥3.16, `ON` forces Qt6, `OFF` forces Qt5)
+ 
+ #### Options to compile bindings for a specific Python installation
+ *   `-DPYTHON_INCLUDE_DIR=/location/of/python/includes/`
+diff --git a/doc/INSTALL-LINUX.md b/doc/INSTALL-LINUX.md
+index fcc0a21a3..c1d987eaf 100644
+--- a/doc/INSTALL-LINUX.md
++++ b/doc/INSTALL-LINUX.md
+@@ -44,7 +44,8 @@ list below to help distinguish between them.
+ 
+ ### Qt 5 (libqt5)
+   * http://www.qt.io/qt5/ `(Library)`
+-  * Qt5 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Qt5/Qt6 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Use the CMake option `-DUSE_QT6=ON|OFF|AUTO` (default AUTO) to pick a Qt major version; Qt6 builds require CMake 3.16+.
+ 
+ ### CMake (cmake)
+   * http://www.cmake.org/ `(Executable)`
+@@ -166,6 +167,13 @@ software packages available to download and install.
+                         swig
+ ```
+ 
++If you want to build against Qt6 on Ubuntu 24.04 or newer, install the Qt6 dev stack instead and configure with the default `USE_QT6=AUTO` (prefers Qt6 when available) or `-DUSE_QT6=ON` to force it:
++
++```
++sudo apt install qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-svg-dev
++```
++
++
+ ## Linux Build Instructions (libopenshot-audio)
+ To compile libopenshot-audio, we need to go through a few additional steps to manually build and 
+ install it. Launch a terminal and enter:
+diff --git a/doc/INSTALL-MAC.md b/doc/INSTALL-MAC.md
+index 7e5665287..183603207 100644
+--- a/doc/INSTALL-MAC.md
++++ b/doc/INSTALL-MAC.md
+@@ -44,7 +44,8 @@ list below to help distinguish between them.
+ 
+ ### Qt 5 (libqt5)
+   * http://www.qt.io/qt5/ `(Library)`
+-  * Qt5 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Qt5/Qt6 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Use the CMake option `-DUSE_QT6=ON|OFF|AUTO` (default AUTO) to pick a Qt major version; Qt6 builds require CMake 3.16+.
+ 
+ ### CMake (cmake)
+   * http://www.cmake.org/ `(Executable)`
+diff --git a/doc/INSTALL-WINDOWS.md b/doc/INSTALL-WINDOWS.md
+index 4f04cb62c..2fe1e464a 100644
+--- a/doc/INSTALL-WINDOWS.md
++++ b/doc/INSTALL-WINDOWS.md
+@@ -46,7 +46,8 @@ have been labeled in the list below to help distinguish between them.
+ 
+ ### Qt 5 (libqt5)
+   * http://www.qt.io/qt5/ `(Library)`
+-  * Qt5 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Qt5/Qt6 is used to display video, store image data, composite images, apply image effects, and many other utility functions, such as file system manipulation, high resolution timers, etc...
++  * Use the CMake option `-DUSE_QT6=ON|OFF|AUTO` (default AUTO) to pick a Qt major version; Qt6 builds require CMake 3.16+.
+ 
+ ### CMake (cmake)
+   * http://www.cmake.org/ `(Executable)`
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index 12b5447e8..f36ea6fe9 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -11,8 +11,45 @@
+ 
+ include(GNUInstallDirs)
+ 
+-# Dependencies
+-find_package(Qt5 COMPONENTS Gui REQUIRED)
++# Qt selection matches the main library (USE_QT6 option, CMake 3.16+ needed for Qt6)
++set(_qt6_allowed TRUE)
++if(CMAKE_VERSION VERSION_LESS "3.16")
++  set(_qt6_allowed FALSE)
++  if(USE_QT6 STREQUAL "ON")
++    message(FATAL_ERROR "USE_QT6=ON requires CMake 3.16 or newer")
++  endif()
++endif()
++if(USE_QT6 STREQUAL "OFF")
++  set(_qt6_allowed FALSE)
++endif()
++
++set(_qt_selection "")
++if(USE_QT6 STREQUAL "ON")
++  if(NOT _qt6_allowed)
++    message(FATAL_ERROR "Qt6 support disabled by CMake version; set USE_QT6=OFF or upgrade CMake")
++  endif()
++  set(_qt_selection "Qt6")
++elseif(USE_QT6 STREQUAL "OFF")
++  set(_qt_selection "Qt5")
++else()
++  if(_qt6_allowed)
++    find_package(Qt6 COMPONENTS Core QUIET)
++    if(Qt6_FOUND)
++      set(_qt_selection "Qt6")
++    endif()
++  endif()
++  if(NOT _qt_selection)
++    set(_qt_selection "Qt5")
++  endif()
++endif()
++
++if(_qt_selection STREQUAL "Qt6")
++  set(QT_VERSION_MAJOR 6)
++else()
++  set(QT_VERSION_MAJOR 5)
++endif()
++
++find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
+ 
+ ############### CLI EXECUTABLES ################
+ # Create test executable
+@@ -27,7 +64,7 @@ target_compile_definitions(openshot-example PRIVATE
+ target_link_libraries(openshot-example openshot)
+ 
+ add_executable(openshot-html-example ExampleHtml.cpp)
+-target_link_libraries(openshot-html-example openshot Qt5::Gui)
++target_link_libraries(openshot-html-example openshot Qt${QT_VERSION_MAJOR}::Gui)
+ 
+ ############### PLAYER EXECUTABLE ################
+ # Create test executable
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 6e22574c5..7c249bf69 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -314,6 +314,9 @@ endif()
+ ### Qt Toolkit
+ ###
+ 
++set(USE_QT6 "AUTO" CACHE STRING "Select Qt major version (AUTO, ON=Qt6, OFF=Qt5)")
++set_property(CACHE USE_QT6 PROPERTY STRINGS AUTO ON OFF)
++
+ set(_qt_components Core Gui Widgets)
+ 
+ # We also need QtSvg unless we have Resvg insetead.
+@@ -321,16 +324,57 @@ if(NOT HAVE_RESVG)
+   list(APPEND _qt_components Svg)
+ endif()
+ 
+-find_package(Qt5 COMPONENTS ${_qt_components} REQUIRED)
++# Qt6 packages require newer CMake; gate support so older systems still build Qt5.
++set(_qt6_allowed TRUE)
++if(CMAKE_VERSION VERSION_LESS "3.16")
++  set(_qt6_allowed FALSE)
++  if(USE_QT6 STREQUAL "ON")
++    message(FATAL_ERROR "USE_QT6=ON requires CMake 3.16 or newer")
++  endif()
++endif()
++if(USE_QT6 STREQUAL "OFF")
++  set(_qt6_allowed FALSE)
++endif()
++
++set(_qt_selection "")
++if(USE_QT6 STREQUAL "ON")
++  if(NOT _qt6_allowed)
++    message(FATAL_ERROR "Qt6 support disabled by CMake version; set USE_QT6=OFF or upgrade CMake")
++  endif()
++  set(_qt_selection "Qt6")
++elseif(USE_QT6 STREQUAL "OFF")
++  set(_qt_selection "Qt5")
++else()
++  if(_qt6_allowed)
++    find_package(Qt6 COMPONENTS Core QUIET)
++    if(Qt6_FOUND)
++      set(_qt_selection "Qt6")
++    endif()
++  endif()
++  if(NOT _qt_selection)
++    set(_qt_selection "Qt5")
++  endif()
++endif()
++
++if(_qt_selection STREQUAL "Qt6")
++  set(QT_VERSION_MAJOR 6)
++else()
++  set(QT_VERSION_MAJOR 5)
++endif()
++
++find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${_qt_components} REQUIRED)
+ 
+ foreach(_qt_comp IN LISTS _qt_components)
+-  if(TARGET Qt5::${_qt_comp})
+-    target_link_libraries(openshot PUBLIC Qt5::${_qt_comp})
++  if(TARGET Qt${QT_VERSION_MAJOR}::${_qt_comp})
++    target_link_libraries(openshot PUBLIC Qt${QT_VERSION_MAJOR}::${_qt_comp})
+   endif()
+ endforeach()
+ 
++string(REPLACE ";" ", " _qt_comp_list "${_qt_components}")
++message(STATUS "Found Qt${QT_VERSION_MAJOR} ${Qt${QT_VERSION_MAJOR}Core_VERSION_STRING} (components: ${_qt_comp_list})")
++
+ # Keep track of Qt version, to embed in our version header
+-set(QT_VERSION_STR ${Qt5Core_VERSION_STRING} CACHE STRING "Qt version linked with" FORCE)
++set(QT_VERSION_STR ${Qt${QT_VERSION_MAJOR}Core_VERSION_STRING} CACHE STRING "Qt version linked with" FORCE)
+ mark_as_advanced(QT_VERSION_STR)
+ 
+ ################### FFMPEG #####################
+diff --git a/src/Qt/PlayerDemo.cpp b/src/Qt/PlayerDemo.cpp
+index f0514e766..5e2095944 100644
+--- a/src/Qt/PlayerDemo.cpp
++++ b/src/Qt/PlayerDemo.cpp
+@@ -43,7 +43,7 @@ PlayerDemo::PlayerDemo(QWidget *parent)
+     vbox->addWidget(menu, 0);
+     vbox->addWidget(video, 1);
+ 
+-    vbox->setMargin(0);
++    vbox->setContentsMargins(0, 0, 0, 0);
+     vbox->setSpacing(0);
+     resize(600, 480);
+ 
+diff --git a/src/effects/LensFlare.cpp b/src/effects/LensFlare.cpp
+index e59b35cde..a8286b317 100644
+--- a/src/effects/LensFlare.cpp
++++ b/src/effects/LensFlare.cpp
+@@ -107,14 +107,19 @@ static QColor shifted_hsv(const QColor &base, float h_shift,
+                           float s_scale, float v_scale,
+                           float a_scale = 1.0f)
+ {
++    // Qt6 switched getHsvF/setHsvF to float; keep compatibility with Qt5 (qreal)
++#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
++    float h, s, v, a;
++#else
+     qreal h, s, v, a;
++#endif
+     base.getHsvF(&h, &s, &v, &a);
+     if (s == 0.0)
+         h = 0.0;
+-    h = std::fmod(h + h_shift + 1.0, 1.0);
+-    s = std::clamp(s * s_scale, 0.0, 1.0);
+-    v = std::clamp(v * v_scale, 0.0, 1.0);
+-    a = std::clamp(a * a_scale, 0.0, 1.0);
++    h = static_cast<decltype(h)>(std::fmod(static_cast<double>(h + h_shift + 1.0), 1.0));
++    s = std::clamp(s * s_scale, static_cast<decltype(s)>(0.0), static_cast<decltype(s)>(1.0));
++    v = std::clamp(v * v_scale, static_cast<decltype(v)>(0.0), static_cast<decltype(v)>(1.0));
++    a = std::clamp(a * a_scale, static_cast<decltype(a)>(0.0), static_cast<decltype(a)>(1.0));
+ 
+     QColor out;
+     out.setHsvF(h, s, v, a);
+diff --git a/tests/Caption.cpp b/tests/Caption.cpp
+index bc5768f0c..96d49a445 100644
+--- a/tests/Caption.cpp
++++ b/tests/Caption.cpp
+@@ -63,7 +63,9 @@ TEST_CASE("caption effect", "[libopenshot][caption]") {
+ 
+     int argc = 1;
+     char* argv[1] = {(char*)""};
++#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
++#endif
+     QApplication app(argc, argv);
+ 
+     QApplication::processEvents();
+@@ -202,4 +204,4 @@ TEST_CASE("caption effect", "[libopenshot][caption]") {
+ 
+     // Close QApplication
+     app.quit();
+-}
+\ No newline at end of file
++}
+
+From a26ed32424cd57ef7e285ebe8584f27b4ff3ce35 Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Mon, 22 Dec 2025 13:44:54 -0600
+Subject: [PATCH 2/8] Adding missing packages to our linux install instructions
+ doc: python3-zmq python3-pyqt5.qtwebengine
+
+---
+ doc/INSTALL-LINUX.md | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/doc/INSTALL-LINUX.md b/doc/INSTALL-LINUX.md
+index c1d987eaf..d297f038c 100644
+--- a/doc/INSTALL-LINUX.md
++++ b/doc/INSTALL-LINUX.md
+@@ -164,7 +164,10 @@ software packages available to download and install.
+                         python3-dev \
+                         qtbase5-dev \
+                         qtmultimedia5-dev \
+-                        swig
++                        swig \
++                        python3-zmq \
++                        python3-pyqt5.qtwebengine
++                        
+ ```
+ 
+ If you want to build against Qt6 on Ubuntu 24.04 or newer, install the Qt6 dev stack instead and configure with the default `USE_QT6=AUTO` (prefers Qt6 when available) or `-DUSE_QT6=ON` to force it:
+
+From 23b4e748ea3b567c12a877692c929d5b77e3cb9b Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Mon, 22 Dec 2025 13:46:41 -0600
+Subject: [PATCH 3/8] Improving swig bindings for Python, Java, and Ruby for
+ access direct pixel byte array:
+
+Example Code Snippets:
+Python:
+import openshot
+
+r = openshot.FFmpegReader("/home/jonathan/Pictures/ChatGPT Image Mar 27, 2025, 09_50_56 AM.png")
+r.Open()
+f = r.GetFrame(1)
+buf = f.GetPixelsBytes()
+w, h = f.GetWidth(), f.GetHeight()
+stride = f.GetBytesPerLine()
+
+Ruby:
+require "openshot"
+
+r = Openshot::FFmpegReader.new("/home/jonathan/Pictures/ChatGPT Image Mar 27, 2025, 09_50_56 AM.png")
+r.Open()
+f = r.GetFrame(1)
+buf = f.GetPixelsBytes
+w = f.GetWidth
+h = f.GetHeight
+stride = f.GetBytesPerLine
+---
+ bindings/java/openshot.i   | 67 +++++++++++++++++++++++++++++++++++++
+ bindings/python/openshot.i | 68 ++++++++++++++++++++++++++++++++++++++
+ bindings/ruby/openshot.i   | 54 ++++++++++++++++++++++++++++++
+ 3 files changed, 189 insertions(+)
+
+diff --git a/bindings/java/openshot.i b/bindings/java/openshot.i
+index 7aaf7d1e2..ff794ede2 100644
+--- a/bindings/java/openshot.i
++++ b/bindings/java/openshot.i
+@@ -52,6 +52,34 @@
+ #%template() std::vector<std::pair<std::string, std::string>>;
+ %template() std::vector<std::vector<float>>;
+ 
++%inline %{
++typedef struct OpenShotByteBuffer {
++    const unsigned char* data;
++    int size;
++} OpenShotByteBuffer;
++%}
++
++%typemap(jni) OpenShotByteBuffer "jbyteArray"
++%typemap(jstype) OpenShotByteBuffer "byte[]"
++%typemap(jtype) OpenShotByteBuffer "byte[]"
++%typemap(javaout) OpenShotByteBuffer {
++    return $jnicall;
++}
++%typemap(out) OpenShotByteBuffer {
++    if ($1.data && $1.size > 0) {
++        jbyteArray jarr = jenv->NewByteArray($1.size);
++        if (jarr == NULL) {
++            SWIG_JavaThrowException(jenv, SWIG_JavaOutOfMemoryError, "Unable to allocate byte array");
++            return NULL;
++        }
++        jenv->SetByteArrayRegion(jarr, 0, $1.size,
++                                 reinterpret_cast<const jbyte*>($1.data));
++        $result = jarr;
++    } else {
++        $result = NULL;
++    }
++}
++
+ %{
+ #include "OpenShotVersion.h"
+ #include "ReaderBase.h"
+@@ -118,6 +146,45 @@
+ /* Deprecated */
+ %template(AudioDeviceInfoVector) std::vector<openshot::AudioDeviceInfo>;
+ 
++%extend openshot::Frame {
++    OpenShotByteBuffer GetPixelsBytes() {
++        OpenShotByteBuffer out = {NULL, 0};
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) return out;
++
++        const int size = img->bytesPerLine() * img->height();
++
++        const unsigned char* p = $self->GetPixels();
++        if (!p || size <= 0) return out;
++
++        out.data = p;
++        out.size = size;
++        return out;
++    }
++
++    OpenShotByteBuffer GetPixelsRowBytes(int row) {
++        OpenShotByteBuffer out = {NULL, 0};
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) return out;
++
++        if (row < 0 || row >= img->height()) {
++            return out;
++        }
++
++        const unsigned char* p = $self->GetPixels(row);
++        if (!p) return out;
++
++        out.data = p;
++        out.size = img->bytesPerLine();
++        return out;
++    }
++
++    int GetBytesPerLine() {
++        std::shared_ptr<QImage> img = $self->GetImage();
++        return img ? img->bytesPerLine() : 0;
++    }
++}
++
+ %include "OpenShotVersion.h"
+ %include "ReaderBase.h"
+ %include "WriterBase.h"
+diff --git a/bindings/python/openshot.i b/bindings/python/openshot.i
+index 612bfb11d..0fa1d7880 100644
+--- a/bindings/python/openshot.i
++++ b/bindings/python/openshot.i
+@@ -284,6 +284,74 @@
+     }
+ }
+ 
++%extend openshot::Frame {
++    PyObject* GetPixelsBytes() {
++        PyGILState_STATE gstate = PyGILState_Ensure();
++        PyObject* result = NULL;
++
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) {
++            Py_INCREF(Py_None);
++            result = Py_None;
++            PyGILState_Release(gstate);
++            return result;
++        }
++
++        const Py_ssize_t size =
++            static_cast<Py_ssize_t>(img->bytesPerLine()) *
++            static_cast<Py_ssize_t>(img->height());
++
++        const unsigned char* p = img->constBits();
++        if (!p || size <= 0) {
++            Py_INCREF(Py_None);
++            result = Py_None;
++            PyGILState_Release(gstate);
++            return result;
++        }
++
++        result = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p), size);
++        PyGILState_Release(gstate);
++        return result;
++    }
++
++    PyObject* GetPixelsRowBytes(int row) {
++        PyGILState_STATE gstate = PyGILState_Ensure();
++        PyObject* result = NULL;
++
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) {
++            Py_INCREF(Py_None);
++            result = Py_None;
++            PyGILState_Release(gstate);
++            return result;
++        }
++
++        if (row < 0 || row >= img->height()) {
++            PyErr_SetString(PyExc_IndexError, "row out of range");
++            PyGILState_Release(gstate);
++            return NULL;
++        }
++
++        const unsigned char* p = img->constScanLine(row);
++        if (!p) {
++            Py_INCREF(Py_None);
++            result = Py_None;
++            PyGILState_Release(gstate);
++            return result;
++        }
++
++        const Py_ssize_t row_bytes = static_cast<Py_ssize_t>(img->bytesPerLine());
++        result = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p), row_bytes);
++        PyGILState_Release(gstate);
++        return result;
++    }
++
++    int GetBytesPerLine() {
++        std::shared_ptr<QImage> img = $self->GetImage();
++        return img ? img->bytesPerLine() : 0;
++    }
++}
++
+ %include "OpenShotVersion.h"
+ %include "ReaderBase.h"
+ %include "WriterBase.h"
+diff --git a/bindings/ruby/openshot.i b/bindings/ruby/openshot.i
+index 655241be6..d7f85e117 100644
+--- a/bindings/ruby/openshot.i
++++ b/bindings/ruby/openshot.i
+@@ -52,6 +52,21 @@
+ %template() std::vector<std::pair<std::string, std::string>>;
+ %template() std::vector<std::vector<float>>;
+ 
++%inline %{
++typedef struct OpenShotByteBuffer {
++    const unsigned char* data;
++    int size;
++} OpenShotByteBuffer;
++%}
++
++%typemap(out) OpenShotByteBuffer {
++    if ($1.data && $1.size > 0) {
++        $result = rb_str_new(reinterpret_cast<const char*>($1.data), $1.size);
++    } else {
++        $result = Qnil;
++    }
++}
++
+ %{
+ /* Ruby and FFmpeg define competing RSHIFT macros,
+  * so we move Ruby's out of the way for now. We'll
+@@ -136,6 +151,45 @@
+ /* Deprecated */
+ %template(AudioDeviceInfoVector) std::vector<openshot::AudioDeviceInfo>;
+ 
++%extend openshot::Frame {
++    OpenShotByteBuffer GetPixelsBytes() {
++        OpenShotByteBuffer out = {NULL, 0};
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) return out;
++
++        const int size = img->bytesPerLine() * img->height();
++
++        const unsigned char* p = $self->GetPixels();
++        if (!p || size <= 0) return out;
++
++        out.data = p;
++        out.size = size;
++        return out;
++    }
++
++    OpenShotByteBuffer GetPixelsRowBytes(int row) {
++        OpenShotByteBuffer out = {NULL, 0};
++        std::shared_ptr<QImage> img = $self->GetImage();
++        if (!img) return out;
++
++        if (row < 0 || row >= img->height()) {
++            rb_raise(rb_eIndexError, "row out of range");
++        }
++
++        const unsigned char* p = $self->GetPixels(row);
++        if (!p) return out;
++
++        out.data = p;
++        out.size = img->bytesPerLine();
++        return out;
++    }
++
++    int GetBytesPerLine() {
++        std::shared_ptr<QImage> img = $self->GetImage();
++        return img ? img->bytesPerLine() : 0;
++    }
++}
++
+ %include "OpenShotVersion.h"
+ %include "ReaderBase.h"
+ %include "WriterBase.h"
+
+From 44f92a0387c6728e0335b21af6c35d76725f6cde Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Mon, 2 Feb 2026 21:14:01 -0600
+Subject: [PATCH 4/8] Improving swig to wrap pointers as PyLong_AsVoidPtr - to
+ avoid Android memory addresses overflowing as an int.
+
+---
+ bindings/java/openshot.i   |   4 ++
+ bindings/python/openshot.i | 106 +++++++++++++++++++++++++++++++++++++
+ bindings/ruby/openshot.i   |   5 +-
+ src/Qt/VideoRenderer.cpp   |   2 +-
+ src/Qt/VideoRenderer.h     |   3 +-
+ src/QtPlayer.cpp           |  16 ++++--
+ src/QtPlayer.h             |  14 +++--
+ src/RendererBase.h         |   3 +-
+ tests/CMakeLists.txt       |   1 +
+ tests/QtPlayer.cpp         |  60 +++++++++++++++++++++
+ 10 files changed, 201 insertions(+), 13 deletions(-)
+ create mode 100644 tests/QtPlayer.cpp
+
+diff --git a/bindings/java/openshot.i b/bindings/java/openshot.i
+index ff794ede2..0e41ccf19 100644
+--- a/bindings/java/openshot.i
++++ b/bindings/java/openshot.i
+@@ -27,6 +27,10 @@
+ %include "std_vector.i"
+ %include "std_map.i"
+ %include <stdint.i>
++%apply uint64_t { uintptr_t };
++
++// Ignore QWidget overloads (Qt types are not wrapped in Java bindings)
++%ignore openshot::QtPlayer::SetQWidget(QWidget *);
+ 
+ /* Unhandled STL Exception Handling */
+ %include <std_except.i>
+diff --git a/bindings/python/openshot.i b/bindings/python/openshot.i
+index 0fa1d7880..9771cf29f 100644
+--- a/bindings/python/openshot.i
++++ b/bindings/python/openshot.i
+@@ -27,6 +27,9 @@
+ %include "std_vector.i"
+ %include "std_map.i"
+ %include <stdint.i>
++%apply uint64_t { uintptr_t };
++
++class QWidget;
+ 
+ /* Unhandled STL Exception Handling */
+ %include <std_except.i>
+@@ -34,6 +37,8 @@
+ /* Include shared pointer code */
+ %include <std_shared_ptr.i>
+ 
++%typemap(in) QWidget *;
++
+ /* Mark these classes as shared_ptr classes */
+ #ifdef USE_IMAGEMAGICK
+     %shared_ptr(Magick::Image)
+@@ -98,6 +103,91 @@
+ #include "Timeline.h"
+ #include "Qt/VideoCacheThread.h"
+ #include "ZmqLogger.h"
++#include <QtWidgets/QWidget>
++
++static void *openshot_swig_pylong_as_ptr(PyObject *obj) {
++    if (!obj) {
++        return nullptr;
++    }
++    void *ptr = PyLong_AsVoidPtr(obj);
++    if (PyErr_Occurred()) {
++        PyErr_Clear();
++        return nullptr;
++    }
++    return ptr;
++}
++
++static void *openshot_swig_get_qwidget_ptr(PyObject *obj) {
++    if (!obj || obj == Py_None) {
++        return nullptr;
++    }
++
++    if (PyLong_Check(obj)) {
++        return openshot_swig_pylong_as_ptr(obj);
++    }
++
++    const char *sip_modules[] = {"sip", "PyQt6.sip", "PyQt5.sip"};
++    for (size_t i = 0; i < (sizeof(sip_modules) / sizeof(sip_modules[0])); ++i) {
++        PyObject *mod = PyImport_ImportModule(sip_modules[i]);
++        if (!mod) {
++            PyErr_Clear();
++            continue;
++        }
++        PyObject *unwrap = PyObject_GetAttrString(mod, "unwrapinstance");
++        if (unwrap && PyCallable_Check(unwrap)) {
++            PyObject *addr = PyObject_CallFunctionObjArgs(unwrap, obj, NULL);
++            if (addr) {
++                void *ptr = openshot_swig_pylong_as_ptr(addr);
++                Py_DECREF(addr);
++                if (ptr) {
++                    Py_DECREF(unwrap);
++                    Py_DECREF(mod);
++                    return ptr;
++                }
++            }
++        }
++        Py_XDECREF(unwrap);
++        Py_DECREF(mod);
++    }
++
++    const char *shiboken_modules[] = {"shiboken6", "shiboken2"};
++    for (size_t i = 0; i < (sizeof(shiboken_modules) / sizeof(shiboken_modules[0])); ++i) {
++        PyObject *mod = PyImport_ImportModule(shiboken_modules[i]);
++        if (!mod) {
++            PyErr_Clear();
++            continue;
++        }
++        PyObject *get_ptr = PyObject_GetAttrString(mod, "getCppPointer");
++        if (get_ptr && PyCallable_Check(get_ptr)) {
++            PyObject *ptrs = PyObject_CallFunctionObjArgs(get_ptr, obj, NULL);
++            if (ptrs) {
++                PyObject *addr = ptrs;
++                if (PyTuple_Check(ptrs) && PyTuple_Size(ptrs) > 0) {
++                    addr = PyTuple_GetItem(ptrs, 0);
++                }
++                void *ptr = openshot_swig_pylong_as_ptr(addr);
++                Py_DECREF(ptrs);
++                if (ptr) {
++                    Py_DECREF(get_ptr);
++                    Py_DECREF(mod);
++                    return ptr;
++                }
++            }
++        }
++        Py_XDECREF(get_ptr);
++        Py_DECREF(mod);
++    }
++
++    return nullptr;
++}
++
++static int openshot_swig_is_qwidget(PyObject *obj) {
++    void *ptr = openshot_swig_get_qwidget_ptr(obj);
++    if (ptr) {
++        return 1;
++    }
++    return obj == Py_None ? 1 : 0;
++}
+ 
+ %}
+ 
+@@ -138,6 +228,22 @@
+     }
+ }
+ 
++%typemap(in) QWidget * {
++    void *ptr = openshot_swig_get_qwidget_ptr($input);
++    if (!ptr && $input != Py_None) {
++        SWIG_exception_fail(SWIG_TypeError, "Expected QWidget or Qt binding widget");
++    }
++    $1 = reinterpret_cast<QWidget*>(ptr);
++}
++
++%typemap(typecheck) QWidget * {
++    $1 = openshot_swig_is_qwidget($input);
++}
++
++%typemap(out) uintptr_t openshot::QtPlayer::GetRendererQObject {
++    $result = PyLong_FromVoidPtr(reinterpret_cast<void *>($1));
++}
++
+ 
+ 
+ /* Wrap std templates (list, vector, etc...) */
+diff --git a/bindings/ruby/openshot.i b/bindings/ruby/openshot.i
+index d7f85e117..dc5b54a6a 100644
+--- a/bindings/ruby/openshot.i
++++ b/bindings/ruby/openshot.i
+@@ -27,6 +27,10 @@
+ %include "std_vector.i"
+ %include "std_map.i"
+ %include <stdint.i>
++%apply uint64_t { uintptr_t };
++
++// Ignore QWidget overloads (Qt types are not wrapped in Ruby bindings)
++%ignore openshot::QtPlayer::SetQWidget(QWidget *);
+ 
+ /* Unhandled STL Exception Handling */
+ %include <std_except.i>
+@@ -276,4 +280,3 @@ typedef struct OpenShotByteBuffer {
+ %include "effects/Shift.h"
+ %include "effects/Wave.h"
+ 
+-
+diff --git a/src/Qt/VideoRenderer.cpp b/src/Qt/VideoRenderer.cpp
+index f835d6ec6..ff526e48c 100644
+--- a/src/Qt/VideoRenderer.cpp
++++ b/src/Qt/VideoRenderer.cpp
+@@ -23,7 +23,7 @@ VideoRenderer::~VideoRenderer()
+ }
+ 
+ /// Override QWidget which needs to be painted
+-void VideoRenderer::OverrideWidget(int64_t qwidget_address)
++void VideoRenderer::OverrideWidget(uintptr_t qwidget_address)
+ {
+ 	// re-cast QWidget pointer (long) as an actual QWidget
+ 	override_widget = reinterpret_cast<QWidget*>(qwidget_address);
+diff --git a/src/Qt/VideoRenderer.h b/src/Qt/VideoRenderer.h
+index 21c6d9465..968fb6625 100644
+--- a/src/Qt/VideoRenderer.h
++++ b/src/Qt/VideoRenderer.h
+@@ -14,6 +14,7 @@
+ #define OPENSHOT_VIDEO_RENDERER_H
+ 
+ #include "../RendererBase.h"
++#include <cstdint>
+ #include <QtCore/QObject>
+ #include <QtGui/QImage>
+ #include <memory>
+@@ -30,7 +31,7 @@ class VideoRenderer : public QObject, public openshot::RendererBase
+     ~VideoRenderer();
+ 
+     /// Override QWidget which needs to be painted
+-    void OverrideWidget(int64_t qwidget_address);
++    void OverrideWidget(uintptr_t qwidget_address);
+ 
+ signals:
+ 	void present(const QImage &image);
+diff --git a/src/QtPlayer.cpp b/src/QtPlayer.cpp
+index d015d3a3e..44ab97333 100644
+--- a/src/QtPlayer.cpp
++++ b/src/QtPlayer.cpp
+@@ -211,15 +211,21 @@ namespace openshot
+     	return reader;
+     }
+ 
+-    // Set the QWidget pointer to display the video on (as a LONG pointer id)
+-    void QtPlayer::SetQWidget(int64_t qwidget_address) {
++    // Set the QWidget pointer to display the video on (as a pointer-sized unsigned id)
++    void QtPlayer::SetQWidget(uintptr_t qwidget_address) {
+     	// Update override QWidget address on the video renderer
+     	p->renderer->OverrideWidget(qwidget_address);
+     }
+ 
+-    // Get the Renderer pointer address (for Python to cast back into a QObject)
+-    int64_t QtPlayer::GetRendererQObject() {
+-    	return (int64_t)(VideoRenderer*)p->renderer;
++    // Set the QWidget pointer to display the video on (using a real QWidget pointer)
++    void QtPlayer::SetQWidget(QWidget *widget) {
++    	SetQWidget(reinterpret_cast<uintptr_t>(widget));
++    }
++
++    // Get the Renderer pointer address (for Python to cast back into a VideoRenderer)
++	uintptr_t QtPlayer::GetRendererQObject() {
++    	auto* vr = static_cast<VideoRenderer*>(p->renderer);
++    	return reinterpret_cast<uintptr_t>(vr);
+     }
+ 
+     // Get the Playback speed
+diff --git a/src/QtPlayer.h b/src/QtPlayer.h
+index 2f7ba7698..71c7df2c1 100644
+--- a/src/QtPlayer.h
++++ b/src/QtPlayer.h
+@@ -14,6 +14,7 @@
+ #ifndef OPENSHOT_QT_PLAYER_H
+ #define OPENSHOT_QT_PLAYER_H
+ 
++#include <cstdint>
+ #include <iostream>
+ #include <vector>
+ 
+@@ -21,6 +22,8 @@
+ #include "Qt/PlayerPrivate.h"
+ #include "RendererBase.h"
+ 
++class QWidget;
++
+ namespace openshot
+ {
+ 	using AudioDeviceList = std::vector<std::pair<std::string, std::string>>;
+@@ -82,12 +85,15 @@ namespace openshot
+ 	void SetTimelineSource(const std::string &json);
+ 
+ 	/// Set the QWidget which will be used as the display (note: QLabel works well). This does not take a
+-	/// normal pointer, but rather a LONG pointer id (and it re-casts the QWidget pointer inside libopenshot).
++	/// normal pointer, but rather a pointer-sized unsigned integer (and it re-casts the QWidget pointer inside libopenshot).
+ 	/// This is required due to SIP and SWIG incompatibility in the Python bindings.
+-	void SetQWidget(int64_t qwidget_address);
++	void SetQWidget(uintptr_t qwidget_address);
++
++	/// Set the QWidget which will be used as the display (for SWIG/Python bindings)
++	void SetQWidget(QWidget *widget);
+ 
+-	/// Get the Renderer pointer address (for Python to cast back into a QObject)
+-	int64_t GetRendererQObject();
++	/// Get the Renderer pointer address (for Python to cast back into a VideoRenderer)
++	uintptr_t GetRendererQObject();
+ 
+ 	/// Get the Playback speed
+ 	float Speed();
+diff --git a/src/RendererBase.h b/src/RendererBase.h
+index a7e0363ec..49ed3cc31 100644
+--- a/src/RendererBase.h
++++ b/src/RendererBase.h
+@@ -14,6 +14,7 @@
+ #define OPENSHOT_RENDERER_BASE_H
+ 
+ #include "Frame.h"
++#include <cstdint>
+ #include <cstdlib> // for realloc
+ #include <memory>
+ 
+@@ -35,7 +36,7 @@ namespace openshot
+ 	void paint(const std::shared_ptr<openshot::Frame> & frame);
+ 
+ 	/// Allow manual override of the QWidget that is used to display
+-	virtual void OverrideWidget(int64_t qwidget_address) = 0;
++	virtual void OverrideWidget(uintptr_t qwidget_address) = 0;
+ 
+     protected:
+ 	RendererBase();
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 50d71b3f4..2e7e72ab3 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -42,6 +42,7 @@ set(OPENSHOT_TESTS
+   KeyFrame
+   Point
+   Profiles
++  QtPlayer
+   QtImageReader
+   ReaderBase
+   Settings
+diff --git a/tests/QtPlayer.cpp b/tests/QtPlayer.cpp
+new file mode 100644
+index 000000000..1bc8fd5f6
+--- /dev/null
++++ b/tests/QtPlayer.cpp
+@@ -0,0 +1,60 @@
++/**
++ * @file
++ * @brief Unit tests for openshot::QtPlayer
++ * @author OpenShot Studios, LLC
++ *
++ * @ref License
++ */
++
++// Copyright (c) 2008-2025 OpenShot Studios, LLC
++//
++// SPDX-License-Identifier: LGPL-3.0-or-later
++
++#include "openshot_catch.h"
++
++#include <memory>
++
++#include "QtPlayer.h"
++#include "Qt/VideoRenderer.h"
++
++class QWidget;
++
++namespace {
++class TestRenderer : public openshot::RendererBase
++{
++public:
++	uintptr_t last_widget = 0;
++
++	void OverrideWidget(uintptr_t qwidget_address) override
++	{
++		last_widget = qwidget_address;
++	}
++
++protected:
++	void render(std::shared_ptr<QImage> image) override
++	{
++		(void) image;
++	}
++};
++} // namespace
++
++TEST_CASE("QtPlayer_GetRendererQObject_ReturnsVideoRendererAddress", "[libopenshot][qtplayer]")
++{
++	auto renderer = std::make_unique<VideoRenderer>();
++	openshot::QtPlayer player(renderer.get());
++
++	auto addr = player.GetRendererQObject();
++	CHECK(addr == reinterpret_cast<uintptr_t>(renderer.get()));
++}
++
++TEST_CASE("QtPlayer_SetQWidget_Overload_ForwardsPointer", "[libopenshot][qtplayer]")
++{
++	TestRenderer renderer;
++	openshot::QtPlayer player(&renderer);
++
++	char dummy = 0;
++	auto *widget = reinterpret_cast<QWidget*>(&dummy);
++	player.SetQWidget(widget);
++
++	CHECK(renderer.last_widget == reinterpret_cast<uintptr_t>(widget));
++}
+
+From c7b36d92153d9405ba0f813d19c40a5f16a5448a Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Tue, 3 Feb 2026 11:20:12 -0600
+Subject: [PATCH 5/8] Slight refactor to our Python swig bindings to better
+ support Arm64 pointer address space (required for Android)
+
+---
+ bindings/python/openshot.i | 23 ++++++++++++++++-------
+ src/QtPlayer.cpp           |  9 ++++++++-
+ 2 files changed, 24 insertions(+), 8 deletions(-)
+
+diff --git a/bindings/python/openshot.i b/bindings/python/openshot.i
+index 9771cf29f..ac932de4a 100644
+--- a/bindings/python/openshot.i
++++ b/bindings/python/openshot.i
+@@ -109,12 +109,20 @@ static void *openshot_swig_pylong_as_ptr(PyObject *obj) {
+     if (!obj) {
+         return nullptr;
+     }
+-    void *ptr = PyLong_AsVoidPtr(obj);
+-    if (PyErr_Occurred()) {
+-        PyErr_Clear();
+-        return nullptr;
++
++    unsigned long long ull = PyLong_AsUnsignedLongLong(obj);
++    if (!PyErr_Occurred()) {
++        return reinterpret_cast<void*>(static_cast<uintptr_t>(ull));
++    }
++    PyErr_Clear();
++
++    long long ll = PyLong_AsLongLong(obj);
++    if (!PyErr_Occurred()) {
++        return reinterpret_cast<void*>(static_cast<intptr_t>(ll));
+     }
+-    return ptr;
++    PyErr_Clear();
++
++    return nullptr;
+ }
+ 
+ static void *openshot_swig_get_qwidget_ptr(PyObject *obj) {
+@@ -123,7 +131,8 @@ static void *openshot_swig_get_qwidget_ptr(PyObject *obj) {
+     }
+ 
+     if (PyLong_Check(obj)) {
+-        return openshot_swig_pylong_as_ptr(obj);
++        void *ptr = openshot_swig_pylong_as_ptr(obj);
++        return ptr;
+     }
+ 
+     const char *sip_modules[] = {"sip", "PyQt6.sip", "PyQt5.sip"};
+@@ -241,7 +250,7 @@ static int openshot_swig_is_qwidget(PyObject *obj) {
+ }
+ 
+ %typemap(out) uintptr_t openshot::QtPlayer::GetRendererQObject {
+-    $result = PyLong_FromVoidPtr(reinterpret_cast<void *>($1));
++    $result = PyLong_FromLongLong((long long)(intptr_t)$1);
+ }
+ 
+ 
+diff --git a/src/QtPlayer.cpp b/src/QtPlayer.cpp
+index 44ab97333..174687c93 100644
+--- a/src/QtPlayer.cpp
++++ b/src/QtPlayer.cpp
+@@ -225,7 +225,8 @@ namespace openshot
+     // Get the Renderer pointer address (for Python to cast back into a VideoRenderer)
+ 	uintptr_t QtPlayer::GetRendererQObject() {
+     	auto* vr = static_cast<VideoRenderer*>(p->renderer);
+-    	return reinterpret_cast<uintptr_t>(vr);
++        uintptr_t addr = reinterpret_cast<uintptr_t>(vr);
++    	return addr;
+     }
+ 
+     // Get the Playback speed
+@@ -253,3 +254,9 @@ namespace openshot
+     	volume = new_volume;
+     }
+ }
++#ifdef __ANDROID__
++#include <android/log.h>
++#ifndef ANDROID_LOG_WARN
++#define ANDROID_LOG_WARN 5
++#endif
++#endif
+
+From bc4e41d09caf7ee8202a32708d455735a6e95911 Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Fri, 13 Mar 2026 00:10:29 -0500
+Subject: [PATCH 6/8] Fixing ffmpeg audio channel layout fallback - for Qt6
+ builds on Ubuntu 25.04.
+
+---
+ src/FFmpegReader.cpp  | 33 +++++++++++++++++++--------------
+ src/FFmpegUtilities.h | 24 ++++++++++++++++++++++++
+ src/FFmpegWriter.cpp  | 18 ++++++++++++------
+ src/FrameMapper.cpp   | 17 +++++++++++++++--
+ 4 files changed, 70 insertions(+), 22 deletions(-)
+
+diff --git a/src/FFmpegReader.cpp b/src/FFmpegReader.cpp
+index 5d9e4a9f6..ccc5c6808 100644
+--- a/src/FFmpegReader.cpp
++++ b/src/FFmpegReader.cpp
+@@ -934,8 +934,9 @@ void FFmpegReader::UpdateAudioInfo() {
+ 	// Set default audio channel layout (if needed)
+ #if HAVE_CH_LAYOUT
+ 	if (codec_channels > 0 &&
+-		!av_channel_layout_check(&(AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout)))
+-		AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout = (AVChannelLayout) AV_CHANNEL_LAYOUT_STEREO;
++		!ffmpeg_has_usable_channel_layout(&(AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout))) {
++		AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout = ffmpeg_default_channel_layout(codec_channels);
++	}
+ #else
+ 	if (codec_channels > 0 && AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout == 0)
+ 		AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout = av_get_default_channel_layout(AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channels);
+@@ -2204,20 +2205,24 @@ void FFmpegReader::ProcessAudioPacket(int64_t requested_frame) {
+ 	if (!avr) {
+ 		avr = SWR_ALLOC();
+ #if HAVE_CH_LAYOUT
+-	av_opt_set_chlayout(avr, "in_chlayout", &AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout, 0);
+-	av_opt_set_chlayout(avr, "out_chlayout", &AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout, 0);
++		AVChannelLayout codec_layout = AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->ch_layout;
++		if (!ffmpeg_has_usable_channel_layout(&codec_layout)) {
++			codec_layout = ffmpeg_default_channel_layout(info.channels);
++		}
++		av_opt_set_chlayout(avr, "in_chlayout", &codec_layout, 0);
++		av_opt_set_chlayout(avr, "out_chlayout", &codec_layout, 0);
+ #else
+-	av_opt_set_int(avr, "in_channel_layout", AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout, 0);
+-	av_opt_set_int(avr, "out_channel_layout", AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout, 0);
+-	av_opt_set_int(avr, "in_channels", info.channels, 0);
+-	av_opt_set_int(avr, "out_channels", info.channels, 0);
++		av_opt_set_int(avr, "in_channel_layout", AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout, 0);
++		av_opt_set_int(avr, "out_channel_layout", AV_GET_CODEC_ATTRIBUTES(aStream, aCodecCtx)->channel_layout, 0);
++		av_opt_set_int(avr, "in_channels", info.channels, 0);
++		av_opt_set_int(avr, "out_channels", info.channels, 0);
+ #endif
+-	av_opt_set_int(avr, "in_sample_fmt", AV_GET_SAMPLE_FORMAT(aStream, aCodecCtx), 0);
+-	av_opt_set_int(avr, "out_sample_fmt", AV_SAMPLE_FMT_FLTP, 0);
+-	av_opt_set_int(avr, "in_sample_rate", info.sample_rate, 0);
+-	av_opt_set_int(avr, "out_sample_rate", info.sample_rate, 0);
+-	SWR_INIT(avr);
+-	avr_ctx = avr;
++		av_opt_set_int(avr, "in_sample_fmt", AV_GET_SAMPLE_FORMAT(aStream, aCodecCtx), 0);
++		av_opt_set_int(avr, "out_sample_fmt", AV_SAMPLE_FMT_FLTP, 0);
++		av_opt_set_int(avr, "in_sample_rate", info.sample_rate, 0);
++		av_opt_set_int(avr, "out_sample_rate", info.sample_rate, 0);
++		SWR_INIT(avr);
++		avr_ctx = avr;
+ 	}
+ 
+ 	// Convert audio samples
+diff --git a/src/FFmpegUtilities.h b/src/FFmpegUtilities.h
+index 6e27dc6cb..c00b1d06a 100644
+--- a/src/FFmpegUtilities.h
++++ b/src/FFmpegUtilities.h
+@@ -128,6 +128,30 @@ inline static bool ffmpeg_has_alpha(PixelFormat pix_fmt) {
+     return bool(fmt_desc->flags & AV_PIX_FMT_FLAG_ALPHA);
+ }
+ 
++#if HAVE_CH_LAYOUT
++inline static bool ffmpeg_has_usable_channel_layout(const AVChannelLayout *layout) {
++    if (!layout || layout->nb_channels <= 0 || !av_channel_layout_check(layout)) {
++        return false;
++    }
++
++    if (layout->order == AV_CHANNEL_ORDER_UNSPEC) {
++        return false;
++    }
++
++    if (layout->order == AV_CHANNEL_ORDER_NATIVE && layout->u.mask == 0) {
++        return false;
++    }
++
++    return true;
++}
++
++inline static AVChannelLayout ffmpeg_default_channel_layout(int channels) {
++    AVChannelLayout layout = {};
++    av_channel_layout_default(&layout, channels);
++    return layout;
++}
++#endif
++
+ // FFmpeg's libavutil/common.h defines an RSHIFT incompatible with Ruby's
+ // definition in ruby/config.h, so we move it to FF_RSHIFT
+ #ifdef RSHIFT
+diff --git a/src/FFmpegWriter.cpp b/src/FFmpegWriter.cpp
+index d093e305e..c7d786f0c 100644
+--- a/src/FFmpegWriter.cpp
++++ b/src/FFmpegWriter.cpp
+@@ -1711,10 +1711,14 @@ void FFmpegWriter::write_audio_packets(bool is_final, std::shared_ptr<openshot::
+ 		if (!avr) {
+ 			avr = SWR_ALLOC();
+ #if HAVE_CH_LAYOUT
+-			AVChannelLayout in_chlayout;
+-			AVChannelLayout out_chlayout;
+-			av_channel_layout_from_mask(&in_chlayout, channel_layout_in_frame);
+-			av_channel_layout_from_mask(&out_chlayout, info.channel_layout);
++			AVChannelLayout in_chlayout = ffmpeg_default_channel_layout(channels_in_frame);
++			AVChannelLayout out_chlayout = ffmpeg_default_channel_layout(info.channels);
++			if (channel_layout_in_frame > 0) {
++				av_channel_layout_from_mask(&in_chlayout, channel_layout_in_frame);
++			}
++			if (info.channel_layout > 0) {
++				av_channel_layout_from_mask(&out_chlayout, info.channel_layout);
++			}
+ 			av_opt_set_chlayout(avr, "in_chlayout", &in_chlayout, 0);
+ 			av_opt_set_chlayout(avr, "out_chlayout", &out_chlayout, 0);
+ #else
+@@ -1823,8 +1827,10 @@ void FFmpegWriter::write_audio_packets(bool is_final, std::shared_ptr<openshot::
+ 			if (!avr_planar) {
+ 				avr_planar = SWR_ALLOC();
+ #if HAVE_CH_LAYOUT
+-				AVChannelLayout layout;
+-				av_channel_layout_from_mask(&layout, info.channel_layout);
++				AVChannelLayout layout = ffmpeg_default_channel_layout(info.channels);
++				if (info.channel_layout > 0) {
++					av_channel_layout_from_mask(&layout, info.channel_layout);
++				}
+ 				av_opt_set_chlayout(avr_planar, "in_chlayout", &layout, 0);
+ 				av_opt_set_chlayout(avr_planar, "out_chlayout", &layout, 0);
+ #else
+diff --git a/src/FrameMapper.cpp b/src/FrameMapper.cpp
+index 937f828bf..0d4e3faaf 100644
+--- a/src/FrameMapper.cpp
++++ b/src/FrameMapper.cpp
+@@ -936,14 +936,27 @@ void FrameMapper::ResampleMappedAudio(std::shared_ptr<Frame> frame, int64_t orig
+ 	// setup resample context
+ 	if (!avr) {
+ 		avr = SWR_ALLOC();
++#if HAVE_CH_LAYOUT
++		AVChannelLayout in_chlayout = ffmpeg_default_channel_layout(channels_in_frame);
++		AVChannelLayout out_chlayout = ffmpeg_default_channel_layout(info.channels);
++		if (channel_layout_in_frame > 0) {
++			av_channel_layout_from_mask(&in_chlayout, channel_layout_in_frame);
++		}
++		if (info.channel_layout > 0) {
++			av_channel_layout_from_mask(&out_chlayout, info.channel_layout);
++		}
++		av_opt_set_chlayout(avr, "in_chlayout", &in_chlayout, 0);
++		av_opt_set_chlayout(avr, "out_chlayout", &out_chlayout, 0);
++#else
+ 		av_opt_set_int(avr, "in_channel_layout",  channel_layout_in_frame, 0);
+ 		av_opt_set_int(avr, "out_channel_layout", info.channel_layout,	 0);
++		av_opt_set_int(avr, "in_channels",		channels_in_frame,	   0);
++		av_opt_set_int(avr, "out_channels",	   info.channels,		   0);
++#endif
+ 		av_opt_set_int(avr, "in_sample_fmt",	  AV_SAMPLE_FMT_S16,	   0);
+ 		av_opt_set_int(avr, "out_sample_fmt",	 AV_SAMPLE_FMT_S16,	   0);
+ 		av_opt_set_int(avr, "in_sample_rate",	 sample_rate_in_frame,	0);
+ 		av_opt_set_int(avr, "out_sample_rate",	info.sample_rate,		0);
+-		av_opt_set_int(avr, "in_channels",		channels_in_frame,	   0);
+-		av_opt_set_int(avr, "out_channels",	   info.channels,		   0);
+ 		SWR_INIT(avr);
+ 	}
+ 
+
+From 1141745fe14a447ad5524251f0feb4f18e334e78 Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Fri, 10 Apr 2026 23:20:05 -0500
+Subject: [PATCH 7/8] When compiling without RESVG support, use QSvgRenderer
+ instead of QIcon/QPixmap for SVG rendering.
+
+---
+ src/QtImageReader.cpp | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/src/QtImageReader.cpp b/src/QtImageReader.cpp
+index b5573f1dc..95b09a381 100644
+--- a/src/QtImageReader.cpp
++++ b/src/QtImageReader.cpp
+@@ -24,6 +24,9 @@
+ #include <QPainter>
+ #include <QIcon>
+ #include <QImageReader>
++#if USE_RESVG != 1
++#include <QSvgRenderer>
++#endif
+ 
+ using namespace openshot;
+ 
+@@ -318,9 +321,26 @@ QSize QtImageReader::load_svg_path(QString) {
+                 QSize svg_size = image->size().scaled(
+                                  current_max_size, Qt::KeepAspectRatio);
+                 if (QCoreApplication::instance()) {
+-                    // Requires QApplication to be running (for QPixmap support)
+-                    // Re-rasterize SVG image to max size
+-                    image = std::make_shared<QImage>(QIcon(path).pixmap(svg_size).toImage());
++#if USE_RESVG != 1
++                    // Re-rasterize SVG directly into a QImage at the target size,
++                    // instead of routing through QIcon/QPixmap which can apply
++                    // device-pixel-ratio behavior we do not want in timeline frames.
++                    QSvgRenderer renderer(path);
++                    if (renderer.isValid()) {
++                        image = std::make_shared<QImage>(
++                            svg_size, QImage::Format_RGBA8888_Premultiplied);
++                        image->fill(Qt::transparent);
++                        QPainter p(image.get());
++                        renderer.render(&p);
++                        p.end();
++                    } else {
++                        image = std::make_shared<QImage>(image->scaled(
++                                svg_size, Qt::KeepAspectRatio, Qt::SmoothTransformation));
++                    }
++#else
++                    image = std::make_shared<QImage>(image->scaled(
++                            svg_size, Qt::KeepAspectRatio, Qt::SmoothTransformation));
++#endif
+                 } else {
+                     // Scale image without re-rasterizing it (due to lack of QApplication)
+                     image = std::make_shared<QImage>(image->scaled(
+
+From 7ae7362aa981c36139c0352dad5f9cfa07f8e56e Mon Sep 17 00:00:00 2001
+From: Jonathan Thomas <jonathan@openshot.org>
+Date: Mon, 13 Apr 2026 18:34:11 -0500
+Subject: [PATCH 8/8] Adding new override widget method for Android video
+ renderer display support - works differently than our desktop support.
+
+---
+ src/Qt/VideoRenderer.cpp | 34 +++++++++++++++++++++++++++-------
+ src/Qt/VideoRenderer.h   |  7 +++++--
+ 2 files changed, 32 insertions(+), 9 deletions(-)
+
+diff --git a/src/Qt/VideoRenderer.cpp b/src/Qt/VideoRenderer.cpp
+index ff526e48c..fdedcdb38 100644
+--- a/src/Qt/VideoRenderer.cpp
++++ b/src/Qt/VideoRenderer.cpp
+@@ -11,10 +11,11 @@
+ // SPDX-License-Identifier: LGPL-3.0-or-later
+ 
+ #include "VideoRenderer.h"
+-
++#include <QtCore/QMetaObject>
++#include <QtWidgets/QWidget>
+ 
+ VideoRenderer::VideoRenderer(QObject *parent)
+-    : QObject(parent)
++    : QObject(parent), override_widget(nullptr)
+ {
+ }
+ 
+@@ -25,13 +26,32 @@ VideoRenderer::~VideoRenderer()
+ /// Override QWidget which needs to be painted
+ void VideoRenderer::OverrideWidget(uintptr_t qwidget_address)
+ {
+-	// re-cast QWidget pointer (long) as an actual QWidget
+-	override_widget = reinterpret_cast<QWidget*>(qwidget_address);
+-
++    if (override_present_connection)
++        QObject::disconnect(override_present_connection);
++
++    // re-cast QWidget pointer (long) as an actual QWidget
++    override_widget = reinterpret_cast<QWidget*>(qwidget_address);
++    if (!override_widget)
++        return;
++
++    override_present_connection = QObject::connect(
++        this, &VideoRenderer::present,
++        override_widget,
++        [widget = override_widget](const QImage &image) {
++            QMetaObject::invokeMethod(
++                widget, "present",
++                Qt::DirectConnection,
++                Q_ARG(QImage, image)
++            );
++        },
++        Qt::QueuedConnection
++    );
+ }
+ 
+ void VideoRenderer::render(std::shared_ptr<QImage> image)
+ {
+-    if (image)
+-        emit present(*image);
++    if (!image)
++        return;
++
++    emit present(*image);
+ }
+diff --git a/src/Qt/VideoRenderer.h b/src/Qt/VideoRenderer.h
+index 968fb6625..1bdbdc893 100644
+--- a/src/Qt/VideoRenderer.h
++++ b/src/Qt/VideoRenderer.h
+@@ -15,12 +15,14 @@
+ 
+ #include "../RendererBase.h"
+ #include <cstdint>
++#include <QtCore/QMetaObject>
+ #include <QtCore/QObject>
+ #include <QtGui/QImage>
+ #include <memory>
+ 
+ 
+ class QPainter;
++class QWidget;
+ 
+ class VideoRenderer : public QObject, public openshot::RendererBase
+ {
+@@ -34,7 +36,7 @@ class VideoRenderer : public QObject, public openshot::RendererBase
+     void OverrideWidget(uintptr_t qwidget_address);
+ 
+ signals:
+-	void present(const QImage &image);
++    void present(const QImage &image);
+ 
+ protected:
+     //void render(openshot::OSPixelFormat format, int width, int height, int bytesPerLine, unsigned char *data);
+@@ -43,7 +45,8 @@ class VideoRenderer : public QObject, public openshot::RendererBase
+ private slots:
+ 
+ private:
+-	QWidget* override_widget;
++    QWidget* override_widget;
++    QMetaObject::Connection override_present_connection;
+ };
+ 
+ #endif //OPENSHOT_VIDEO_RENDERER_H

@@ -55,7 +55,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-protobuf-cxx17.patch"
+	"${FILESDIR}/${PN}-0.7.0-qt6-pr1027.patch"
 )
 
 pkg_setup() {
@@ -66,6 +66,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DENABLE_RUBY=OFF
 		-DUSE_SYSTEM_JSONCPP=ON
+		-DUSE_QT6=ON
 		-DPYTHON_EXECUTABLE="${PYTHON}"
 	)
 
