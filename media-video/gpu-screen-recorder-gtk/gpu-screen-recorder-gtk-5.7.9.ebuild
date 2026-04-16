@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit meson xdg-utils
+inherit meson xdg
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
