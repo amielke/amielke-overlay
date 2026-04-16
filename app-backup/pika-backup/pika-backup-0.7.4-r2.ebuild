@@ -379,8 +379,8 @@ src_prepare() {
 	sed -i -e "/subdir('src')/d" "${S}/meson.build" || die
 
 	sed -i \
-		-e '69s#let json: List = borg\.output(&self\.communication)\.await?#let json: List = borg.output::<_, ()>(&self.communication).await?#' \
-		-e '105s#borg_call\.output(&self\.communication)\.await?#borg_call.output::<_, ()>(&self.communication).await?#' \
+		-e '69c\        let json: List = borg.output::<_, List>(&self.communication).await?;' \
+		-e '105c\        borg_call.output::<_, ()>(&self.communication).await?;' \
 		"${S}/src/borg/functions.rs" || die
 
 	default
