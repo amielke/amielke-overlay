@@ -1,0 +1,11 @@
+--- a/src/borg/functions.rs
++++ b/src/borg/functions.rs
+@@ -102,7 +102,7 @@
+     async fn run(self) -> Result<PruneInfo> {
+         let mut borg_call = BorgCall::new("prune", &self.config);
+         borg_call.add_options(self.prune_options());
+-        borg_call.output(&self.communication).await?;
++        borg_call.output::<_, ()>(&self.communication).await?;
+ 
+         Ok(PruneInfo {
+             stats: self.communication.status().await?.stats.clone(),
