@@ -81,6 +81,14 @@ src_install() {
 		mv "${ED}/usr/share/doc/${MY_PN}" "${ED}/usr/share/doc/${PF}" || die
 	fi
 
+	if [[ -d "${ED}/usr/share/doc/${PN}" ]]; then
+		rm -r "${ED}/usr/share/doc/${PN}" || die
+	fi
+
+	if [[ -f "${ED}/usr/share/doc/${PF}/changelog.gz" ]]; then
+		gzip -d "${ED}/usr/share/doc/${PF}/changelog.gz" || die
+	fi
+
 	if [[ -d "${ED}/usr/share/appdata" ]]; then
 		mv "${ED}/usr/share/appdata" "${ED}/usr/share/metainfo" || die
 	fi
@@ -91,10 +99,6 @@ src_install() {
 
 	if [[ -d "${ED}${BRAVE_HOME}/cron" ]]; then
 		rm -r "${ED}${BRAVE_HOME}/cron" || die
-	fi
-
-	if [[ -f "${ED}/usr/share/doc/${PF}/changelog.gz" ]]; then
-		gzip -d "${ED}/usr/share/doc/${PF}/changelog.gz" || die
 	fi
 
 	if [[ -f "${ED}/usr/share/man/man1/${MY_PN}.1.gz" ]]; then
