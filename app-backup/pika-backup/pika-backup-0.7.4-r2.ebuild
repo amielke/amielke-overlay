@@ -379,7 +379,7 @@ src_prepare() {
 	sed -i -e "/subdir('src')/d" "${S}/meson.build" || die
 
 	sed -i \
-		-e '105s/\.output(&self\.communication)\.await?/\.output::<_, ()>(&self.communication)\.await?/' \
+		-e 's/\.output(&self\.communication)\.await?/\.output::<_, ()>(&self.communication)\.await?/g' \
 		"${S}/src/borg/functions.rs" || die
 
 	default
