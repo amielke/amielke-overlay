@@ -335,8 +335,7 @@ SRC_URI="
 	${CARGO_CRATE_URIS}
 "
 
-LICENSE="GPL-3"
-LICENSE+="
+LICENSE="GPL-3
 	Apache-2.0
 	Apache-2.0-with-LLVM-exceptions
 	BSD
@@ -368,10 +367,6 @@ BDEPEND="
 	sys-devel/gettext
 "
 
-PATCHES=(
-	"${FILESDIR}/${P}-rust-1.93-never-type-fallback.patch"
-)
-
 QA_FLAGS_IGNORED="usr/bin/${PN} usr/bin/${PN}-monitor"
 
 pkg_setup() {
@@ -382,6 +377,11 @@ pkg_setup() {
 src_prepare() {
 	mv -T "${WORKDIR}/${PN}-v${PV}"* "${S}" || die
 	sed -i -e "/subdir('src')/d" "${S}/meson.build" || die
+
+	sed -i \
+		-e '105s/\.output(&self\.communication)\.await?/\.output::<_, ()>(&self.communication)\.await?/' \
+		"${S}/src/borg/functions.rs" || die
+
 	default
 }
 
