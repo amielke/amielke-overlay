@@ -62,7 +62,7 @@ RDEPEND="
 "
 
 QA_PREBUILT="*"
-QA_DESKTOP_FILE="usr/share/applications/brave-browser.*\\.desktop"
+QA_DESKTOP_FILE="usr/share/applications/brave-browser.*\.desktop"
 
 BRAVE_HOME="/opt/brave.com/brave"
 
@@ -77,33 +77,53 @@ src_unpack() {
 src_install() {
 	cp -a "${WORKDIR}"/. "${ED}" || die
 
-	mv "${ED}/usr/share/doc/${PN}" "${ED}/usr/share/doc/${PF}" || die
+	if [[ -d "${ED}/usr/share/doc/${MY_PN}" ]]; then
+		mv "${ED}/usr/share/doc/${MY_PN}" "${ED}/usr/share/doc/${PF}" || die
+	fi
 
-	rm -r "${ED}/etc/cron.daily" || die
-	rm -r "${ED}${BRAVE_HOME}/cron" || die
+	if [[ -d "${ED}/usr/share/appdata" ]]; then
+		mv "${ED}/usr/share/appdata" "${ED}/usr/share/metainfo" || die
+	fi
 
-	[[ -f "${ED}/usr/share/doc/${PF}/changelog.gz" ]] &&
+	if [[ -d "${ED}/etc/cron.daily" ]]; then
+		rm -r "${ED}/etc/cron.daily" || die
+	fi
+
+	if [[ -d "${ED}${BRAVE_HOME}/cron" ]]; then
+		rm -r "${ED}${BRAVE_HOME}/cron" || die
+	fi
+
+	if [[ -f "${ED}/usr/share/doc/${PF}/changelog.gz" ]]; then
 		gzip -d "${ED}/usr/share/doc/${PF}/changelog.gz" || die
+	fi
 
-	[[ -f "${ED}/usr/share/man/man1/${MY_PN}.1.gz" ]] &&
+	if [[ -f "${ED}/usr/share/man/man1/${MY_PN}.1.gz" ]]; then
 		gzip -d "${ED}/usr/share/man/man1/${MY_PN}.1.gz" || die
+	fi
 
 	if [[ -L "${ED}/usr/share/man/man1/${PN}.1.gz" ]]; then
 		rm "${ED}/usr/share/man/man1/${PN}.1.gz" || die
 		dosym "${MY_PN}.1" "/usr/share/man/man1/${PN}.1"
 	fi
 
-	pushd "${ED}${BRAVE_HOME}/locales" > /dev/null || die
-	chromium_remove_language_paks
-	popd > /dev/null || die
+	if [[ -d "${ED}${BRAVE_HOME}/locales" ]]; then
+		pushd "${ED}${BRAVE_HOME}/locales" > /dev/null || die
+		chromium_remove_language_paks
+		popd > /dev/null || die
+	fi
 
-	pushd "${ED}${BRAVE_HOME}/resources/brave_extension/_locales" > /dev/null || die
-	brave_remove_language_dirs
-	popd > /dev/null || die
+	if [[ -d "${ED}${BRAVE_HOME}/resources/brave_extension/_locales" ]]; then
+		pushd "${ED}${BRAVE_HOME}/resources/brave_extension/_locales" > /dev/null || die
+		brave_remove_language_dirs
+		popd > /dev/null || die
+	fi
 
-	[[ -e "${ED}${BRAVE_HOME}/libqt5_shim.so" ]] && rm "${ED}${BRAVE_HOME}/libqt5_shim.so" || die
-	if ! use qt6; then
-		[[ -e "${ED}${BRAVE_HOME}/libqt6_shim.so" ]] && rm "${ED}${BRAVE_HOME}/libqt6_shim.so" || die
+	if [[ -e "${ED}${BRAVE_HOME}/libqt5_shim.so" ]]; then
+		rm "${ED}${BRAVE_HOME}/libqt5_shim.so" || die
+	fi
+
+	if ! use qt6 && [[ -e "${ED}${BRAVE_HOME}/libqt6_shim.so" ]]; then
+		rm "${ED}${BRAVE_HOME}/libqt6_shim.so" || die
 	fi
 
 	local size icon_installed=0
