@@ -1,5 +1,5 @@
---- /tmp/c11threads.h.orig	2026-04-19 00:30:03.038445115 +0200
-+++ /tmp/c11threads.h.new	2026-04-19 00:30:03.069844680 +0200
+--- a/include/the_Foundation/c11threads.h	2026-04-19 00:30:03.038445115 +0200
++++ b/include/the_Foundation/c11threads.h	2026-04-19 00:30:03.069844680 +0200
 @@ -31,7 +31,12 @@
  typedef pthread_mutex_t mtx_t;
  typedef pthread_cond_t cnd_t;
@@ -23,8 +23,8 @@
  
  iEndPublic
  
---- /tmp/c11threads.c.orig	2026-04-19 00:30:03.041073068 +0200
-+++ /tmp/c11threads.c.new	2026-04-19 00:30:03.069936752 +0200
+--- a/src/c11threads.c	2026-04-19 00:30:03.041073068 +0200
++++ b/src/c11threads.c	2026-04-19 00:30:03.069936752 +0200
 @@ -35,7 +35,9 @@
  #endif
  #include <time.h>
@@ -44,8 +44,8 @@
      pthread_once(flag, func);
  }
 +#endif
---- /tmp/string.c.orig	2026-04-19 00:30:03.043229412 +0200
-+++ /tmp/string.c.new	2026-04-19 00:30:03.070124145 +0200
+--- a/src/string.c	2026-04-19 00:30:03.043229412 +0200
++++ b/src/string.c	2026-04-19 00:30:03.070124145 +0200
 @@ -1196,7 +1196,7 @@
  #if defined(iHaveC11Threads)
      static once_flag inited = ONCE_FLAG_INIT;
