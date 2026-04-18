@@ -1,6 +1,6 @@
---- a/include/the_Foundation/c11threads.h
-+++ b/include/the_Foundation/c11threads.h
-@@ -31,7 +31,10 @@ typedef pthread_t thrd_t;
+--- /tmp/c11threads.h.orig	2026-04-19 00:30:03.038445115 +0200
++++ /tmp/c11threads.h.new	2026-04-19 00:30:03.069844680 +0200
+@@ -31,7 +31,12 @@
  typedef pthread_mutex_t mtx_t;
  typedef pthread_cond_t cnd_t;
  typedef pthread_key_t tss_t;
@@ -13,7 +13,7 @@
  
  typedef int (*thrd_start_t)(void*);
  typedef void (*tss_dtor_t)(void*);
-@@ -92,7 +95,9 @@ void *tss_get(tss_t key);
+@@ -90,7 +95,9 @@
  
  /* ---- misc ---- */
  
@@ -23,8 +23,8 @@
  
  iEndPublic
  
---- a/src/c11threads.c
-+++ b/src/c11threads.c
+--- /tmp/c11threads.c.orig	2026-04-19 00:30:03.041073068 +0200
++++ /tmp/c11threads.c.new	2026-04-19 00:30:03.069936752 +0200
 @@ -35,7 +35,9 @@
  #endif
  #include <time.h>
@@ -35,7 +35,7 @@
  
  #ifdef C11THREADS_NO_TIMED_MUTEX
  #  define PTHREAD_MUTEX_TIMED_NP PTHREAD_MUTEX_NORMAL
-@@ -184,7 +186,9 @@ int tss_set(tss_t key, void *val) {
+@@ -184,6 +186,8 @@
  
  void *tss_get(tss_t key) { return pthread_getspecific(key); }
  
@@ -44,11 +44,14 @@
      pthread_once(flag, func);
  }
 +#endif
---- a/src/string.c
-+++ b/src/string.c
-@@ -1196,7 +1196,7 @@ static iThreadStorage *threadLocalCharBuffer_(void) {
+--- /tmp/string.c.orig	2026-04-19 00:30:03.043229412 +0200
++++ /tmp/string.c.new	2026-04-19 00:30:03.070124145 +0200
+@@ -1196,7 +1196,7 @@
+ #if defined(iHaveC11Threads)
+     static once_flag inited = ONCE_FLAG_INIT;
+ #else
 -    static once_flag inited = PTHREAD_ONCE_INIT;
 +    static once_flag inited = ONCE_FLAG_INIT;
+ #endif
      call_once(&inited, &bufKeyInit);
-     return tss_get(bufKey_);
- }
+ 
