@@ -5,25 +5,53 @@
  typedef pthread_cond_t cnd_t;
  typedef pthread_key_t tss_t;
 +#ifndef __once_flag_defined
++#ifndef ONCE_FLAG_INIT
 +#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
- typedef pthread_once_t once_flag;
 +#endif
-
+ typedef pthread_once_t once_flag;
+ #endif
+ 
  typedef int (*thrd_start_t)(void*);
- typedef void (*tss_dtor_t)(void*);
 @@ -90,7 +93,9 @@
-
+ 
  /* ---- misc ---- */
-
+ 
 +#ifndef __once_flag_defined
  void call_once(once_flag *flag, void (*func)(void));
 +#endif
-
+ 
  iEndPublic
-
+ 
+--- a/src/c11threads.c
++++ b/src/c11threads.c
+@@ -35,7 +35,9 @@
+ #include <errno.h>
+ #include <unistd.h>
+ 
++#ifndef __once_flag_defined
+ #define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
++#endif
+ 
+ int thrd_create(thrd_t *thr, thrd_start_t func, void *arg) {
+     return pthread_create(thr, NULL, (void *(*)(void *)) func, arg) == 0 ?
+@@ -184,9 +186,11 @@
+     return pthread_setspecific(key, val) == 0 ? thrd_success : thrd_error;
+ }
+ 
++#ifndef __once_flag_defined
+ void call_once(once_flag *flag, void (*func)(void)) {
+     pthread_once(flag, func);
+ }
++#endif
+ 
+ static pthread_mutex_t threadMutex_ = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_key_t threadResult_;
 --- a/src/string.c
 +++ b/src/string.c
-@@ -1199,3 +1199,3 @@ static iThreadStorage *threadLocalCharBuffer_(void) {
+@@ -1197,7 +1197,7 @@
+ static iThreadStorage *threadLocalCharBuffer_(void) {
 -    static once_flag inited = PTHREAD_ONCE_INIT;
 +    static once_flag inited = ONCE_FLAG_INIT;
-     call_once(&inited, initThreadLocalCharBuffer_);
+     call_once(&inited, &bufKeyInit);
+     return tss_get(bufKey_);
+ }
