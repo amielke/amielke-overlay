@@ -1,24 +1,33 @@
 --- a/include/the_Foundation/c11threads.h
 +++ b/include/the_Foundation/c11threads.h
-@@ -31,7 +31,9 @@
+@@ -30,13 +30,17 @@
+ #include <threads.h>
+ #else
  #include <pthread.h>
-
 -#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 +#ifndef __once_flag_defined
-+#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
++#	define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 +#endif
 
  typedef pthread_cond_t cnd_t;
  typedef pthread_t thrd_t;
-@@ -31,7 +33,9 @@
  typedef pthread_key_t tss_t;
  typedef pthread_mutex_t mtx_t;
 +#ifndef __once_flag_defined
  typedef pthread_once_t once_flag;
 +#endif
 
- /* ... */
-
+ enum {
+     mtx_plain     = 0,
+@@ -90,9 +94,11 @@
+ int mtx_timedlock(mtx_t *mtx, const struct timespec *ts);
+ int mtx_trylock(mtx_t *mtx);
+ int mtx_unlock(mtx_t *mtx);
 +#ifndef __once_flag_defined
- void call_once(once_flag *flag, void (*func)(void));
+ static inline void call_once(once_flag *flag, void (*func)(void)) {
+     pthread_once(flag, func);
+ }
 +#endif
+ int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
+ thrd_t thrd_current(void);
+ int thrd_detach(thrd_t thr);
