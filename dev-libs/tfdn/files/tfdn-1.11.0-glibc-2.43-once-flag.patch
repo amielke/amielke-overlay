@@ -8,25 +8,22 @@
 +#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
  typedef pthread_once_t once_flag;
 +#endif
- 
+
  typedef int (*thrd_start_t)(void*);
  typedef void (*tss_dtor_t)(void*);
 @@ -90,7 +93,9 @@
- 
+
  /* ---- misc ---- */
- 
+
 +#ifndef __once_flag_defined
  void call_once(once_flag *flag, void (*func)(void));
 +#endif
- 
+
  iEndPublic
- 
+
 --- a/src/string.c
 +++ b/src/string.c
-@@ -1198,5 +1198,5 @@
- static iThreadStorage *threadLocalCharBuffer_(void) {
+@@ -1199,3 +1199,3 @@ static iThreadStorage *threadLocalCharBuffer_(void) {
 -    static once_flag inited = PTHREAD_ONCE_INIT;
 +    static once_flag inited = ONCE_FLAG_INIT;
      call_once(&inited, initThreadLocalCharBuffer_);
-     return threadLocalCharBuffer_;
- }
