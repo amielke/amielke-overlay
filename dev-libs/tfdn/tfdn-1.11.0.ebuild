@@ -19,6 +19,10 @@ SLOT="0/1.11"
 KEYWORDS="~amd64 ~x86"
 IUSE="cpu_flags_x86_sse4_1 curl debug ssl"
 
+PATCHES=(
+	"${FILESDIR}"/tfdn-1.11.0-glibc-2.43-once-flag.patch
+)
+
 DEPEND="
 	dev-libs/libpcre2:=
 	dev-libs/libunistring:=
@@ -27,6 +31,10 @@ DEPEND="
 	ssl? ( dev-libs/openssl:= )
 "
 RDEPEND="${DEPEND}"
+
+src_prepare() {
+	cmake_src_prepare
+}
 
 src_configure() {
 	local mycmakeargs=(
