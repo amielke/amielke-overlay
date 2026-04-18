@@ -1,17 +1,22 @@
 --- a/include/the_Foundation/c11threads.h
 +++ b/include/the_Foundation/c11threads.h
-@@ -27,7 +27,9 @@
+@@ -24,12 +24,16 @@
+ #endif
+ 
+ /* types */
  typedef pthread_t thrd_t;
  typedef pthread_mutex_t mtx_t;
  typedef pthread_cond_t cnd_t;
  typedef pthread_key_t tss_t;
 +#ifndef __once_flag_defined
  typedef pthread_once_t once_flag;
++#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 +#endif
  
  typedef int (*thrd_start_t)(void*);
  typedef void (*tss_dtor_t)(void*);
-@@ -83,7 +85,9 @@
+ 
+@@ -83,7 +87,9 @@
  void *tss_get(tss_t key);
  
  /* ---- misc ---- */
@@ -21,3 +26,12 @@
 +#endif
  
  iEndPublic
+--- a/src/string.c
++++ b/src/string.c
+@@ -1196,7 +1196,7 @@
+ static iThreadStorage *threadLocalCharBuffer_(void) {
+-    static once_flag inited = PTHREAD_ONCE_INIT;
++    static once_flag inited = ONCE_FLAG_INIT;
+     call_once(&inited, initThreadLocalCharBuffer_);
+     return threadLocalCharBuffer_;
+ }
