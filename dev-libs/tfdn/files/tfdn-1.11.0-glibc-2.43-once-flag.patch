@@ -1,7 +1,6 @@
 --- a/include/the_Foundation/c11threads.h
 +++ b/include/the_Foundation/c11threads.h
-@@ -26,12 +26,16 @@
- /* types */
+@@ -27,7 +27,9 @@
  typedef pthread_t thrd_t;
  typedef pthread_mutex_t mtx_t;
  typedef pthread_cond_t cnd_t;
@@ -9,19 +8,16 @@
 +#ifndef __once_flag_defined
  typedef pthread_once_t once_flag;
 +#endif
-
+ 
  typedef int (*thrd_start_t)(void*);
  typedef void (*tss_dtor_t)(void*);
-
- enum {
- 	mtx_plain		= 0,
-@@ -82,7 +86,9 @@
+@@ -83,7 +85,9 @@
  void *tss_get(tss_t key);
-
+ 
  /* ---- misc ---- */
-
+ 
 +#ifndef __once_flag_defined
  void call_once(once_flag *flag, void (*func)(void));
 +#endif
-
+ 
  iEndPublic
