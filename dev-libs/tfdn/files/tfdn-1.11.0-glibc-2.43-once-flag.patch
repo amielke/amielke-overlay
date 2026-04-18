@@ -1,33 +1,27 @@
 --- a/include/the_Foundation/c11threads.h
 +++ b/include/the_Foundation/c11threads.h
-@@ -30,13 +30,17 @@
- #include <threads.h>
- #else
- #include <pthread.h>
--#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
-+#ifndef __once_flag_defined
-+#	define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
-+#endif
-
- typedef pthread_cond_t cnd_t;
+@@ -26,12 +26,16 @@
+ /* types */
  typedef pthread_t thrd_t;
- typedef pthread_key_t tss_t;
  typedef pthread_mutex_t mtx_t;
+ typedef pthread_cond_t cnd_t;
+ typedef pthread_key_t tss_t;
 +#ifndef __once_flag_defined
  typedef pthread_once_t once_flag;
 +#endif
 
+ typedef int (*thrd_start_t)(void*);
+ typedef void (*tss_dtor_t)(void*);
+
  enum {
-     mtx_plain     = 0,
-@@ -90,9 +94,11 @@
- int mtx_timedlock(mtx_t *mtx, const struct timespec *ts);
- int mtx_trylock(mtx_t *mtx);
- int mtx_unlock(mtx_t *mtx);
+ 	mtx_plain		= 0,
+@@ -82,7 +86,9 @@
+ void *tss_get(tss_t key);
+
+ /* ---- misc ---- */
+
 +#ifndef __once_flag_defined
- static inline void call_once(once_flag *flag, void (*func)(void)) {
-     pthread_once(flag, func);
- }
+ void call_once(once_flag *flag, void (*func)(void));
 +#endif
- int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
- thrd_t thrd_current(void);
- int thrd_detach(thrd_t thr);
+
+ iEndPublic
